@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Research - UPG Insights</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/font/MaterialIcons.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="upload-styles.css">
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <span class="material-symbols-outlined">
+                insights
+            </span>
+            <span id="site-name">UPG Insights</span>
+        </div>
+
+        <nav id="main-nav">
+            <div class="nav-item" onclick="window.location = 'index.html'">Home</div>
+            <a href="upload.html" class="upload-btn active">
+                <span class="material-symbols-outlined">
+                    cloud_upload
+                </span>
+                Upload Research
+            </a>
+            <button class="settings-btn">
+                <span class="material-symbols-outlined">
+                    settings
+                </span>
+            </button>
+        </nav>
+    </header>
+
+    <main class="upload-container">
+        <h1 class="upload-title">Upload insights research</h1>
+        
+        <div class="upload-steps">
+            <section class="upload-step">
+                <h2 class="step-title">Choose people group to update</h2>
+                
+                    <div class="input-group">
+                        <div class="select-wrapper">
+                            <select id="upg-select" class="upg-select">
+                                <option value="">Select UPG</option>
+                                <option value="tharu">Tharu</option>
+                                <option value="sherpa">Sherpa</option>
+                                <option value="tamang">Tamang</option>
+                                <option value="gurung">Gurung</option>
+                                <option value="magar">Magar</option>
+                                <option value="bhutia">Bhutia</option>
+                                <option value="rai">Rai</option>
+                                <option value="limbu">Limbu</option>
+                            </select>
+                        </div>
+                        <button id="update-btn" class="go-btn">
+                            <span class="material-symbols-outlined">cloud_upload</span>
+                            Update
+                        </button>
+                    </div>
+            </section>
+
+            <section class="upload-step upload-explanation">
+                <h2 class="step-title">How your data updates work</h2>
+                
+                <div class="explanation-content">
+                    <p>When you update research data through this interface, it adds the data from the Google Sheets where the research has been added. It then becomes immediately available across the UPG Insights platform. The data you contribute helps missionaries, researchers, and field workers better understand unreached people groups and their needs.</p>
+                    
+                    <div class="explanation-cards">
+                        <div class="explanation-card">
+                            <div class="card-icon">
+                                <span class="material-symbols-outlined">diversity_3</span>
+                            </div>
+                            <h3>People Group Profile</h3>
+                            <p>Demographics, language information, and cultural data help build comprehensive profiles of each people group.</p>
+                        </div>
+                        
+                        <div class="explanation-card">
+                            <span class="material-symbols-outlined">query_stats</span>
+                            <h3>Research Insights</h3>
+                            <p>Quiz results and hypothesis tests provide valuable information about beliefs, behaviors, and receptivity among different people groups.</p>
+                        </div>
+                        
+                        <div class="explanation-card">
+                            <span class="material-symbols-outlined">campaign</span>
+                            <h3>Campaign Effectiveness</h3>
+                            <p>Campaign data helps track which approaches are most effective for each people group, optimizing outreach strategies.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="data-security">
+                        <h3>Data Security & Privacy</h3>
+                        <p>All uploaded data is securely stored and only accessible to authorized users. Personal identifying information should never be uploaded to maintain the privacy and security of individuals.</p>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="data.js"></script>
+    <script src="scripts.js"></script>
+    <script src="upload.js"></script>
+</body>
+
+</html>
