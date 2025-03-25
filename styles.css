@@ -355,6 +355,10 @@ nav {
     font-size: 12px;
 }
 
+#site-name {
+    color: black;
+}
+
 .map-container {
     width: 100%;
     height: 360px;
@@ -371,7 +375,9 @@ nav {
     width: 100%;
     height: 100%;
     object-fit: contain;
-    transition: transform 0.5s ease;
+    transition: all 0.5s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.51);
+    border-radius: 8px;
 }
 
 .map-container:hover img {

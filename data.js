@@ -1,9 +1,9 @@
 // All website data stored as JavaScript objects
 const websiteData = {
     // Navigation and site info
-    siteName: "Insights",
+    siteName: "UPG Insights",
     navigation: [
-        { name: "Home", url: "index.html", active: true }
+        { name: "Home", url: "index.html", active: window.location.pathname === "/index.html" },
     ],
 
     // Search filters
@@ -52,7 +52,8 @@ const websiteData = {
     // Section data for Tharu people group
     tharu: {
         name: "Tharu",
-        mapImage: "https://www.alol.pl/dotmap/worldmap/big/dot/big/red/-33.8481647/150.7918937/ulovj2uj.png",
+        mapImage: "https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=560&height=360&center=lonlat:15,35&zoom=0.15&styleCustomization=background:%23e2e2e2|water-offset:none|water:%23ffffff|water-pattern:none|landcover-glacier:none|boundary-land-level-4:none|boundary-land-level-2:%23c8c8c8|boundary-land-disputed:none|boundary-water:none|water-name-ocean:none|water-name-other:none|place-country-2:none|place-country-1:none|place-continent:none&marker=lonlat:84.124,28.3949;type:circle;color:blue;size:small;icontype:material;iconsize:small&apiKey=eccf4dc1db37462898e8beb9a3377d4f",
+        //https://www.alol.pl/dotmap/worldmap/big/dot/big/blue/-33.8481647/150.7918937/ulovj2uj.png
         sections: [
             {
                 id: "demographics",
@@ -92,7 +93,7 @@ const websiteData = {
                     quickNumbers: {
                         title: "Quick Numbers",
                         stats: [
-                            { label: "CPA per ITI (USD)", value: "0.002" },
+                            { label: "CPA per example", value: "0.002" },
                             { label: "CPA per Faith Journey (USD)", value: "0.05" }
                         ]
                     },
@@ -113,21 +114,21 @@ const websiteData = {
                     campaignData: {
                         title: "Campaigns data",
                         metrics: [
-                            { label: "CPA per ITI (USD)", value: "0.002" },
+                            { label: "CPA per ITJ (USD)", value: "0.002" },
                             { label: "Best video", value: "0.05" },
                             { label: "Best theme", value: "0.002" },
-                            { label: "CPA per fg/gf", value: "0.05" },
-                            { label: "CPA per fg/gf", value: "0.05" },
-                            { label: "CPA per ITI (USD)", value: "0.002" },
-                            { label: "CPA per fg/gf", value: "0.05" },
-                            { label: "CPA per ITI (USD)", value: "0.002" },
-                            { label: "CPA per fg/gf", value: "0.05" },
-                            { label: "CPA per fg/gf", value: "0.05" },
-                            { label: "CPA per ITI (USD)", value: "0.002" },
-                            { label: "CPA per fg/gf", value: "0.05" },
-                            { label: "CPA per ITI (USD)", value: "0.002" },
-                            { label: "CPA per fg/gf", value: "0.05" },
-                            { label: "CPA per fg/gf", value: "0.05" }
+                            { label: "CPA per example", value: "0.05" },
+                            { label: "CPA per example", value: "0.05" },
+                            { label: "CPA per example", value: "0.002" },
+                            { label: "CPA per example", value: "0.05" },
+                            { label: "CPA per example", value: "0.002" },
+                            { label: "CPA per example", value: "0.05" },
+                            { label: "CPA per example", value: "0.05" },
+                            { label: "CPA per example", value: "0.002" },
+                            { label: "CPA per example", value: "0.05" },
+                            { label: "CPA per example", value: "0.002" },
+                            { label: "CPA per example", value: "0.05" },
+                            { label: "CPA per example", value: "0.05" }
                         ]
                     },
                     quizzes: {
@@ -443,7 +444,7 @@ const websiteData = {
                         quickNumbers: {
                             title: "Quick Numbers",
                             stats: [
-                                { label: "CPA per ITI (USD)", value: "0.002" },
+                                { label: "CPA per example", value: "0.002" },
                                 { label: "CPA per Faith Journey (USD)", value: "0.05" },
                                 { label: "Videos CPA (USD)", value: "0.002" },
                                 { label: "Video Themes", value: "Love" }
