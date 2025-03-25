@@ -112,7 +112,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const payload = { key: 'cvglobal' };
     
         try {
-            const response = await fetch('https://3ojjckd0g4.execute-api.ap-southeast-2.amazonaws.com/default/updateUPGResearch', {
+            const response = await fetch('https://abhhdadadlysf7bewlquozv3ay0nfrym.lambda-url.ap-southeast-2.on.aws/ ', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }, // Added headers
                 body: JSON.stringify(payload)
@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
     
             console.log('Request sent successfully.');
+            console.log('Response:', response);
             return true;
         } catch (error) {
             console.error('Error:', error);
