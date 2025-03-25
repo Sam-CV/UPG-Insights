@@ -21,35 +21,35 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (res) {
                 console.log('Data updated successfully.');
-            
-            // Indicate success
-            this.classList.add('success');
-            this.innerHTML = '<span class="material-symbols-outlined">check</span> Success';
 
-            // Reset button after delay
-            setTimeout(() => {
-                this.classList.remove('success');
-                this.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Update';
+                // Indicate success
+                this.classList.add('success');
+                this.innerHTML = '<span class="material-symbols-outlined">check</span> Success';
 
-                // Show success message
-                showSuccessMessage();
-            }, 2000);
-        }else {
-            console.error('Error updating data.');
+                // Reset button after delay
+                setTimeout(() => {
+                    this.classList.remove('success');
+                    this.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Update';
 
-            // Indicate error
-            this.classList.add('error');
-            this.innerHTML = '<span class="material-symbols-outlined">error</span> Error';
+                    // Show success message
+                    showSuccessMessage();
+                }, 2000);
+            } else {
+                console.error('Error updating data.');
 
-            // Reset button after delay
-            setTimeout(() => {
-                this.classList.remove('error');
-                this.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Update';
-            }, 2000);
+                // Indicate error
+                this.classList.add('error');
+                this.innerHTML = '<span class="material-symbols-outlined">error</span> Error';
 
-            // Show error message
-            showErrorMessage();
-        }
+                // Reset button after delay
+                setTimeout(() => {
+                    this.classList.remove('error');
+                    this.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Update';
+                }, 2000);
+
+                // Show error message
+                showErrorMessage();
+            }
         } else {
             // Show error
             upgSelect.classList.add('error');
@@ -108,20 +108,23 @@ document.addEventListener('DOMContentLoaded', function () {
     // Simulate updating data
     async function updateData(upg) {
         console.log(`Updating data for ${upg}...`);
-    
-        const payload = { key: 'cvglobal' };
-    
+
+        const payload = {
+            key: 'cvglobal',
+            upg: upg
+        };
+
         try {
             const response = await fetch('https://abhhdadadlysf7bewlquozv3ay0nfrym.lambda-url.ap-southeast-2.on.aws/ ', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' }, // Added headers
                 body: JSON.stringify(payload)
             });
-    
+
             if (!response.ok) {
                 throw new Error(`Request failed with status ${response.status}`);
             }
-    
+
             console.log('Request sent successfully.');
             console.log('Response:', response);
             return true;
@@ -130,7 +133,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return false;
         }
     }
-    
+
 
     // Show success message
     function showSuccessMessage() {

@@ -28,6 +28,36 @@ function initializeSite() {
     initializeContentSections(websiteData.tharu);
 }
 
+async function getData(sql) {
+    const response = await fetch('https://khnl5wvfdtpayvznnbh2r7kiqi0nshuu.lambda-url.ap-southeast-2.on.aws/', {
+        method: 'POST',
+        body: JSON.stringify({ sql })
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    return data;
+}
+
+function getImageURL(peopleGroup) {
+    return `https://upg-resources.s3.ap-southeast-2.amazonaws.com/${peopleGroup}.jpg`;
+}
+
+async function testApi() {
+    const response = await fetch('https://khnl5wvfdtpayvznnbh2r7kiqi0nshuu.lambda-url.ap-southeast-2.on.aws/', {
+        method: 'POST',
+        body: JSON.stringify({
+            sql: "SELECT * FROM chatfuel_quizbot_data"
+        })
+    });
+
+    const data = await response.json();
+    console.log(data);
+
+    return data;
+}
+
 // Initialize navigation
 function initializeNavigation() {
     const navElement = document.getElementById('main-nav');
