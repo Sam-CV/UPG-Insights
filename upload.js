@@ -1,36 +1,55 @@
 // Upload page functionality
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize variables
     let selectedUPG = '';
-    
+
     // Elements
     const upgSelect = document.getElementById('upg-select');
     const updateBtn = document.getElementById('update-btn');
-    
+
     // Set up event listeners
-    upgSelect.addEventListener('change', function() {
+    upgSelect.addEventListener('change', function () {
         selectedUPG = this.value;
         console.log('Selected UPG:', selectedUPG);
     });
-    
+
     // Update button functionality
-    updateBtn.addEventListener('click', function() {
+    updateBtn.addEventListener('click', async function () {
         if (selectedUPG) {
             // Simulate data update
-            updateData(selectedUPG);
+            const res = await updateData(selectedUPG);
+
+            if (res) {
+                console.log('Data updated successfully.');
             
             // Indicate success
             this.classList.add('success');
             this.innerHTML = '<span class="material-symbols-outlined">check</span> Success';
-            
+
             // Reset button after delay
             setTimeout(() => {
                 this.classList.remove('success');
                 this.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Update';
-                
+
                 // Show success message
                 showSuccessMessage();
             }, 2000);
+        }else {
+            console.error('Error updating data.');
+
+            // Indicate error
+            this.classList.add('error');
+            this.innerHTML = '<span class="material-symbols-outlined">error</span> Error';
+
+            // Reset button after delay
+            setTimeout(() => {
+                this.classList.remove('error');
+                this.innerHTML = '<span class="material-symbols-outlined">cloud_upload</span> Update';
+            }, 2000);
+
+            // Show error message
+            showErrorMessage();
+        }
         } else {
             // Show error
             upgSelect.classList.add('error');
@@ -39,23 +58,79 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 1000);
         }
     });
-    
-    // Simulate updating data
-    function updateData(upg) {
-        console.log(`Updating data for ${upg}...`);
-        
-        // In a real application, this would send data to a server
-        // For this demo, we'll just log to console
-        
-        // Simulate delay
-        return new Promise(resolve => {
+
+    // Show error message
+    function showErrorMessage() {
+        // Create error message element
+        const errorMessage = document.createElement('div');
+        errorMessage.className = 'error-message';
+        errorMessage.innerHTML = `
+            <span class="material-symbols-outlined">error</span>
+            <p>There was an error updating your data. Please try again.</p>
+            <button class="close-btn">Close</button>
+        `;
+
+        // Add to page
+        document.querySelector('.upload-container').appendChild(errorMessage);
+
+        // Animate in
+        setTimeout(() => {
+            errorMessage.style.opacity = '1';
+            errorMessage.style.transform = 'translateY(0)';
+        }, 10);
+
+        // Add close button functionality
+        errorMessage.querySelector('.close-btn').addEventListener('click', function () {
+            errorMessage.style.opacity = '0';
+            errorMessage.style.transform = 'translateY(20px)';
+
             setTimeout(() => {
-                console.log(`Successfully updated data for ${upg}`);
-                resolve();
-            }, 1500);
+                errorMessage.remove();
+            }, 300);
         });
+
+        // Auto-remove after 5 seconds
+        setTimeout(() => {
+            if (document.body.contains(errorMessage)) {
+                errorMessage.style.opacity = '0';
+                errorMessage.style.transform = 'translateY(20px)';
+
+                setTimeout(() => {
+                    if (document.body.contains(errorMessage)) {
+                        errorMessage.remove();
+                    }
+                }, 300);
+            }
+        }, 5000);
+
+    }
+
+    // Simulate updating data
+    async function updateData(upg) {
+        console.log(`Updating data for ${upg}...`);
+    
+        const payload = { key: 'cvglobal' };
+    
+        try {
+            const response = await fetch('https://3ojjckd0g4.execute-api.ap-southeast-2.amazonaws.com/default/updateUPGResearch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }, // Added headers
+                body: JSON.stringify(payload)
+            });
+    
+            if (!response.ok) {
+                throw new Error(`Request failed with status ${response.status}`);
+            }
+    
+            console.log('Request sent successfully.');
+            return true;
+        } catch (error) {
+            console.error('Error:', error);
+            return false;
+        }
     }
     
+
     // Show success message
     function showSuccessMessage() {
         // Create success message element
@@ -66,32 +141,32 @@ document.addEventListener('DOMContentLoaded', function() {
             <p>Your data for <strong>${upgSelect.options[upgSelect.selectedIndex].text}</strong> has been successfully updated.</p>
             <button class="close-btn">Close</button>
         `;
-        
+
         // Add to page
         document.querySelector('.upload-container').appendChild(successMessage);
-        
+
         // Animate in
         setTimeout(() => {
             successMessage.style.opacity = '1';
             successMessage.style.transform = 'translateY(0)';
         }, 10);
-        
+
         // Add close button functionality
-        successMessage.querySelector('.close-btn').addEventListener('click', function() {
+        successMessage.querySelector('.close-btn').addEventListener('click', function () {
             successMessage.style.opacity = '0';
             successMessage.style.transform = 'translateY(20px)';
-            
+
             setTimeout(() => {
                 successMessage.remove();
             }, 300);
         });
-        
+
         // Auto-remove after 5 seconds
         setTimeout(() => {
             if (document.body.contains(successMessage)) {
                 successMessage.style.opacity = '0';
                 successMessage.style.transform = 'translateY(20px)';
-                
+
                 setTimeout(() => {
                     if (document.body.contains(successMessage)) {
                         successMessage.remove();
@@ -100,7 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, 5000);
     }
-    
+
     // Add these styles directly
     const style = document.createElement('style');
     style.textContent = `
