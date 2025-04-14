@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Historical Data - UPG Insights</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/font/MaterialIcons.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <span class="material-symbols-outlined">
+                insights
+            </span>
+            <span id="site-name">UPG Insights</span>
+        </div>
+
+        <nav id="main-nav">
+            <a href="index.html" class="nav-item">Home</a>
+            <a href="historical-data.html" class="nav-item active">Historical Data</a>
+            <a href="upload.html" class="upload-btn">
+                <span class="material-symbols-outlined">
+                    cloud_upload
+                </span>
+                Upload Research
+            </a>
+            <button class="settings-btn">
+                <span class="material-symbols-outlined">
+                    settings
+                </span>
+            </button>
+        </nav>
+    </header>
+
+    <div id="historical-data-container" class="container">
+        <div class="title-section">
+            <h1 class="title">Historical Data</h1>
+            
+            <div class="filter-section">
+                <div class="filter-row">
+                    <!-- Year Filter Dropdown -->
+                    <div class="filter-dropdown" id="year-dropdown">
+                        <span class="material-symbols-outlined">calendar_today</span>
+                        <span class="filter-text">Filter Year</span>
+                        <span class="material-symbols-outlined">expand_more</span>
+                        <div class="dropdown-menu" id="year-menu">
+                            <!-- Year items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Country Filter Dropdown -->
+                    <div class="filter-dropdown" id="country-dropdown">
+                        <span class="material-symbols-outlined">public</span>
+                        <span class="filter-text">Filter Country</span>
+                        <span class="material-symbols-outlined">expand_more</span>
+                        <div class="dropdown-menu" id="country-menu">
+                            <!-- Country items will be populated by JavaScript -->
+                        </div>
+                    </div>
+                    
+                    <!-- Reset Filters Button -->
+                    <button class="filter-reset-btn" id="reset-filters">
+                        <span class="material-symbols-outlined">refresh</span>
+                        Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="historical-cards-container" id="historical-cards-grid">
+            <!-- Historical data cards will be populated by JavaScript -->
+        </div>
+        
+        <div class="no-results" id="no-results" style="display: none;">
+            <span class="material-symbols-outlined">search_off</span>
+            <p>No historical data found for the selected filters.</p>
+        </div>
+    </div>
+
+    <!-- Load data and scripts -->
+    <script src="data.js"></script>
+    <script src="scripts.js"></script>
+</body>
+
+</html>

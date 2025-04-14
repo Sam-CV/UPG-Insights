@@ -6,36 +6,535 @@ document.addEventListener('DOMContentLoaded', function () {
     // Set up event listeners
     setupEventListeners();
     
-    // Show search results by default
-    showSearchResults();
+    // Check if we're on the historical data page
+    if (window.location.pathname.includes('historical-data.html')) {
+        // Historical data page specific initialization
+        initializeHistoricalDataPage();
+    } else {
+        // Show search results by default for the main page
+        showSearchResults();
+    }
 });
 
 // Initialize the site with data
 function initializeSite() {
     // Set site name
-    document.getElementById('site-name').textContent = websiteData.siteName;
+    if (document.getElementById('site-name')) {
+        document.getElementById('site-name').textContent = websiteData.siteName;
+    }
     
     // Initialize navigation
     initializeNavigation();
     
-    // Initialize search dropdowns
-    initializeSearchDropdowns();
-    
-    // Initialize search results
-    initializeSearchResults();
-    
-    // Initialize the content sections with default people group (Tharu)
-    initializeContentSections(websiteData.tharu);
+    // Initialize search dropdowns if on the main page
+    if (!window.location.pathname.includes('historical-data.html')) {
+        initializeSearchDropdowns();
+        
+        // Initialize search results
+        initializeSearchResults();
+        
+        // Initialize the content sections with default people group (Tharu)
+        initializeContentSections(websiteData.tharu);
+    }
 }
 
+// Initialize the historical data page
+async function initializeHistoricalDataPage() {
+    console.log('Initializing Historical Data page');
+
+    const sql = "SELECT * FROM upg_historical_hypothesis_tests";
+    const data = await getData(sql);
+    console.log('Historical data:', data.rows);
+    
+    // Initialize the filters
+    initializeHistoricalFilters(data.rows);
+    
+    // Initialize the historical data cards
+    initializeHistoricalCards(data.rows);
+    
+    // Set up reset filters button
+    setupResetFiltersButton(data.rows);
+}
+
+// Initialize filters for historical data
+function initializeHistoricalFilters(data) {
+    // Initialize year filter
+    initializeYearFilter(data);
+    
+    // Initialize country filter
+    initializeCountryFilter(data);
+    
+    // Set up dropdown functionality
+    setupHistoricalDropdowns();
+}
+
+// Setup dropdown functionality for historical filters
+function setupHistoricalDropdowns() {
+    const yearDropdown = document.getElementById('year-dropdown');
+    const countryDropdown = document.getElementById('country-dropdown');
+    
+    if (!yearDropdown || !countryDropdown) return;
+    
+    // Year dropdown click handler
+    yearDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Close country dropdown
+        countryDropdown.classList.remove('active');
+        
+        // Toggle year dropdown
+        this.classList.toggle('active');
+    });
+    
+    // Country dropdown click handler
+    countryDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Close year dropdown
+        yearDropdown.classList.remove('active');
+        
+        // Toggle country dropdown
+        this.classList.toggle('active');
+    });
+    
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        yearDropdown.classList.remove('active');
+        countryDropdown.classList.remove('active');
+    });
+}
+
+
+// Initialize year filter dropdown
+function initializeYearFilter(data) {
+    const yearMenu = document.getElementById('year-menu');
+    if (!yearMenu) return;
+    
+    // Get unique years
+    const years = ['All Years'];
+    data.forEach(item => {
+        if (!years.includes(item.year)) {
+            years.push(item.year);
+        }
+    });
+    
+    // Sort years in descending order (newest first)
+    years.sort((a, b) => {
+        if (a === 'All Years') return -1;
+        if (b === 'All Years') return 1;
+        return b - a;
+    });
+    
+    // Create year dropdown items
+    let yearOptionsHTML = '';
+    years.forEach(year => {
+        yearOptionsHTML += `<div class="dropdown-item" data-value="${year === 'All Years' ? 'all' : year}">${year}</div>`;
+    });
+    
+    yearMenu.innerHTML = yearOptionsHTML;
+    
+    // Add event listeners to year dropdown items
+    const yearItems = yearMenu.querySelectorAll('.dropdown-item');
+    yearItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Update selected state
+            yearItems.forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Update dropdown text
+            const yearDropdown = document.getElementById('year-dropdown');
+            const filterText = yearDropdown.querySelector('.filter-text');
+            filterText.textContent = this.textContent;
+            
+            // Add has-value class to the dropdown
+            yearDropdown.classList.add('has-value');
+            
+            // Close dropdown
+            yearDropdown.classList.remove('active');
+            
+            // Filter the cards
+            applyHistoricalFilters();
+        });
+    });
+}
+
+// Apply filters to historical cards
+function applyHistoricalFilters() {
+    const yearDropdown = document.getElementById('year-dropdown');
+    const countryDropdown = document.getElementById('country-dropdown');
+    
+    // Get selected values, either from data-selected attribute or default to filter text
+    const yearFilter = yearDropdown.getAttribute('data-selected') || 'all';
+    const countryFilter = countryDropdown.getAttribute('data-selected') || 'all';
+    
+    console.log('Applying filters - Year:', yearFilter, 'Country:', countryFilter);
+    
+    const cards = document.querySelectorAll('.historical-card');
+    const noResultsElement = document.getElementById('no-results');
+    let visibleCards = 0;
+    
+    cards.forEach(card => {
+        const cardYear = card.getAttribute('data-year');
+        const cardCountry = card.getAttribute('data-country');
+        
+        // Debug output
+        // console.log(`Card - Year: ${cardYear} (${typeof cardYear}), Country: ${cardCountry}`);
+        
+        // Now compare using proper conditions
+        const yearMatch = yearFilter === 'all' || (cardYear && cardYear === yearFilter);
+        const countryMatch = countryFilter === 'all' || (cardCountry && cardCountry === countryFilter);
+        
+        // console.log(`Year match: ${yearMatch}, Country match: ${countryMatch}`);
+        
+        if (yearMatch && countryMatch) {
+            card.style.display = 'block';
+            visibleCards++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Show or hide "no results" message
+    if (noResultsElement) {
+        noResultsElement.style.display = visibleCards === 0 ? 'block' : 'none';
+    }
+}
+
+// Setup reset filters button
+function setupResetFiltersButton(data) {
+    const resetButton = document.getElementById('reset-filters');
+    if (!resetButton) return;
+    
+    resetButton.addEventListener('click', function() {
+        // Reset year filter
+        const yearDropdown = document.getElementById('year-dropdown');
+        yearDropdown.querySelector('.filter-text').textContent = 'Filter Year';
+        yearDropdown.classList.remove('has-value');
+        yearDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // Reset country filter
+        const countryDropdown = document.getElementById('country-dropdown');
+        countryDropdown.querySelector('.filter-text').textContent = 'Filter Country';
+        countryDropdown.classList.remove('has-value');
+        countryDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.classList.remove('selected');
+        });
+        
+        // Show all cards
+        document.querySelectorAll('.historical-card').forEach(card => {
+            card.style.display = 'block';
+        });
+        
+        // Hide no results message
+        document.getElementById('no-results').style.display = 'none';
+    });
+}
+
+
+// Initialize the historical data page
+async function initializeHistoricalDataPage() {
+    console.log('Initializing Historical Data page');
+
+    const sql = "SELECT * FROM upg_historical_hypothesis_tests";
+    const data = await getData(sql);
+    console.log('Historical data:', data.rows);
+    
+    // Initialize the filters
+    initializeHistoricalFilters(data.rows);
+    
+    // Initialize the historical data cards
+    initializeHistoricalCards(data.rows);
+    
+    // Set up reset filters button
+    setupResetFiltersButton(data.rows);
+}
+
+// Initialize filters for historical data
+function initializeHistoricalFilters(data) {
+    // Initialize year filter
+    initializeYearFilter(data);
+    
+    // Initialize country filter
+    initializeCountryFilter(data);
+    
+    // Set up dropdown functionality
+    setupHistoricalDropdowns();
+}
+
+// Initialize year filter dropdown
+function initializeYearFilter(data) {
+    const yearMenu = document.getElementById('year-menu');
+    if (!yearMenu) return;
+    
+    // Get unique years
+    const years = ['All Years'];
+    data.forEach(item => {
+        // Skip null or undefined years
+        if (!item.year) return;
+        
+        // Convert year to string to ensure consistency
+        const yearStr = String(item.year);
+        if (!years.includes(yearStr)) {
+            years.push(yearStr);
+        }
+    });
+    
+    // Add "Unknown" option if needed
+    if (data.some(item => !item.year)) {
+        years.push('Unknown');
+    }
+    
+    // Sort years in descending order (newest first)
+    years.sort((a, b) => {
+        if (a === 'All Years') return -1;
+        if (b === 'All Years') return 1;
+        if (a === 'Unknown') return 1;
+        if (b === 'Unknown') return -1;
+        return parseInt(b) - parseInt(a);
+    });
+    
+    console.log('Year options:', years);
+    
+    // Create year dropdown items
+    let yearOptionsHTML = '';
+    years.forEach(year => {
+        yearOptionsHTML += `<div class="dropdown-item" data-value="${year === 'All Years' ? 'all' : year}">${year}</div>`;
+    });
+    
+    yearMenu.innerHTML = yearOptionsHTML;
+    
+    // Add event listeners to year dropdown items
+    const yearItems = yearMenu.querySelectorAll('.dropdown-item');
+    yearItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Update selected state
+            yearItems.forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Update dropdown text
+            const yearDropdown = document.getElementById('year-dropdown');
+            const filterText = yearDropdown.querySelector('.filter-text');
+            filterText.textContent = this.textContent;
+            
+            // Add data attribute to the dropdown with the selected value
+            yearDropdown.setAttribute('data-selected', this.getAttribute('data-value'));
+            
+            // Add has-value class to the dropdown
+            yearDropdown.classList.add('has-value');
+            
+            // Close dropdown
+            yearDropdown.classList.remove('active');
+            
+            // Filter the cards
+            applyHistoricalFilters();
+        });
+    });
+}
+
+// Initialize country filter dropdown
+function initializeCountryFilter(data) {
+    const countryMenu = document.getElementById('country-menu');
+    if (!countryMenu) return;
+    
+    // Get unique countries
+    const countries = ['All Countries'];
+    data.forEach(item => {
+        // Skip null or undefined countries
+        if (!item.country) return;
+        
+        if (!countries.includes(item.country)) {
+            countries.push(item.country);
+        }
+    });
+    
+    // Add "Unknown" option if needed
+    if (data.some(item => !item.country)) {
+        countries.push('Unknown');
+    }
+    
+    // Sort countries alphabetically
+    countries.sort((a, b) => {
+        if (a === 'All Countries') return -1;
+        if (b === 'All Countries') return 1;
+        if (a === 'Unknown') return 1;
+        if (b === 'Unknown') return -1;
+        return a.localeCompare(b);
+    });
+    
+    console.log('Country options:', countries);
+    
+    // Create country dropdown items
+    let countryOptionsHTML = '';
+    countries.forEach(country => {
+        countryOptionsHTML += `<div class="dropdown-item" data-value="${country === 'All Countries' ? 'all' : country}">${country}</div>`;
+    });
+    
+    countryMenu.innerHTML = countryOptionsHTML;
+    
+    // Add event listeners to country dropdown items
+    const countryItems = countryMenu.querySelectorAll('.dropdown-item');
+    countryItems.forEach(item => {
+        item.addEventListener('click', function() {
+            // Update selected state
+            countryItems.forEach(i => i.classList.remove('selected'));
+            this.classList.add('selected');
+            
+            // Update dropdown text
+            const countryDropdown = document.getElementById('country-dropdown');
+            const filterText = countryDropdown.querySelector('.filter-text');
+            filterText.textContent = this.textContent;
+            
+            // Add data attribute to the dropdown with the selected value
+            countryDropdown.setAttribute('data-selected', this.getAttribute('data-value'));
+            
+            // Add has-value class to the dropdown
+            countryDropdown.classList.add('has-value');
+            
+            // Close dropdown
+            countryDropdown.classList.remove('active');
+            
+            // Filter the cards
+            applyHistoricalFilters();
+        });
+    });
+}
+
+// Initialize historical data cards
+function initializeHistoricalCards(data) {
+    const cardsContainer = document.getElementById('historical-cards-grid');
+    if (!cardsContainer) return;
+    
+    // Sort items by year (newest first)
+    const sortedItems = [...data].sort((a, b) => b.year - a.year);
+    
+    // Generate HTML for cards
+    let cardsHTML = '';
+    sortedItems.forEach(item => {
+        cardsHTML += generateHistoricalCardHTML(item);
+    });
+    
+    cardsContainer.innerHTML = cardsHTML;
+}
+
+// Generate HTML for a historical data card
+function generateHistoricalCardHTML(item) {
+    // Check if year exists and provide a fallback if it doesn't
+    const yearValue = item.year || 'Unknown';
+    // Ensure year is stored as a string for consistent comparison
+    const yearStr = String(yearValue);
+    
+    console.log(`Creating card for: ${yearStr} - ${item.country}`);
+    
+    return `
+        <div class="historical-card" data-year="${yearStr}" data-country="${item.country || ''}">
+            <div class="historical-card-header">
+                <div class="year-tag">${yearStr}</div>
+                <div class="country-tag">
+                    <span class="material-symbols-outlined">public</span>
+                    ${item.country || 'Unknown'}
+                </div>
+            </div>
+            
+            <div class="historical-card-content">
+                <div class="historical-section">
+                    <h3>What we tested</h3>
+                    <p>${item.trying_to_test || 'Not specified'}</p>
+                </div>
+                
+                <div class="historical-section">
+                    <h3>What we hoped to learn</h3>
+                    <p>${item.hope_to_learn || 'Not specified'}</p>
+                </div>
+                
+                <div class="historical-section">
+                    <h3>What we learnt</h3>
+                    <p>${item.learnt || 'Not specified'}</p>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Filter historical cards based on country
+function filterHistoricalCards(country) {
+    const cards = document.querySelectorAll('.historical-card');
+    const noResultsElement = document.getElementById('no-results');
+    let visibleCards = 0;
+    
+    cards.forEach(card => {
+        if (country === 'all' || card.getAttribute('data-country') === country) {
+            card.style.display = 'block';
+            visibleCards++;
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Show or hide "no results" message
+    if (noResultsElement) {
+        noResultsElement.style.display = visibleCards === 0 ? 'block' : 'none';
+    }
+}
+
+// Initialize country filters for historical data
+function initializeCountryFilters(data) {
+    const filtersElement = document.getElementById('country-filters');
+    if (!filtersElement) return;
+    
+    // Get unique countries
+    const countries = ['All Countries'];
+    data.forEach(item => {
+        if (!countries.includes(item.country)) {
+            countries.push(item.country);
+        }
+    });
+    
+    // Create filter buttons
+    let filtersHTML = '';
+    countries.forEach((country, index) => {
+        filtersHTML += `<button class="filter-btn ${index === 0 ? 'active' : ''}" data-country="${country === 'All Countries' ? 'all' : country}">${country}</button>`;
+    });
+    
+    filtersElement.innerHTML = filtersHTML;
+    
+    // Add event listeners to filter buttons
+    const filterButtons = filtersElement.querySelectorAll('.filter-btn');
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Filter the cards
+            filterHistoricalCards(this.getAttribute('data-country'));
+        });
+    });
+}
+
+const cache = new Map();
+
 async function getData(sql) {
+    // Check if the data is already in the cache
+    if (cache.has(sql)) {
+        console.log('Fetching data from cache');
+        return cache.get(sql);
+    }
+
+    // Fetch data from the API
     const response = await fetch('https://khnl5wvfdtpayvznnbh2r7kiqi0nshuu.lambda-url.ap-southeast-2.on.aws/', {
         method: 'POST',
         body: JSON.stringify({ sql })
     });
 
     const data = await response.json();
-    console.log(data);
+    console.log('Fetching data from API:', data);
+
+    // Store the data in the cache
+    cache.set(sql, data);
 
     return data;
 }
@@ -61,19 +560,27 @@ async function testApi() {
 // Initialize navigation
 function initializeNavigation() {
     const navElement = document.getElementById('main-nav');
+    if (!navElement) return;
+    
+    // Determine current page
+    const isHistoricalPage = window.location.pathname.includes('historical-data.html');
     
     // Add navigation items
     let navHTML = '';
     websiteData.navigation.forEach(item => {
-        navHTML += `<a href="${item.url}" class="nav-item ${item.active ? 'active' : ''}">${item.name}</a>`;
+        const isActive = !isHistoricalPage && item.active;
+        navHTML += `<a href="${item.url}" class="nav-item ${isActive ? 'active' : ''}">${item.name}</a>`;
     });
+    
+    // Add Historical Data tab
+    navHTML += `<a href="historical-data.html" class="nav-item ${isHistoricalPage ? 'active' : ''}">Historical Data</a>`;
     
     // Add buttons
     navHTML += `
-        <button class="upload-btn" onclick="window.location= 'upload.html'">
+        <a href="upload.html" class="upload-btn">
             <span class="material-symbols-outlined">cloud_upload</span>
             Upload Research
-        </button>
+        </a>
         <button class="settings-btn">
             <span class="material-symbols-outlined">settings</span>
         </button>
@@ -167,6 +674,7 @@ function initializeContentSections(peopleGroup) {
 // Initialize section filters
 function initializeSectionFilters(sections) {
     const filtersElement = document.getElementById('section-filters');
+    if (!filtersElement) return;
     
     let filtersHTML = '';
     sections.forEach((section, index) => {
@@ -176,12 +684,15 @@ function initializeSectionFilters(sections) {
     filtersElement.innerHTML = filtersHTML;
     
     // Update current section text
-    document.getElementById('current-section').textContent = sections[0].name;
+    if (document.getElementById('current-section')) {
+        document.getElementById('current-section').textContent = sections[0].name;
+    }
 }
 
 // Load a specific section
 function loadSection(section) {
     const contentSectionsElement = document.getElementById('content-sections');
+    if (!contentSectionsElement) return;
     
     // Clear existing content
     contentSectionsElement.innerHTML = '';
@@ -566,7 +1077,9 @@ function populateAllSection(sectionElement, content) {
 function setupEventListeners() {
     // Search button click
     const searchBtn = document.getElementById('search-btn');
-    searchBtn.addEventListener('click', handleSearch);
+    if (searchBtn) {
+        searchBtn.addEventListener('click', handleSearch);
+    }
     
     // People group card clicks
     const peopleGroupCards = document.querySelectorAll('.people-group-card');
@@ -575,7 +1088,10 @@ function setupEventListeners() {
     });
     
     // Section filter clicks
-    document.getElementById('section-filters').addEventListener('click', handleSectionFilter);
+    const sectionFilters = document.getElementById('section-filters');
+    if (sectionFilters) {
+        sectionFilters.addEventListener('click', handleSectionFilter);
+    }
     
     // Dropdown functionality
     setupDropdowns();

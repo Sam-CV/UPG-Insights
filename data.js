@@ -457,6 +457,54 @@ const websiteData = {
     }
 };
 
+// Add this to your existing data.js file
+
+// Historical Data
+websiteData.historicalData = {
+    items: [
+        {
+            id: 1,
+            year: 2023,
+            country: 'Nepal',
+            tested: 'Digital storytelling via WhatsApp',
+            hopedToLearn: 'Engagement levels with different story formats',
+            learnt: 'Audio stories received 3x more engagement than text-based stories, and users preferred stories under 5 minutes in length.'
+        },
+        {
+            id: 2,
+            year: 2022,
+            country: 'India',
+            tested: 'Facebook video outreach campaigns',
+            hopedToLearn: 'Optimal video length and content type for Tharu communities',
+            learnt: 'Videos under 90 seconds with cultural elements had 4x higher completion rates and 2x more shares than longer educational content.'
+        },
+        {
+            id: 3,
+            year: 2021,
+            country: 'Bangladesh',
+            tested: 'SMS Bible verse delivery frequency',
+            hopedToLearn: 'Ideal cadence for scripture engagement',
+            learnt: 'Daily verses had higher open rates (68%) compared to weekly digests (42%), but three times per week had highest response rate and lowest unsubscribe rate.'
+        },
+        {
+            id: 4,
+            year: 2022,
+            country: 'Nepal',
+            tested: 'Radio program formats for rural areas',
+            hopedToLearn: 'Most effective radio content structure for retention',
+            learnt: 'Q&A format with local speakers resulted in 62% higher recall of key messages compared to monologue teaching formats.'
+        },
+        {
+            id: 5,
+            year: 2020,
+            country: 'India',
+            tested: 'Mobile app UI design preferences',
+            hopedToLearn: 'Most intuitive navigation patterns for rural users',
+            learnt: 'Icon-based navigation with audio labels performed 45% better than text-based menus with rural audiences who had limited smartphone experience.'
+        }
+    ]
+};
+
 // Export the data
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = websiteData;

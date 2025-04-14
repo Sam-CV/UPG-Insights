@@ -246,6 +246,7 @@ nav {
     margin-bottom: 30px;
     flex-wrap: wrap;
     gap: 15px;
+    margin-top: 20px;
 }
 
 .title {
@@ -254,7 +255,10 @@ nav {
     font-family: 'Poppins', sans-serif;
     color: var(--dark-text);
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .title::after {
@@ -1030,4 +1034,233 @@ button {
 
 .stat-value {
     transition: transform 0.3s ease;
+}
+
+
+/* Historical Data Page Styles */
+.historical-cards-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 30px;
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+
+.historical-card {
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border-left: 3px solid var(--primary-blue);
+}
+
+.historical-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+}
+
+.historical-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #f5f7fa;
+    border-bottom: 1px solid var(--border-gray);
+}
+
+.year-tag {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--primary-blue);
+    font-family: 'Poppins', sans-serif;
+}
+
+.country-tag {
+    display: flex;
+    align-items: center;
+    background-color: rgba(0, 71, 255, 0.1);
+    color: var(--primary-blue);
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+}
+
+.country-tag .material-symbols-outlined {
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+.historical-card-content {
+    padding: 20px;
+}
+
+.historical-section {
+    margin-bottom: 15px;
+}
+
+.historical-section h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #444;
+    font-family: 'Poppins', sans-serif;
+}
+
+.historical-section p {
+    font-size: 14px;
+    line-height: 1.5;
+    color: #555;
+}
+
+.historical-section:last-child {
+    margin-bottom: 0;
+    padding-top: 10px;
+    border-top: 1px dashed #e0e0e0;
+}
+
+.no-results {
+    text-align: center;
+    padding: 50px 0;
+    color: #777;
+}
+
+.no-results .material-symbols-outlined {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #aaa;
+}
+
+/* Filter Section Styles */
+.filter-section {
+    margin-bottom: 20px;
+}
+
+.filter-row {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Simple Filter Dropdown */
+.filter-dropdown {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 8px 15px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+.filter-dropdown:hover {
+    border-color: #ccc;
+    box-shadow: 0 1px 5px rgba(0,0,0,0.1);
+}
+
+.filter-dropdown .material-symbols-outlined {
+    font-size: 18px;
+    color: #555;
+}
+
+.filter-dropdown .material-symbols-outlined:first-child {
+    margin-right: 8px;
+    color: var(--primary-blue);
+}
+
+.filter-dropdown .material-symbols-outlined:last-of-type {
+    margin-left: 8px;
+}
+
+.filter-text {
+    color: #666;
+    font-size: 14px;
+}
+
+/* When a filter is selected */
+.filter-dropdown.has-value .filter-text {
+    color: #333;
+    font-weight: 500;
+}
+
+/* Dropdown Menu */
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 200px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    z-index: 10;
+    margin-top: 5px;
+    
+    /* Animation properties */
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transform: translateY(-10px);
+    transition: max-height 0.3s ease-in-out, 
+                opacity 0.2s ease-in-out, 
+                transform 0.3s ease-in-out;
+    pointer-events: none;
+}
+
+.filter-dropdown.active .dropdown-menu {
+    max-height: 300px;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.dropdown-item {
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-size: 14px;
+}
+
+.dropdown-item:hover {
+    background-color: #f0f7ff;
+}
+
+.dropdown-item.selected {
+    background-color: rgba(0, 71, 255, 0.08);
+    color: var(--primary-blue);
+    font-weight: 500;
+}
+
+/* Filter Reset Button */
+.filter-reset-btn {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.filter-reset-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.filter-reset-btn .material-symbols-outlined {
+    font-size: 18px;
+}
+
+@media (max-width: 768px) {
+    .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
 }
