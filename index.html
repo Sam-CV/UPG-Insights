@@ -11,8 +11,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <!-- Historical Data Styles -->
-    <!-- <link rel="stylesheet" href="historical-styles.css"> -->
+
     <!-- no cache -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Pragma" content="no-cache" />
@@ -29,19 +28,7 @@
         </div>
 
         <nav id="main-nav">
-            <a href="index.html" class="nav-item active">Home</a>
-            <a href="historical-data.html" class="nav-item">Historical Data</a>
-            <a href="upload.html" class="upload-btn">
-                <span class="material-symbols-outlined">
-                    cloud_upload
-                </span>
-                Upload Research
-            </a>
-            <button class="settings-btn">
-                <span class="material-symbols-outlined">
-                    settings
-                </span>
-            </button>
+            <!-- Navigation will be populated by JavaScript -->
         </nav>
     </header>
 
@@ -53,7 +40,7 @@
                 </span>
                 <input type="text" class="search-input" placeholder="Search by region" id="region-search">
                 <div class="search-dropdown" id="region-dropdown">
-                    Dropdown
+                    Region
                     <span class="material-symbols-outlined">
                         expand_more
                     </span>
@@ -69,7 +56,7 @@
                 </span>
                 <input type="text" class="search-input" placeholder="Search by country" id="country-search">
                 <div class="search-dropdown" id="country-dropdown">
-                    Dropdown
+                    Country
                     <span class="material-symbols-outlined">
                         expand_more
                     </span>
@@ -85,7 +72,7 @@
                 </span>
                 <input type="text" class="search-input" placeholder="Search by language" id="language-search">
                 <div class="search-dropdown" id="language-dropdown">
-                    Dropdown
+                    Language
                     <span class="material-symbols-outlined">
                         expand_more
                     </span>
@@ -101,7 +88,7 @@
                 </span>
                 <input type="text" class="search-input" placeholder="Search by ethnicity" id="ethnicity-search">
                 <div class="search-dropdown" id="ethnicity-dropdown">
-                    Dropdown
+                    Ethnicity
                     <span class="material-symbols-outlined">
                         expand_more
                     </span>
@@ -117,7 +104,7 @@
                 </span>
                 <input type="text" class="search-input" placeholder="Search by religion" id="religion-search">
                 <div class="search-dropdown" id="religion-dropdown">
-                    Dropdown
+                    Religion
                     <span class="material-symbols-outlined">
                         expand_more
                     </span>
@@ -138,14 +125,14 @@
 
     <!-- Search Results Section -->
     <div class="container search-results-container" id="search-results" style="display: none;">
-        <h2 class="section-title">Search Results</h2>
+        <h2 class="section-title">People Groups</h2>
 
         <div class="people-group-grid" id="search-results-grid">
             <!-- People group cards will be populated by JavaScript -->
         </div>
     </div>
 
-    <div class="container" id="main-content">
+    <div class="container" id="main-content" style="display: none;">
         <div class="title-section">
             <h1 class="title"><span id="group-name">Group</span> - <span id="current-section">Section</span></h1>
 
@@ -160,9 +147,9 @@
         </div>
     </div>
 
-    <!-- Load data and scripts -->
-    <script src="data.js"></script>
+    <!-- Load scripts -->
     <script src="scripts.js"></script>
+    <script src="data.js"></script>
 </body>
 
 </html>
