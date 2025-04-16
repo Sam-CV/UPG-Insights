@@ -52,7 +52,7 @@ const websiteData = {
     // Section data for Tharu people group
     tharu: {
         name: "Tharu",
-        mapImage: "https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=560&height=360&center=lonlat:15,35&zoom=0.15&styleCustomization=background:%23e2e2e2|water-offset:none|water:%23ffffff|water-pattern:none|landcover-glacier:none|boundary-land-level-4:none|boundary-land-level-2:%23c8c8c8|boundary-land-disputed:none|boundary-water:none|water-name-ocean:none|water-name-other:none|place-country-2:none|place-country-1:none|place-continent:none&marker=lonlat:84.124,28.3949;type:circle;color:blue;size:small;icontype:material;iconsize:small&apiKey=eccf4dc1db37462898e8beb9a3377d4f",
+        mapImage: "https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=1020&height=720&center=lonlat:15,35&zoom=0.15&styleCustomization=background:%23e2e2e2|water-offset:none|water:%23ffffff|water-pattern:none|landcover-glacier:none|boundary-land-level-4:none|boundary-land-level-2:%23c8c8c8|boundary-land-disputed:none|boundary-water:none|water-name-ocean:none|water-name-other:none|place-country-2:none|place-country-1:none|place-continent:none&marker=lonlat:84.124,28.3949;type:circle;color:blue;size:medium;icontype:material;iconsize:small&apiKey=eccf4dc1db37462898e8beb9a3377d4f",
         //https://www.alol.pl/dotmap/worldmap/big/dot/big/blue/-33.8481647/150.7918937/ulovj2uj.png
         sections: [
             {

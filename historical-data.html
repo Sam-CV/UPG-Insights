@@ -91,5 +91,23 @@
     <script src="data.js"></script>
     <script src="scripts.js"></script>
 </body>
-
+<dialog id="settings-dialog" class="settings-dialog">
+    <div class="close" onclick="this.parentElement.close()">&times;</div>
+    <!-- clear cache, dark mode -->
+    <div class="settings-modal">
+        <h2>Settings</h2>
+        <div class="settings-option">
+            <label for="dark-mode">Dark Mode</label>
+            <input type="checkbox" id="dark-mode" class="toggle-switch">
+        </div>
+        <div class="settings-option">
+            <label for="clear-cache">Clear Cache</label>
+            <button id="clear-cache-btn" class="clear-cache-button" onclick="clearCache()">Clear</button>
+        </div>
+    </div>
+</dialog>
+<div class="loading-fill" id="loading-fill">
+    <img src="cv-logo.gif" alt="">
+    <div class="loading-text">Loading latest UPG Data...</div>
+</div>
 </html>
