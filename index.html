@@ -42,7 +42,7 @@
                 <span class="material-symbols-outlined" style="padding-left: 10px;">
                     travel_explore
                 </span>
-                <input type="text" class="search-input" placeholder="Search by region" id="region-search">
+                <input type="text" class="search-input" placeholder="Search by region" id="region-search" autocomplete="off">
                 <div class="search-dropdown" id="region-dropdown">
                     Region
                     <span class="material-symbols-outlined">
@@ -58,7 +58,7 @@
                 <span class="material-symbols-outlined" style="padding-left: 10px;">
                     public
                 </span>
-                <input type="text" class="search-input" placeholder="Search by country" id="country-search">
+                <input type="text" class="search-input" placeholder="Search by country" id="country-search" autocomplete="off">
                 <div class="search-dropdown" id="country-dropdown">
                     Country
                     <span class="material-symbols-outlined">
@@ -74,7 +74,7 @@
                 <span class="material-symbols-outlined" style="padding-left: 10px;">
                     language
                 </span>
-                <input type="text" class="search-input" placeholder="Search by language" id="language-search">
+                <input type="text" class="search-input" placeholder="Search by language" id="language-search" autocomplete="off">
                 <div class="search-dropdown" id="language-dropdown">
                     Language
                     <span class="material-symbols-outlined">
@@ -90,7 +90,7 @@
                 <span class="material-symbols-outlined" style="padding-left: 10px;">
                     diversity_3
                 </span>
-                <input type="text" class="search-input" placeholder="Search by ethnicity" id="ethnicity-search">
+                <input type="text" class="search-input" placeholder="Search by ethnicity" id="ethnicity-search" autocomplete="off">
                 <div class="search-dropdown" id="ethnicity-dropdown">
                     Ethnicity
                     <span class="material-symbols-outlined">
@@ -106,7 +106,7 @@
                 <span class="material-symbols-outlined" style="padding-left: 10px;">
                     church
                 </span>
-                <input type="text" class="search-input" placeholder="Search by religion" id="religion-search">
+                <input type="text" class="search-input" placeholder="Search by religion" id="religion-search" autocomplete="off">
                 <div class="search-dropdown" id="religion-dropdown">
                     Religion
                     <span class="material-symbols-outlined">
@@ -118,7 +118,7 @@
                 </div>
             </div>
 
-            <button class="search-button" id="search-btn">
+            <button class="search-button" id="search-btn" onclick="handleSearch()">
                 <span class="material-symbols-outlined">
                     search
                 </span>
@@ -157,7 +157,7 @@
     <!-- Load scripts -->
     <script src="scripts.js"></script>
     <script src="data.js"></script>
-</body>
+
 
 <!-- settings modal-->
 <dialog id="settings-dialog" class="settings-dialog">
@@ -180,6 +180,6 @@
     <img src="cv-logo.gif" alt="">
     <div class="loading-text">Loading latest UPG Data...</div>
 </div>
-
+</body>
 
 </html>

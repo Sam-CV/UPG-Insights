@@ -3,9 +3,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Initialize the site
     initializeSite();
 
-    // Set up event listeners
-    setupEventListeners();
-
     // Check if we're on the historical data page
     if (window.location.pathname.includes('historical-data.html')) {
         // Historical data page specific initialization
@@ -121,11 +118,19 @@ function initializeNavigation() {
 
 // lsten to #dark-mode
 document.addEventListener('DOMContentLoaded', function () {
+    // Check if dark mode is enabled in local storage
+    const darkModeEnabled = localStorage.getItem('dark-mode') === 'true';
+    if (darkModeEnabled) {
+        document.body.classList.add('dark-mode');
+        document.getElementById('dark-mode').checked = true;
+    }
     document.getElementById('dark-mode').addEventListener('change', function () {
         if (this.checked) {
             document.body.classList.add('dark-mode');
+            localStorage.setItem('dark-mode', 'true');
         } else {
             document.body.classList.remove('dark-mode');
+            localStorage.setItem('dark-mode', 'false');
         }
     });
 });
@@ -136,32 +141,35 @@ document.addEventListener('DOMContentLoaded', function () {
 async function initializeSearchDropdowns() {
     try {
         // Get all unique values from the database for each filter
-        const regions = await getUniqueValues('upg_groups', 'main_country');
-        const countries = await getUniqueValues('upg_groups', 'country');
-        const languages = await getUniqueValues('upg_groups', 'main_language');
-        const religions = await getUniqueValues('upg_groups', 'main_religion');
+        const regions = getUniqueValues('upg_groups', 'main_country');
+        const countries = getUniqueValues('upg_groups', 'country');
+        const languages = getUniqueValues('upg_groups', 'main_language');
+        const religions = getUniqueValues('upg_groups', 'main_religion');
+        const ethnicities = getUniqueValues('upg_groups', 'name');
 
         // Populate dropdowns
         populateDropdown('region-menu', regions);
         populateDropdown('country-menu', countries);
         populateDropdown('language-menu', languages);
         populateDropdown('religion-menu', religions);
-
-        // For ethnicity, we'll use the group names
-        const ethnicities = await getUniqueValues('upg_groups', 'name');
         populateDropdown('ethnicity-menu', ethnicities);
+        
+        // Setup enhanced dropdowns after population
+        setupDropdowns();
+        
+        // Add CSS class for styling feedback
+        document.querySelectorAll('.search-dropdown').forEach(dropdown => {
+            dropdown.classList.add('dropdown-ready');
+        });
     } catch (error) {
         console.error('Error initializing search dropdowns:', error);
     }
 }
 
 // Get unique values from a database column
-async function getUniqueValues(table, column) {
-    const sql = `SELECT DISTINCT ${column} FROM ${table} ORDER BY ${column}`;
-    const data = await getData(sql);
-
-    // Extract unique values from the results
-    const uniqueValues = data.rows.map(row => row[column]).filter(value => value);
+function getUniqueValues(table, column) {
+    // Extract unique values from the loadedUPGs array
+    const uniqueValues = [...new Set(loadedUPGs.map(row => row[column]).filter(value => value))].sort();
     return uniqueValues;
 }
 
@@ -172,11 +180,51 @@ function populateDropdown(dropdownId, items) {
 
     let dropdownHTML = '';
     items.forEach(item => {
-        dropdownHTML += `<div class="dropdown-item">${item}</div>`;
+        dropdownHTML += `<div class="dropdown-item" data-value="${item}">${item}</div>`;
     });
 
+    // add All that just has ""
+    dropdownHTML = `<div class="dropdown-item" data-value="">All</div>` + dropdownHTML;
+
     dropdownElement.innerHTML = dropdownHTML;
+    
+    // After populating, ensure the associated input can find matches
+    const dropdown = dropdownElement.closest('.search-dropdown');
+    if (dropdown) {
+        const input = dropdown.previousElementSibling;
+        if (input && input.classList.contains('search-input')) {
+            // Setup autocomplete functionality
+            setupInputAutocomplete(input, items);
+        }
+    }
 }
+
+// Setup autocomplete for input fields
+function setupInputAutocomplete(inputElement, suggestionItems) {
+    // Create a datalist for autocomplete suggestions
+    const datalistId = `${inputElement.id}-suggestions`;
+    let datalist = document.getElementById(datalistId);
+    
+    if (!datalist) {
+        datalist = document.createElement('datalist');
+        datalist.id = datalistId;
+        document.body.appendChild(datalist);
+        
+        // Connect the datalist to the input
+        inputElement.setAttribute('list', datalistId);
+    }
+    
+    // Clear existing options
+    datalist.innerHTML = '';
+    
+    // Add options to datalist
+    suggestionItems.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item;
+        datalist.appendChild(option);
+    });
+}
+
 
 let loadedUPGs = [];
 
@@ -1301,23 +1349,40 @@ function populateBeliefsSection(sectionElement, organizedContent) {
     }
 }
 
-// Set up event listeners
-function setupEventListeners() {
-    // Search button click
-    const searchBtn = document.getElementById('search-btn');
-    if (searchBtn) {
-        searchBtn.addEventListener('click', handleSearch);
-    }
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Overriding the existing setup event listeners function
+    // to include our enhanced dropdown functionality
+    window.setupEventListeners = function() {
 
-    // Dropdown functionality
-    setupDropdowns();
+        // Enhanced dropdown functionality
+        setupDropdowns();
 
-    // Add visual feedback when clicking buttons
-    setupButtonRippleEffects();
+        // Add visual feedback when clicking buttons
+        setupButtonRippleEffects();
 
-    // Initialize tooltips for stat cards
-    setupTooltips();
-}
+        // Initialize tooltips for stat cards
+        setupTooltips();
+        
+        // Add keyboard support for search
+        const searchInputs = document.querySelectorAll('.search-input');
+        searchInputs.forEach(input => {
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    handleSearch();
+                }
+            });
+        });
+    };
+    
+    // Make sure our functions are available globally
+    window.setupDropdowns = setupDropdowns;
+    window.populateDropdown = populateDropdown;
+});
+
+
+
+
 
 // Handle search button click
 async function handleSearch() {
@@ -1330,34 +1395,16 @@ async function handleSearch() {
 
     console.log('Search filters:', { region, country, language, ethnicity, religion });
 
-    // Build SQL query with filters
-    let sql = "SELECT * FROM upg_groups WHERE 1=1";
-
-    if (region) {
-        sql += ` AND LOWER(main_country) LIKE '%${region}%'`;
-    }
-
-    if (country) {
-        sql += ` AND LOWER(country) LIKE '%${country}%'`;
-    }
-
-    if (language) {
-        sql += ` AND LOWER(main_language) LIKE '%${language}%'`;
-    }
-
-    if (ethnicity) {
-        sql += ` AND LOWER(name) LIKE '%${ethnicity}%'`;
-    }
-
-    if (religion) {
-        sql += ` AND LOWER(main_religion) LIKE '%${religion}%'`;
-    }
-
-    sql += " ORDER BY name";
+    // Filter loadedUPGs instead of querying the database
+    const filteredUPGs = loadedUPGs.filter(group => {
+        return ((!region || region === 'all' || group.main_country?.toLowerCase().includes(region)) &&
+                (!country || country === 'all' || group.country?.toLowerCase().includes(country)) &&
+                (!language || language === 'all' || group.main_language?.toLowerCase().includes(language)) &&
+                (!ethnicity || ethnicity === 'all' || group.name?.toLowerCase().includes(ethnicity)) &&
+                (!religion || religion === 'all' || group.main_religion?.toLowerCase().includes(religion)));
+    });
 
     try {
-        const data = await getData(sql);
-
         // Show search results container
         const searchResultsContainer = document.getElementById('search-results');
         if (searchResultsContainer) {
@@ -1371,7 +1418,7 @@ async function handleSearch() {
         }
 
         // Populate search results
-        populateSearchResults(data.rows);
+        populateSearchResults(filteredUPGs);
     } catch (error) {
         console.error('Error searching people groups:', error);
     }
@@ -1380,59 +1427,129 @@ async function handleSearch() {
 // Set up dropdowns with animations
 function setupDropdowns() {
     const dropdowns = document.querySelectorAll('.search-dropdown');
+    const searchInputs = document.querySelectorAll('.search-input');
 
+    // Setup each dropdown
     dropdowns.forEach(dropdown => {
-        dropdown.addEventListener('click', function (e) {
+        // Find the associated input element
+        const searchInput = dropdown.previousElementSibling;
+        
+        // Dropdown toggle on click
+        dropdown.addEventListener('click', function(e) {
             e.stopPropagation();
-
-            // Close all other dropdowns with animation
+            
+            // Close all other dropdowns
             dropdowns.forEach(d => {
                 if (d !== dropdown) {
                     d.classList.remove('active');
                 }
             });
-
-            // Toggle current dropdown with animation
+            
+            // Toggle current dropdown
             this.classList.toggle('active');
         });
-
-        // Dropdown item selection
-        const dropdownItems = dropdown.querySelectorAll('.dropdown-item');
-        const searchInput = dropdown.previousElementSibling;
-
-        dropdownItems.forEach(item => {
-            item.addEventListener('click', function (e) {
-                e.stopPropagation();
-                // Smoothly update the input value
-                searchInput.value = this.textContent;
-
-                // Add a small delay before closing to make it feel smoother
-                setTimeout(() => {
-                    dropdown.classList.remove('active');
-                }, 150);
+        
+        // When dropdown menu is available, setup item selection
+        const setupDropdownItems = () => {
+            const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+            if (!dropdownMenu) return;
+            
+            const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
+            
+            dropdownItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Update input value with selected item text
+                    searchInput.value = this.textContent.trim();
+                    
+                    // Add selected class for visual feedback
+                    dropdownItems.forEach(di => di.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // Close dropdown with a small delay for smooth UX
+                    setTimeout(() => {
+                        dropdown.classList.remove('active');
+                    }, 150);
+                });
             });
+        };
+        
+        // Initial setup of dropdown items
+        setupDropdownItems();
+        
+        // Re-setup dropdown items when they might have been changed
+        // This ensures dynamically added items also get event listeners
+        const observer = new MutationObserver(setupDropdownItems);
+        const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+        if (dropdownMenu) {
+            observer.observe(dropdownMenu, { childList: true });
+        }
+    });
+
+    // Setup input-based filtering
+    searchInputs.forEach(input => {
+        const dropdown = input.nextElementSibling;
+        const dropdownMenu = dropdown.querySelector('.dropdown-menu');
+        
+        input.addEventListener('focus', function() {
+            // Open dropdown when input is focused
+            dropdown.classList.add('active');
+        });
+        
+        input.addEventListener('input', function() {
+            // Show dropdown when typing
+            dropdown.classList.add('active');
+            
+            const filterValue = this.value.toLowerCase().trim();
+            
+            // Filter dropdown items based on input
+            if (dropdownMenu) {
+                const items = dropdownMenu.querySelectorAll('.dropdown-item');
+                let hasVisibleItems = false;
+                
+                items.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    const shouldShow = text.includes(filterValue);
+                    
+                    item.style.display = shouldShow ? 'block' : 'none';
+                    if (shouldShow) hasVisibleItems = true;
+                });
+                
+                // If input is empty, show all items
+                if (filterValue === '') {
+                    items.forEach(item => {
+                        item.style.display = 'block';
+                    });
+                    hasVisibleItems = items.length > 0;
+                }
+                
+                // Show "No results" if no matching items
+                let noResultsElement = dropdownMenu.querySelector('.no-results');
+                
+                if (!hasVisibleItems) {
+                    if (!noResultsElement) {
+                        noResultsElement = document.createElement('div');
+                        noResultsElement.className = 'no-results';
+                        noResultsElement.textContent = 'No matching options';
+                        dropdownMenu.appendChild(noResultsElement);
+                    }
+                    noResultsElement.style.display = 'block';
+                } else if (noResultsElement) {
+                    noResultsElement.style.display = 'none';
+                }
+            }
         });
     });
 
     // Close dropdowns when clicking outside
-    document.addEventListener('click', function () {
+    document.addEventListener('click', function() {
         dropdowns.forEach(dropdown => {
             dropdown.classList.remove('active');
         });
     });
-
-    // Add hover effect for dropdown items for better user experience
-    const allDropdownItems = document.querySelectorAll('.dropdown-item');
-    allDropdownItems.forEach(item => {
-        item.addEventListener('mouseenter', function () {
-            this.style.backgroundColor = '#f0f7ff';
-        });
-
-        item.addEventListener('mouseleave', function () {
-            this.style.backgroundColor = '';
-        });
-    });
 }
+
 
 // Set up button ripple effects
 function setupButtonRippleEffects() {
