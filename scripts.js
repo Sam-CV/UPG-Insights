@@ -153,10 +153,10 @@ async function initializeSearchDropdowns() {
         populateDropdown('language-menu', languages);
         populateDropdown('religion-menu', religions);
         populateDropdown('ethnicity-menu', ethnicities);
-        
+
         // Setup enhanced dropdowns after population
         setupDropdowns();
-        
+
         // Add CSS class for styling feedback
         document.querySelectorAll('.search-dropdown').forEach(dropdown => {
             dropdown.classList.add('dropdown-ready');
@@ -187,7 +187,7 @@ function populateDropdown(dropdownId, items) {
     dropdownHTML = `<div class="dropdown-item" data-value="">All</div>` + dropdownHTML;
 
     dropdownElement.innerHTML = dropdownHTML;
-    
+
     // After populating, ensure the associated input can find matches
     const dropdown = dropdownElement.closest('.search-dropdown');
     if (dropdown) {
@@ -204,19 +204,19 @@ function setupInputAutocomplete(inputElement, suggestionItems) {
     // Create a datalist for autocomplete suggestions
     const datalistId = `${inputElement.id}-suggestions`;
     let datalist = document.getElementById(datalistId);
-    
+
     if (!datalist) {
         datalist = document.createElement('datalist');
         datalist.id = datalistId;
         document.body.appendChild(datalist);
-        
+
         // Connect the datalist to the input
         inputElement.setAttribute('list', datalistId);
     }
-    
+
     // Clear existing options
     datalist.innerHTML = '';
-    
+
     // Add options to datalist
     suggestionItems.forEach(item => {
         const option = document.createElement('option');
@@ -366,6 +366,7 @@ async function loadPeopleGroupDetails(groupId) {
             { id: 'demographics', name: 'Demographics' },
             { id: 'digital-learnings', name: 'Digital Learnings' },
             { id: 'testimonies', name: 'Testimonies' },
+            { id: 'external-resources', name: 'External Resources' },
             { id: 'all', name: 'All' }
         ];
 
@@ -394,15 +395,15 @@ async function loadPeopleGroupDetails(groupId) {
 function renderBasicStructureWithLoadingSkeletons(group) {
     const contentSectionsElement = document.getElementById('content-sections');
     if (!contentSectionsElement) return;
-    
+
     // Clear existing content
     contentSectionsElement.innerHTML = '';
-    
+
     // Create section element
     const sectionElement = document.createElement('div');
     sectionElement.className = 'content-section demographics-section active';
     sectionElement.id = 'current-active-section';
-    
+
     // Add people images and map with group info cards
     sectionElement.innerHTML = `
         <div class="content-grid">
@@ -495,16 +496,16 @@ function renderBasicStructureWithLoadingSkeletons(group) {
             </div>
         </div>
     `;
-    
+
     // Add section to the content sections container
     contentSectionsElement.appendChild(sectionElement);
-    
+
     // Now apply event listeners AFTER the DOM has been updated
     // Give it a small timeout to ensure DOM is fully updated
     setTimeout(() => {
         // Initialize click listeners for clickable media
         initializeClickableMedia(group);
-        
+
         // Initialize info strip card click listeners
         initializeInfoStripCards();
     }, 0);
@@ -512,9 +513,9 @@ function renderBasicStructureWithLoadingSkeletons(group) {
 
 // Initialize clickable media (images and map)
 function initializeClickableMedia(group) {
-    console.log('Initializing clickable media');
+    // console.log('Initializing clickable media');
     const clickableMedia = document.querySelectorAll('.clickable-media');
-    
+
     // Prepare media data for carousel
     const mediaData = [
         {
@@ -536,19 +537,19 @@ function initializeClickableMedia(group) {
             title: `${group.name} Geographic Distribution`
         }
     ];
-    
+
     clickableMedia.forEach(media => {
         // Remove any existing click listeners to prevent duplicates
         media.removeEventListener('click', clickMediaHandler);
-        
+
         // Add click listener with named function for easier debugging
         media.addEventListener('click', clickMediaHandler);
-        
+
         // Store the media data as a property on the element for easier access
         media.mediaData = mediaData;
     });
-    
-    console.log(`Attached listeners to ${clickableMedia.length} media elements`);
+
+    // console.log(`Attached listeners to ${clickableMedia.length} media elements`);
 }
 
 // Click handler function for media elements
@@ -556,12 +557,12 @@ function clickMediaHandler(event) {
     console.log('Media clicked');
     const index = parseInt(this.getAttribute('data-index'));
     const mediaData = this.mediaData || window.currentMediaData;
-    
+
     if (!mediaData) {
         console.error('Media data not available');
         return;
     }
-    
+
     openMediaCarousel(mediaData, index);
 }
 
@@ -571,7 +572,7 @@ function openMediaCarousel(mediaData, startIndex) {
     console.log('Opening media carousel', startIndex);
     // Store media data globally for easier access if needed later
     window.currentMediaData = mediaData;
-    
+
     // Create modal element if it doesn't exist
     let mediaModal = document.getElementById('media-carousel-modal');
     if (!mediaModal) {
@@ -580,7 +581,7 @@ function openMediaCarousel(mediaData, startIndex) {
         mediaModal.className = 'media-carousel-modal';
         document.body.appendChild(mediaModal);
     }
-    
+
     // Build carousel HTML
     let carouselHTML = `
         <div class="carousel-close">
@@ -608,46 +609,46 @@ function openMediaCarousel(mediaData, startIndex) {
             `).join('')}
         </div>
     `;
-    
+
     mediaModal.innerHTML = carouselHTML;
-    
+
     // Show the modal
     mediaModal.showModal();
-    
+
     // Set up tracking for current index
     mediaModal.currentIndex = startIndex;
-    
+
     // Add event listeners AFTER the DOM elements are created
     const prevButton = mediaModal.querySelector('.carousel-prev');
     const nextButton = mediaModal.querySelector('.carousel-next');
     const closeButton = mediaModal.querySelector('.carousel-close');
     const thumbnails = mediaModal.querySelectorAll('.carousel-thumbnail');
-    
+
     // Close button
-    closeButton.addEventListener('click', function() {
+    closeButton.addEventListener('click', function () {
         mediaModal.close();
     });
-    
+
     // Previous button click
-    prevButton.addEventListener('click', function() {
+    prevButton.addEventListener('click', function () {
         navigateCarousel('prev', mediaModal, mediaData);
     });
-    
+
     // Next button click
-    nextButton.addEventListener('click', function() {
+    nextButton.addEventListener('click', function () {
         navigateCarousel('next', mediaModal, mediaData);
     });
-    
+
     // Thumbnail clicks
     thumbnails.forEach(thumbnail => {
-        thumbnail.addEventListener('click', function() {
+        thumbnail.addEventListener('click', function () {
             const index = parseInt(this.getAttribute('data-index'));
             updateCarouselContent(mediaModal, mediaData, index);
         });
     });
-    
+
     // Add keyboard navigation
-    mediaModal.addEventListener('keydown', function(e) {
+    mediaModal.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowLeft') {
             navigateCarousel('prev', mediaModal, mediaData);
         } else if (e.key === 'ArrowRight') {
@@ -662,13 +663,13 @@ function openMediaCarousel(mediaData, startIndex) {
 function navigateCarousel(direction, modal, mediaData) {
     const current = modal.currentIndex;
     let newIndex;
-    
+
     if (direction === 'prev') {
         newIndex = (current - 1 + mediaData.length) % mediaData.length;
     } else {
         newIndex = (current + 1) % mediaData.length;
     }
-    
+
     updateCarouselContent(modal, mediaData, newIndex);
 }
 
@@ -676,12 +677,12 @@ function navigateCarousel(direction, modal, mediaData) {
 function updateCarouselContent(modal, mediaData, newIndex) {
     // Update current index
     modal.currentIndex = newIndex;
-    
+
     // Update main image and title
     modal.querySelector('.carousel-image-container img').src = mediaData[newIndex].src;
     modal.querySelector('.carousel-image-container img').alt = mediaData[newIndex].alt;
     modal.querySelector('.carousel-title').textContent = mediaData[newIndex].title;
-    
+
     // Update active thumbnail
     const thumbnails = modal.querySelectorAll('.carousel-thumbnail');
     thumbnails.forEach((thumbnail, index) => {
@@ -696,18 +697,18 @@ function updateCarouselContent(modal, mediaData, newIndex) {
 
 // Initialize info strip cards click listeners
 function initializeInfoStripCards() {
-    console.log('Initializing info strip cards');
+    // console.log('Initializing info strip cards');
     const infoStripCards = document.querySelectorAll('.info-strip-card');
-    
+
     infoStripCards.forEach(card => {
         // Remove any existing click listeners to prevent duplicates
         card.removeEventListener('click', clickCardHandler);
-        
+
         // Add click listener with named function for easier debugging
         card.addEventListener('click', clickCardHandler);
     });
-    
-    console.log(`Attached listeners to ${infoStripCards.length} info cards`);
+
+    // console.log(`Attached listeners to ${infoStripCards.length} info cards`);
 }
 
 // Click handler function for info cards
@@ -717,7 +718,7 @@ function clickCardHandler(event) {
     const title = this.getAttribute('data-info-title');
     const value = this.getAttribute('data-info-value');
     const icon = this.getAttribute('data-info-icon');
-    
+
     openInfoCardModal(title, value, icon);
 }
 
@@ -725,7 +726,7 @@ function clickCardHandler(event) {
 // Open info card modal
 function openInfoCardModal(title, value, icon) {
     console.log('Opening info card modal', title);
-    
+
     // Create modal element if it doesn't exist
     let infoModal = document.getElementById('info-card-modal');
     if (!infoModal) {
@@ -734,7 +735,7 @@ function openInfoCardModal(title, value, icon) {
         infoModal.className = 'info-card-modal';
         document.body.appendChild(infoModal);
     }
-    
+
     // Build modal HTML
     infoModal.innerHTML = `
         <div class="info-modal-close">
@@ -748,18 +749,18 @@ function openInfoCardModal(title, value, icon) {
             <div class="info-modal-value">${value}</div>
         </div>
     `;
-    
+
     // Show the modal
     infoModal.showModal();
-    
+
     // Add close event listener
     const closeButton = infoModal.querySelector('.info-modal-close');
-    closeButton.addEventListener('click', function() {
+    closeButton.addEventListener('click', function () {
         infoModal.close();
     });
-    
+
     // Close on Escape key
-    infoModal.addEventListener('keydown', function(e) {
+    infoModal.addEventListener('keydown', function (e) {
         if (e.key === 'Escape') {
             infoModal.close();
         }
@@ -788,12 +789,16 @@ function replaceLoadingSkeletonsWithContent(organizedContent, selectedSection) {
         case 'testimonies':
             populateTestimoniesSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'testimonies').content);
             break;
+        case 'external-resources':
+            // Call the function to populate external resources
+            const groupName = document.getElementById('group-name').textContent;
+            populateExternalResourcesSection(sectionElement, groupName);
+            break;
         case 'all':
             populateAllSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'all').content);
             break;
     }
 }
-
 
 // Organize research content by section type
 function organizeContentBySectionType(contentRows) {
@@ -845,6 +850,7 @@ function initializeGroupDetails(group, organizedContent) {
         { id: 'demographics', name: 'Demographics' },
         { id: 'digital-learnings', name: 'Digital Learnings' },
         { id: 'testimonies', name: 'Testimonies' },
+        { id: 'external-resources', name: 'External Resources' },
         { id: 'all', name: 'All' }
     ];
 
@@ -924,6 +930,11 @@ function initializeSectionFilters(sections) {
                             break;
                         case 'testimonies':
                             populateTestimoniesSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'testimonies').content);
+                            break;
+                        case 'external-resources':
+                            // Call the function to populate external resources
+                            const groupName = document.getElementById('group-name').textContent;
+                            populateExternalResourcesSection(sectionElement, groupName);
                             break;
                         case 'all':
                             populateAllSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'all').content);
@@ -1007,7 +1018,9 @@ function addLoadingSkeletons(sectionElement) {
                 <div class="skeleton-card"></div>
             </div>
         `;
-    } else {
+
+    }
+    else {
         // All section skeletons
         loadingSkeletonsDiv.innerHTML = `
             <!-- Overview skeleton -->
@@ -1045,15 +1058,15 @@ function removeLoadingSkeletons(sectionElement) {
 function loadSection(group, organizedContent, section) {
     const contentSectionsElement = document.getElementById('content-sections');
     if (!contentSectionsElement) return;
-    
+
     // Clear existing content
     contentSectionsElement.innerHTML = '';
-    
+
     // Create section element
     const sectionElement = document.createElement('div');
     sectionElement.className = `content-section ${section.id}-section active`;
     sectionElement.id = 'current-active-section';
-    
+
     // Add people images and map with group info cards (immediately)
     sectionElement.innerHTML = `
         <div class="content-grid">
@@ -1131,10 +1144,10 @@ function loadSection(group, organizedContent, section) {
             </div>
         </div>
     `;
-    
+
     // Add section to the content sections container
     contentSectionsElement.appendChild(sectionElement);
-    
+
     // Store media data globally for easier access
     window.currentMediaData = [
         {
@@ -1156,24 +1169,24 @@ function loadSection(group, organizedContent, section) {
             title: `${group.name} Geographic Distribution`
         }
     ];
-    
+
     // Add event listeners AFTER the DOM has been updated
     setTimeout(() => {
         // Initialize click listeners for clickable media
         initializeClickableMedia(group);
-        
+
         // Initialize info strip card click listeners
         initializeInfoStripCards();
-        
+
         // Add section-specific content
         // Remove loading skeletons
         const loadingSkeletons = sectionElement.querySelector('.loading-skeletons');
         if (loadingSkeletons) {
             loadingSkeletons.remove();
         }
-        
+
         // Add the actual content
-        switch(section.id) {
+        switch (section.id) {
             case 'demographics':
                 populateDemographicsSection(sectionElement, organizedContent);
                 break;
@@ -1182,6 +1195,11 @@ function loadSection(group, organizedContent, section) {
                 break;
             case 'testimonies':
                 populateTestimoniesSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'testimonies').content);
+                break;
+            case 'external-resources':
+                // Call the function to populate external resources
+                const groupName = document.getElementById('group-name').textContent;
+                populateExternalResourcesSection(sectionElement, groupName);
                 break;
             case 'all':
                 populateAllSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'all').content);
@@ -1196,19 +1214,19 @@ function clearContentKeepingProfilesAndMap(sectionElement) {
         sectionElement.querySelector('.content-grid'),
         sectionElement.querySelector('.group-info-strip')
     ];
-    
+
     // Create a temporary element to hold what we're keeping
     const tempHolder = document.createElement('div');
     contentToKeep.forEach(item => {
         if (item) tempHolder.appendChild(item.cloneNode(true));
     });
-    
+
     // Clear the section and add back what we're keeping
     sectionElement.innerHTML = '';
     while (tempHolder.firstChild) {
         sectionElement.appendChild(tempHolder.firstChild);
     }
-    
+
     // Re-initialize the event listeners after DOM update
     setTimeout(() => {
         // Re-initialize clickable media and info cards
@@ -1349,11 +1367,11 @@ function populateBeliefsSection(sectionElement, organizedContent) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-    
+document.addEventListener('DOMContentLoaded', function () {
+
     // Overriding the existing setup event listeners function
     // to include our enhanced dropdown functionality
-    window.setupEventListeners = function() {
+    window.setupEventListeners = function () {
 
         // Enhanced dropdown functionality
         setupDropdowns();
@@ -1363,18 +1381,18 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Initialize tooltips for stat cards
         setupTooltips();
-        
+
         // Add keyboard support for search
         const searchInputs = document.querySelectorAll('.search-input');
         searchInputs.forEach(input => {
-            input.addEventListener('keydown', function(e) {
+            input.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter') {
                     handleSearch();
                 }
             });
         });
     };
-    
+
     // Make sure our functions are available globally
     window.setupDropdowns = setupDropdowns;
     window.populateDropdown = populateDropdown;
@@ -1398,10 +1416,10 @@ async function handleSearch() {
     // Filter loadedUPGs instead of querying the database
     const filteredUPGs = loadedUPGs.filter(group => {
         return ((!region || region === 'all' || group.main_country?.toLowerCase().includes(region)) &&
-                (!country || country === 'all' || group.country?.toLowerCase().includes(country)) &&
-                (!language || language === 'all' || group.main_language?.toLowerCase().includes(language)) &&
-                (!ethnicity || ethnicity === 'all' || group.name?.toLowerCase().includes(ethnicity)) &&
-                (!religion || religion === 'all' || group.main_religion?.toLowerCase().includes(religion)));
+            (!country || country === 'all' || group.country?.toLowerCase().includes(country)) &&
+            (!language || language === 'all' || group.main_language?.toLowerCase().includes(language)) &&
+            (!ethnicity || ethnicity === 'all' || group.name?.toLowerCase().includes(ethnicity)) &&
+            (!religion || religion === 'all' || group.main_religion?.toLowerCase().includes(religion)));
     });
 
     try {
@@ -1433,40 +1451,40 @@ function setupDropdowns() {
     dropdowns.forEach(dropdown => {
         // Find the associated input element
         const searchInput = dropdown.previousElementSibling;
-        
+
         // Dropdown toggle on click
-        dropdown.addEventListener('click', function(e) {
+        dropdown.addEventListener('click', function (e) {
             e.stopPropagation();
-            
+
             // Close all other dropdowns
             dropdowns.forEach(d => {
                 if (d !== dropdown) {
                     d.classList.remove('active');
                 }
             });
-            
+
             // Toggle current dropdown
             this.classList.toggle('active');
         });
-        
+
         // When dropdown menu is available, setup item selection
         const setupDropdownItems = () => {
             const dropdownMenu = dropdown.querySelector('.dropdown-menu');
             if (!dropdownMenu) return;
-            
+
             const dropdownItems = dropdownMenu.querySelectorAll('.dropdown-item');
-            
+
             dropdownItems.forEach(item => {
-                item.addEventListener('click', function(e) {
+                item.addEventListener('click', function (e) {
                     e.stopPropagation();
-                    
+
                     // Update input value with selected item text
                     searchInput.value = this.textContent.trim();
-                    
+
                     // Add selected class for visual feedback
                     dropdownItems.forEach(di => di.classList.remove('selected'));
                     this.classList.add('selected');
-                    
+
                     // Close dropdown with a small delay for smooth UX
                     setTimeout(() => {
                         dropdown.classList.remove('active');
@@ -1474,10 +1492,10 @@ function setupDropdowns() {
                 });
             });
         };
-        
+
         // Initial setup of dropdown items
         setupDropdownItems();
-        
+
         // Re-setup dropdown items when they might have been changed
         // This ensures dynamically added items also get event listeners
         const observer = new MutationObserver(setupDropdownItems);
@@ -1491,31 +1509,31 @@ function setupDropdowns() {
     searchInputs.forEach(input => {
         const dropdown = input.nextElementSibling;
         const dropdownMenu = dropdown.querySelector('.dropdown-menu');
-        
-        input.addEventListener('focus', function() {
+
+        input.addEventListener('focus', function () {
             // Open dropdown when input is focused
             dropdown.classList.add('active');
         });
-        
-        input.addEventListener('input', function() {
+
+        input.addEventListener('input', function () {
             // Show dropdown when typing
             dropdown.classList.add('active');
-            
+
             const filterValue = this.value.toLowerCase().trim();
-            
+
             // Filter dropdown items based on input
             if (dropdownMenu) {
                 const items = dropdownMenu.querySelectorAll('.dropdown-item');
                 let hasVisibleItems = false;
-                
+
                 items.forEach(item => {
                     const text = item.textContent.toLowerCase();
                     const shouldShow = text.includes(filterValue);
-                    
+
                     item.style.display = shouldShow ? 'block' : 'none';
                     if (shouldShow) hasVisibleItems = true;
                 });
-                
+
                 // If input is empty, show all items
                 if (filterValue === '') {
                     items.forEach(item => {
@@ -1523,10 +1541,10 @@ function setupDropdowns() {
                     });
                     hasVisibleItems = items.length > 0;
                 }
-                
+
                 // Show "No results" if no matching items
                 let noResultsElement = dropdownMenu.querySelector('.no-results');
-                
+
                 if (!hasVisibleItems) {
                     if (!noResultsElement) {
                         noResultsElement = document.createElement('div');
@@ -1543,7 +1561,7 @@ function setupDropdowns() {
     });
 
     // Close dropdowns when clicking outside
-    document.addEventListener('click', function() {
+    document.addEventListener('click', function () {
         dropdowns.forEach(dropdown => {
             dropdown.classList.remove('active');
         });
@@ -2018,3 +2036,325 @@ function setupResetFiltersButton() {
         }
     });
 }
+
+
+// Function to clean UPG name for API call
+function cleanUPGName(name) {
+    // Remove country information in parentheses if present
+    const cleanedName = name.replace(/\s*\([^)]*\)\s*/g, '');
+    return cleanedName.trim();
+}
+
+// Function to fetch data from Joshua Project API
+async function fetchJoshuaProjectData(upgName) {
+    try {
+        const cleanedName = cleanUPGName(upgName);
+        console.log(`Fetching Joshua Project data for: ${cleanedName}`);
+
+        // Construct the API URL
+        const apiKey = '1a1d6edcba8b';
+        const apiUrl = `https://joshuaproject.net/api/v2/people_groups?api_key=${apiKey}&PeopNameInCountry=${encodeURIComponent(cleanedName)}`;
+
+        // Create a loading indicator
+        const externalSection = document.getElementById('current-active-section');
+        if (externalSection) {
+            externalSection.innerHTML += `
+                <div id="jp-loading" class="loading">
+                    <div class="loading-spinner"></div>
+                    <div style="margin-left: 15px;">Loading Joshua Project data...</div>
+                </div>
+            `;
+        }
+
+        // Fetch data
+        const response = await fetch(apiUrl);
+        console.log('Joshua Project API response status:', response.status);
+        
+        const data = await response.json();
+
+        // Remove loading indicator
+        const loadingElement = document.getElementById('jp-loading');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+
+        console.log('Joshua Project API response:', data);
+
+        // Check if data was found
+        if (data.meta.pagination.total_count === 0) {
+            // No data found
+            return { success: false, message: 'No data found for this people group in Joshua Project database.' };
+        }
+
+        // Return successful response
+        return { success: true, data: data.data[0] };
+
+    } catch (error) {
+        console.error('Error fetching Joshua Project data:', error);
+        // Remove loading indicator
+        const loadingElement = document.getElementById('jp-loading');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+        return { success: false, message: 'Data not found in the Joshua Project API.' };
+    }
+}
+
+// Function to populate the External Resources section
+function populateExternalResourcesSection(sectionElement, groupName) {
+    // Clear existing content within the section (except for profiles and info strip)
+    console.log(`Populating External Resources section for: ${groupName}`);
+    clearContentKeepingProfilesAndMap(sectionElement);
+
+    
+
+    // Add container for Joshua Project data
+    sectionElement.innerHTML += `
+        <div class="external-resources-container">
+            <h2 class="section-title">Joshua Project Data</h2>
+            <div id="jp-data-container">
+                <p>Loading data from Joshua Project...</p>
+            </div>
+        </div>
+    `;
+
+    // Fetch and display Joshua Project data
+    fetchJoshuaProjectData(groupName)
+        .then(result => {
+            const dataContainer = document.getElementById('jp-data-container');
+            if (!dataContainer) return;
+
+            if (!result.success) {
+                // Display error message
+                dataContainer.innerHTML = `
+                    <div class="jp-error">
+                        <span class="material-symbols-outlined">error</span>
+                        <p>${result.message}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Get the data
+            const jpData = result.data;
+
+            // Format and display data
+            dataContainer.innerHTML = generateJoshuaProjectHTML(jpData);
+
+            // Initialize any charts or interactive elements
+            if (typeof initializeJoshuaProjectCharts === 'function') {
+                initializeJoshuaProjectCharts(jpData);
+            }
+        });
+}
+
+// Function to generate HTML for Joshua Project data
+function generateJoshuaProjectHTML(data) {
+    // Create photo URL with fallback
+    const photoUrl = data.PhotoAddress || 'placeholder.jpg';
+
+    // Format population with commas
+    const formattedPopulation = data.Population ? data.Population.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : 'Unknown';
+
+    // Calculate progress for progress bars
+    const evangelicalPercentage = data.PercentEvangelical * 100;
+    const adherentsPercentage = data.PercentAdherents * 100;
+
+    // Create HTML for religion distribution
+    let religionHTML = '';
+    const religionData = [
+        { name: 'Buddhism', value: data.PCBuddhism },
+        { name: 'Hinduism', value: data.PCHinduism },
+        { name: 'Islam', value: data.PCIslam },
+        { name: 'Ethnic Religions', value: data.PCEthnicReligions },
+        { name: 'Non-Religious', value: data.PCNonReligious },
+        { name: 'Christianity', value: (data.PCDblyProfessing || 0) },
+        { name: 'Other', value: data.PCOtherSmall }
+    ].filter(item => item.value > 0);
+
+    religionHTML = religionData.map(item => `
+        <div class="religion-item">
+            <div class="religion-label">${item.name}</div>
+            <div class="religion-bar-container">
+                <div class="religion-bar" style="width: ${item.value}%"></div>
+                <div class="religion-percentage">${item.value.toFixed(1)}%</div>
+            </div>
+        </div>
+    `).join('');
+
+    // Generate the main HTML content
+    return `
+        <div class="jp-content-grid">
+            <div class="jp-profile-section">
+                <div class="jp-photo">
+                    <img src="${photoUrl}" alt="${data.PeopNameInCountry} people" onerror="this.src='placeholder.jpg';">
+                    <div class="jp-photo-credit">Photo: ${data.PhotoCredits || 'Joshua Project'}</div>
+                </div>
+                
+                <div class="jp-key-info">
+                    <h3>${data.PeopNameInCountry}</h3>
+                    <div class="jp-info-item">
+                        <span class="jp-info-label">Country:</span>
+                        <span class="jp-info-value">${data.Ctry}</span>
+                    </div>
+                    <div class="jp-info-item">
+                        <span class="jp-info-label">Population:</span>
+                        <span class="jp-info-value">${formattedPopulation}</span>
+                    </div>
+                    <div class="jp-info-item">
+                        <span class="jp-info-label">Primary Language:</span>
+                        <span class="jp-info-value">${data.PrimaryLanguageName}</span>
+                    </div>
+                    <div class="jp-info-item">
+                        <span class="jp-info-label">Primary Religion:</span>
+                        <span class="jp-info-value">${data.PrimaryReligion}</span>
+                    </div>
+                    <div class="jp-info-item">
+                        <span class="jp-info-label">Joshua Project Scale:</span>
+                        <span class="jp-info-value">
+                            <div class="jp-scale-value">${data.JPScale}</div>
+                            <div class="jp-scale-description">(${data.JPScale === 1 ? 'Least Reached' : data.JPScale === 2 ? 'Minimally Reached' : 'Significantly Reached'})</div>
+                        </span>
+                    </div>
+                    <div class="jp-source-link">
+                        <a href="https://joshuaproject.net/people_groups/${data.PeopleID3}/${data.ROG3}" target="_blank">
+                            View on Joshua Project
+                            <span class="material-symbols-outlined" style="font-size: 16px; vertical-align: middle;">open_in_new</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="jp-religion-section">
+                <h3>Religion Composition</h3>
+                <div class="jp-religion-distribution">
+                    ${religionHTML}
+                </div>
+                
+                <div class="jp-christian-stats">
+                    <h4>Christian Presence</h4>
+                    <div class="jp-stat-item">
+                        <div class="jp-stat-label">Evangelical Christians</div>
+                        <div class="jp-progress-container">
+                            <div class="jp-progress-bar jp-evangelical-bar" style="width: ${evangelicalPercentage}%"></div>
+                            <div class="jp-progress-label">${evangelicalPercentage.toFixed(2)}%</div>
+                        </div>
+                        <div class="jp-stat-count">(approx. ${data.CountEvangelical} people)</div>
+                    </div>
+                    <div class="jp-stat-item">
+                        <div class="jp-stat-label">Christian Adherents</div>
+                        <div class="jp-progress-container">
+                            <div class="jp-progress-bar jp-adherent-bar" style="width: ${adherentsPercentage}%"></div>
+                            <div class="jp-progress-label">${adherentsPercentage.toFixed(2)}%</div>
+                        </div>
+                        <div class="jp-stat-count">(approx. ${data.CountAdherents} people)</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="jp-map-section">
+                <h3>Geographic Location</h3>
+                ${data.MapAddress ?
+            `<div class="jp-map-container">
+                        <img src="${data.MapAddress}" alt="Map of ${data.PeopNameInCountry} location" onerror="this.src='placeholder-map.jpg';">
+                        <div class="jp-map-caption">Map: ${data.MapCredits || 'Joshua Project'}</div>
+                    </div>` :
+            `<div class="jp-no-map">
+                        <span class="material-symbols-outlined">map_off</span>
+                        <p>Map not available</p>
+                    </div>`
+        }
+                
+                ${(data.Latitude && data.Longitude) ?
+            `<div class="jp-coordinates">
+                        <div class="jp-coord-item">
+                            <span class="jp-coord-label">Latitude:</span>
+                            <span class="jp-coord-value">${data.Latitude}</span>
+                        </div>
+                        <div class="jp-coord-item">
+                            <span class="jp-coord-label">Longitude:</span>
+                            <span class="jp-coord-value">${data.Longitude}</span>
+                        </div>
+                    </div>` : ''
+        }
+            </div>
+            
+            <div class="jp-resources-section">
+                <h3>Ministry Resources</h3>
+                <div class="jp-resource-grid">
+                    <div class="jp-resource-item ${data.BibleStatus > 0 ? 'jp-resource-available' : 'jp-resource-unavailable'}">
+                        <span class="material-symbols-outlined">menu_book</span>
+                        <div class="jp-resource-label">Bible Translation</div>
+                        <div class="jp-resource-status">${getBibleStatusText(data.BibleStatus)}</div>
+                    </div>
+                    <div class="jp-resource-item ${data.AudioRecordings === 'Y' ? 'jp-resource-available' : 'jp-resource-unavailable'}">
+                        <span class="material-symbols-outlined">hearing</span>
+                        <div class="jp-resource-label">Audio Recordings</div>
+                        <div class="jp-resource-status">${data.AudioRecordings === 'Y' ? 'Available' : 'Not Available'}</div>
+                    </div>
+                    <div class="jp-resource-item ${data.GospelRadio === 'Y' ? 'jp-resource-available' : 'jp-resource-unavailable'}">
+                        <span class="material-symbols-outlined">radio</span>
+                        <div class="jp-resource-label">Gospel Radio</div>
+                        <div class="jp-resource-status">${data.GospelRadio === 'Y' ? 'Available' : 'Not Available'}</div>
+                    </div>
+                    <div class="jp-resource-item ${data.NTOnline === 'Y' ? 'jp-resource-available' : 'jp-resource-unavailable'}">
+                        <span class="material-symbols-outlined">public</span>
+                        <div class="jp-resource-label">Online Scripture</div>
+                        <div class="jp-resource-status">${data.NTOnline === 'Y' ? 'Available' : 'Not Available'}</div>
+                    </div>
+                </div>
+                
+                <div class="jp-ministry-notes">
+                    <div class="jp-ministry-item">
+                        <span class="jp-ministry-label">Workers Needed:</span>
+                        <span class="jp-ministry-value">${data.WorkersNeeded || 'Unknown'}</span>
+                    </div>
+                    <div class="jp-ministry-item">
+                        <span class="jp-ministry-label">Frontier Status:</span>
+                        <span class="jp-ministry-value">${data.Frontier === 'Y' ? 'Frontier People Group' : 'Not a Frontier People Group'}</span>
+                    </div>
+                    <div class="jp-ministry-item">
+                        <span class="jp-ministry-label">Engagement Status:</span>
+                        <span class="jp-ministry-value">${getEngagementStatus(data.GSEC)}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="jp-attribution">
+                <div class="jp-jp-logo">
+                    <span class="material-symbols-outlined">public</span>
+                    Joshua Project
+                </div>
+                <div class="jp-jp-disclaimer">
+                    Data sourced from <a href="https://joshuaproject.net" target="_blank">Joshua Project</a>, 
+                    a research initiative seeking to highlight the ethnic people groups with the fewest followers of Christ.
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// Helper function to get Bible translation status text
+function getBibleStatusText(bibleStatus) {
+    switch (bibleStatus) {
+        case 0: return 'None Available';
+        case 1: return 'Portions Available';
+        case 2: return 'New Testament Available';
+        case 3: return 'Complete Bible Available';
+        default: return 'Unknown Status';
+    }
+}
+
+// Helper function to get engagement status description
+function getEngagementStatus(gsecCode) {
+    switch (gsecCode) {
+        case 0: return 'Unknown Status';
+        case 1: return 'No Engagement';
+        case 2: return 'Minimal Engagement';
+        case 3: return 'Limited Engagement';
+        case 4: return 'Established Engagement';
+        case 5: return 'Widespread Engagement';
+        default: return 'Unknown Status';
+    }
+}
+

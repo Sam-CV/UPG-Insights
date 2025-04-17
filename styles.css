@@ -2173,3 +2173,501 @@ body.dark-mode .skeleton-stats::after {
     border-color: #4a90e2;
     box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
+
+/* External Resources / Joshua Project Styles */
+.external-resources-container {
+    margin-top: 2rem;
+}
+
+.jp-content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    margin-top: 20px;
+}
+
+/* Profile Section */
+.jp-profile-section {
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.jp-photo {
+    width: 100%;
+    position: relative;
+}
+
+.jp-photo img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+}
+
+.jp-photo-credit {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-top-left-radius: 6px;
+}
+
+.jp-key-info {
+    padding: 20px;
+}
+
+.jp-key-info h3 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+.jp-info-item {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.jp-info-label {
+    font-weight: 500;
+    color: #555;
+    width: 140px;
+    flex-shrink: 0;
+}
+
+.jp-info-value {
+    color: #333;
+}
+
+.jp-scale-value {
+    font-weight: 600;
+    color: var(--primary-blue);
+    font-size: 18px;
+    display: inline-block;
+}
+
+.jp-scale-description {
+    color: #666;
+    font-size: 13px;
+    display: inline-block;
+    margin-left: 5px;
+}
+
+.jp-source-link {
+    margin-top: 15px;
+}
+
+.jp-source-link a {
+    display: inline-flex;
+    align-items: center;
+    color: var(--primary-blue);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+
+.jp-source-link a:hover {
+    color: #0035C9;
+    text-decoration: underline;
+}
+
+/* Religion Section */
+.jp-religion-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.jp-religion-section h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+.jp-religion-distribution {
+    margin-bottom: 20px;
+}
+
+.jp-religion-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 10px;
+}
+
+.jp-religion-label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.jp-religion-bar-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    height: 24px;
+    background: #f5f5f5;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.jp-religion-bar {
+    height: 100%;
+    background: var(--primary-blue);
+    border-radius: 12px;
+    transition: width 0.8s ease-in-out;
+}
+
+.jp-religion-percentage {
+    margin-left: 10px;
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+
+.jp-christian-stats {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.jp-christian-stats h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-family: 'Poppins', sans-serif;
+    color: #444;
+}
+
+.jp-stat-item {
+    margin-bottom: 15px;
+}
+
+.jp-stat-label {
+    font-size: 14px;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+.jp-progress-container {
+    width: 100%;
+    height: 18px;
+    background: #f5f5f5;
+    border-radius: 9px;
+    overflow: hidden;
+    position: relative;
+}
+
+.jp-progress-bar {
+    height: 100%;
+    transition: width 0.8s ease-in-out;
+    border-radius: 9px;
+}
+
+.jp-evangelical-bar {
+    background: #4CAF50;
+}
+
+.jp-adherent-bar {
+    background: #2196F3;
+}
+
+.jp-progress-label {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    color: #333;
+    font-weight: 500;
+}
+
+.jp-stat-count {
+    font-size: 13px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Map Section */
+.jp-map-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    grid-column: 1 / 3;
+}
+
+.jp-map-section h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+.jp-map-container {
+    width: 100%;
+    max-height: 400px;
+    overflow: hidden;
+    position: relative;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.jp-map-container img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+.jp-map-caption {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: #fff;
+    padding: 4px 8px;
+    font-size: 11px;
+    border-top-left-radius: 6px;
+}
+
+.jp-no-map {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #f5f5f5;
+    height: 200px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.jp-no-map .material-symbols-outlined {
+    font-size: 48px;
+    color: #bbb;
+    margin-bottom: 10px;
+}
+
+.jp-no-map p {
+    color: #666;
+}
+
+.jp-coordinates {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    margin-top: 15px;
+}
+
+.jp-coord-item {
+    display: flex;
+    align-items: center;
+}
+
+.jp-coord-label {
+    font-weight: 500;
+    color: #555;
+    margin-right: 5px;
+}
+
+.jp-coord-value {
+    color: #333;
+}
+
+/* Resources Section */
+.jp-resources-section {
+    background: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+    grid-column: 1 / 3;
+}
+
+.jp-resources-section h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+}
+
+.jp-resource-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.jp-resource-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    transition: transform 0.2s;
+}
+
+.jp-resource-item:hover {
+    transform: translateY(-3px);
+}
+
+.jp-resource-available {
+    background: rgba(76, 175, 80, 0.1);
+}
+
+.jp-resource-unavailable {
+    background: rgba(158, 158, 158, 0.1);
+}
+
+.jp-resource-item .material-symbols-outlined {
+    font-size: 28px;
+    margin-bottom: 10px;
+}
+
+.jp-resource-available .material-symbols-outlined {
+    color: #4CAF50;
+}
+
+.jp-resource-unavailable .material-symbols-outlined {
+    color: #9E9E9E;
+}
+
+.jp-resource-label {
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.jp-resource-status {
+    font-size: 13px;
+    color: #666;
+}
+
+.jp-ministry-notes {
+    padding: 15px;
+    background: #f9f9f9;
+    border-radius: 8px;
+}
+
+.jp-ministry-item {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.jp-ministry-item:last-child {
+    margin-bottom: 0;
+}
+
+.jp-ministry-label {
+    font-weight: 500;
+    color: #555;
+    width: 150px;
+    flex-shrink: 0;
+}
+
+.jp-ministry-value {
+    color: #333;
+}
+
+/* Attribution */
+.jp-attribution {
+    background: #f5f5f5;
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    grid-column: 1 / 3;
+}
+
+.jp-jp-logo {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #333;
+    margin-right: 15px;
+    min-width: 150px;
+}
+
+.jp-jp-logo .material-symbols-outlined {
+    margin-right: 5px;
+    color: var(--primary-blue);
+}
+
+.jp-jp-disclaimer {
+    font-size: 13px;
+    color: #666;
+}
+
+.jp-jp-disclaimer a {
+    color: var(--primary-blue);
+    text-decoration: none;
+}
+
+.jp-error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 30px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.jp-error .material-symbols-outlined {
+    font-size: 48px;
+    color: #ff5722;
+    margin-bottom: 15px;
+}
+
+.jp-error p {
+    color: #555;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+    .jp-content-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .jp-map-section,
+    .jp-resources-section,
+    .jp-attribution {
+        grid-column: auto;
+    }
+    
+    .jp-resource-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .jp-resource-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .jp-coordinates {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    .jp-attribution {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .jp-jp-logo {
+        margin-right: 0;
+        margin-bottom: 10px;
+        justify-content: center;
+    }
+}
