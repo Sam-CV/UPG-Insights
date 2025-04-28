@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :not(.dark-mode) {
     --primary-blue: #0047FF;
@@ -37,7 +38,7 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Montserrat', sans-serif;
 }
 
 body {
@@ -288,13 +289,13 @@ nav {
 .title {
     font-size: 30px;
     font-weight: 600;
-    font-family: 'Poppins', sans-serif;
     color: var(--dark-text);
     position: relative;
     display: inline-flex;
     width: 100%;
     justify-content: space-between;
     align-items: center;
+    font-weight: bold;
 }
 
 .title::after {
@@ -463,6 +464,10 @@ nav {
     height: 150px;
 }
 
+.people-images img:hover {
+    transform: scale(1);
+}
+
 .people-group-info {
     padding: 15px;
 }
@@ -563,6 +568,7 @@ nav {
 
 p {
     margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
 }
 
 .section-title::before {
@@ -1588,7 +1594,7 @@ dialog::backdrop {
     /* display: flex; */
     flex-direction: column;
     align-items: center;
-}   
+}
 
 .settings-modal h2 {
     font-size: 24px;
@@ -1605,6 +1611,7 @@ dialog::backdrop {
     width: 100%;
     margin-bottom: 15px;
 }
+
 .settings-modal .settings-option label {
     font-size: 16px;
     color: #333;
@@ -1655,6 +1662,7 @@ dialog::backdrop {
     transition: all 0.3s ease;
     margin-top: 20px;
 }
+
 .close-button:hover {
     background-color: #0056b3;
 }
@@ -1714,7 +1722,8 @@ dialog::backdrop {
     margin-top: 16px;
 }
 
-.skeleton-buttons::before, .skeleton-buttons::after {
+.skeleton-buttons::before,
+.skeleton-buttons::after {
     content: "";
     height: 36px;
     width: 80px;
@@ -1756,7 +1765,8 @@ dialog::backdrop {
     margin-top: 16px;
 }
 
-.skeleton-stats::before, .skeleton-stats::after {
+.skeleton-stats::before,
+.skeleton-stats::after {
     content: "";
     height: 100px;
     background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
@@ -2162,6 +2172,7 @@ body.dark-mode .skeleton-stats::after {
         opacity: 0;
         transform: translateY(-10px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -2633,18 +2644,324 @@ body.dark-mode .skeleton-stats::after {
     color: #555;
 }
 
+.content-section {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Back Button Styles */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: var(--primary-blue);
+    font-weight: 500;
+    font-size: 16px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-bottom: 20px;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    color: #0035C9;
+    transform: translateX(-5px);
+}
+
+.back-button .material-symbols-outlined {
+    font-size: 20px;
+    margin-right: 8px;
+}
+
+.testimonies-container {
+    margin-top: 2rem;
+}
+
+.testimonies-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(800px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.testimony-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    transition: all 0.3s ease;
+    position: relative;
+    /* max-height: 300px; */
+}
+
+.testimony-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+}
+
+.testimony-header {
+    padding: 1rem 1.5rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.testimony-number {
+    font-weight: 600;
+    color: #333;
+}
+
+.testimony-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.testimony-date .material-symbols-outlined {
+    font-size: 1.2rem;
+}
+
+.testimony-content {
+    padding: 1.5rem;
+    max-height: 120px;
+    overflow: hidden;
+    position: relative;
+    transition: max-height 0.3s ease;
+}
+
+.testimony-content p {
+    margin: 0;
+    line-height: 1.6;
+    color: #444;
+}
+
+.testimony-card.expanded .testimony-content {
+    max-height: 1000px;
+}
+
+.testimony-card:not(.expanded) .testimony-content::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(transparent, white);
+    pointer-events: none;
+}
+
+.testimony-footer {
+    padding: 0 1.5rem 1.5rem;
+}
+
+.read-more-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f5f5f5;
+    border: none;
+    border-radius: 6px;
+    color: #4a90e2;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.read-more-btn:hover {
+    background: #e8f0fd;
+}
+
+.read-more-btn .material-symbols-outlined {
+    font-size: 1.2rem;
+}
+
+/* No Testimonies State */
+.no-testimonies {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+}
+
+.no-testimonies .material-symbols-outlined {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #ccc;
+}
+
+/* Error State */
+.testimonies-error {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+    background: #f9f9f9;
+    border-radius: 12px;
+    margin-top: 2rem;
+}
+
+.testimonies-error .material-symbols-outlined {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+    color: #e74c3c;
+}
+
+/* Testimony Modal */
+.testimony-modal {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 600px;
+    width: 90%;
+}
+
+.testimony-modal::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    cursor: pointer;
+    background: #f5f5f5;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.modal-close:hover {
+    background: #e0e0e0;
+}
+
+.modal-content {
+    padding: 2rem;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.modal-date {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: #666;
+}
+
+.modal-body {
+    line-height: 1.8;
+    color: #444;
+}
+
+.skeleton-testimony-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.skeleton-testimony-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.skeleton-title-small {
+    height: 20px;
+    width: 100px;
+    background: #eee;
+    border-radius: 4px;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-date {
+    height: 20px;
+    width: 120px;
+    background: #eee;
+    border-radius: 4px;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-testimony-content {
+    margin-bottom: 1rem;
+}
+
+.skeleton-testimony-content .skeleton-paragraph {
+    height: 16px;
+    background: #eee;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+.skeleton-testimony-content .skeleton-paragraph:first-child {
+    width: 100%;
+}
+
+.skeleton-testimony-content .skeleton-paragraph:last-child {
+    width: 80%;
+}
+
+.skeleton-button {
+    height: 36px;
+    width: 120px;
+    background: #eee;
+    border-radius: 6px;
+    animation: skeleton-loading 1.5s infinite;
+}
+
+@keyframes skeleton-loading {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+
 /* Responsive Adjustments */
+
+@media (max-width: 768px) {
+    .testimonies-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 992px) {
     .jp-content-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .jp-map-section,
     .jp-resources-section,
     .jp-attribution {
         grid-column: auto;
     }
-    
+
     .jp-resource-grid {
         grid-template-columns: repeat(2, 1fr);
     }
@@ -2654,17 +2971,17 @@ body.dark-mode .skeleton-stats::after {
     .jp-resource-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .jp-coordinates {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .jp-attribution {
         flex-direction: column;
         text-align: center;
     }
-    
+
     .jp-jp-logo {
         margin-right: 0;
         margin-bottom: 10px;

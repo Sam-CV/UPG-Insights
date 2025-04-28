@@ -23,59 +23,59 @@ function initializeSite() {
     // Initialize navigation
     initializeNavigation();
 
-    // Load website data from data.js (we still need this for non-demographics sections)
-    if (typeof websiteData === 'undefined') {
-        // Create a default websiteData object if it doesn't exist
-        window.websiteData = {
-            siteName: 'UPG Insights',
-            navigation: [
-                { name: 'Home', url: 'index.html', active: true }
-            ],
-            searchFilters: {
-                regions: [],
-                countries: [],
-                languages: [],
-                ethnicities: [],
-                religions: []
-            },
-            peopleGroups: [],
-            tharu: {
-                name: 'Tharu',
-                sections: [
-                    { id: 'demographics', name: 'Demographics', content: {} },
-                    {
-                        id: 'digital-learnings', name: 'Digital Learnings', content: {
-                            campaignData: { title: 'Campaign Data', metrics: [] },
-                            quizzes: { title: 'Quizzes', charts: [] },
-                            hypothesisTests: { title: 'Hypothesis Tests', tests: [] }
-                        }
-                    },
-                    {
-                        id: 'testimonies', name: 'Testimonies', content: {
-                            filters: { genders: ['All', 'Male', 'Female'] },
-                            stories: []
-                        }
-                    },
-                    {
-                        id: 'all', name: 'All', content: {
-                            overview: { title: 'Overview', text: '' },
-                            combinedHighlights: {
-                                demographics: { title: 'Demographics Highlights', stats: [] },
-                                digitalLearnings: { title: 'Digital Learnings Highlights', stats: [] },
-                                testimonies: { title: 'Featured Testimony', featured: {} },
-                                quickNumbers: { title: 'Quick Numbers', stats: [] }
-                            }
-                        }
-                    }
-                ]
-            }
-        };
+    // // Load website data from data.js (we still need this for non-demographics sections)
+    // if (typeof websiteData === 'undefined') {
+    //     // Create a default websiteData object if it doesn't exist
+    //     window.websiteData = {
+    //         siteName: 'UPG Insights',
+    //         navigation: [
+    //             { name: 'Home', url: 'index.html', active: true }
+    //         ],
+    //         searchFilters: {
+    //             regions: [],
+    //             countries: [],
+    //             languages: [],
+    //             ethnicities: [],
+    //             religions: []
+    //         },
+    //         peopleGroups: [],
+    //         tharu: {
+    //             name: 'Tharu',
+    //             sections: [
+    //                 { id: 'demographics', name: 'Demographics', content: {} },
+    //                 {
+    //                     id: 'digital-learnings', name: 'Digital Learnings', content: {
+    //                         campaignData: { title: 'Campaign Data', metrics: [] },
+    //                         quizzes: { title: 'Quizzes', charts: [] },
+    //                         hypothesisTests: { title: 'Hypothesis Tests', tests: [] }
+    //                     }
+    //                 },
+    //                 {
+    //                     id: 'testimonies', name: 'Testimonies', content: {
+    //                         filters: { genders: ['All', 'Male', 'Female'] },
+    //                         stories: []
+    //                     }
+    //                 },
+    //                 {
+    //                     id: 'all', name: 'All', content: {
+    //                         overview: { title: 'Overview', text: '' },
+    //                         combinedHighlights: {
+    //                             demographics: { title: 'Demographics Highlights', stats: [] },
+    //                             digitalLearnings: { title: 'Digital Learnings Highlights', stats: [] },
+    //                             testimonies: { title: 'Featured Testimony', featured: {} },
+    //                             quickNumbers: { title: 'Quick Numbers', stats: [] }
+    //                         }
+    //                     }
+    //                 }
+    //             ]
+    //         }
+    //     };
 
-        // Load data.js script dynamically
-        const script = document.createElement('script');
-        script.src = 'data.js';
-        document.head.appendChild(script);
-    }
+    //     // Load data.js script dynamically
+    //     const script = document.createElement('script');
+    //     script.src = 'data.js';
+    //     document.head.appendChild(script);
+    // }
 }
 
 // Initialize navigation
@@ -84,11 +84,12 @@ function initializeNavigation() {
     if (!navElement) return;
 
     // Determine current page
+    const isHomePage = window.location.pathname.includes('index.html');
     const isHistoricalPage = window.location.pathname.includes('historical-data.html');
 
     // Add navigation items
     let navHTML = '';
-    navHTML += `<a href="index.html" class="nav-item ${!isHistoricalPage ? 'active' : ''}">Home</a>`;
+    navHTML += `<a href="index.html" class="nav-item ${isHomePage ? 'active' : ''}">Home</a>`;
     navHTML += `<a href="historical-data.html" class="nav-item ${isHistoricalPage ? 'active' : ''}">Historical Data</a>`;
 
     // Add buttons
@@ -237,11 +238,11 @@ async function loadAllPeopleGroups() {
             searchResultsContainer.style.display = 'block';
         }
 
-        // Hide main content container
-        const mainContentContainer = document.getElementById('main-content');
-        if (mainContentContainer) {
-            mainContentContainer.style.display = 'none';
-        }
+        // // Hide main content container
+        // const mainContentContainer = document.getElementById('main-content');
+        // if (mainContentContainer) {
+        //     mainContentContainer.style.display = 'none';
+        // }
 
         loading(true);
 
@@ -328,7 +329,8 @@ function populateSearchResults(peopleGroups) {
     cards.forEach(card => {
         card.addEventListener('click', function () {
             const groupId = this.getAttribute('data-group-id');
-            loadPeopleGroupDetails(groupId);
+            // Navigate to the details page with group ID as URL parameter
+            window.location.href = `upg-details.html?groupId=${groupId}`;
         });
     });
 }
@@ -787,7 +789,8 @@ function replaceLoadingSkeletonsWithContent(organizedContent, selectedSection) {
             populateDigitalLearningsSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'digital-learnings').content);
             break;
         case 'testimonies':
-            populateTestimoniesSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'testimonies').content);
+            // Updated to call without content parameter
+            populateTestimoniesSection(sectionElement);
             break;
         case 'external-resources':
             // Call the function to populate external resources
@@ -929,7 +932,7 @@ function initializeSectionFilters(sections) {
                             populateDigitalLearningsSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'digital-learnings').content);
                             break;
                         case 'testimonies':
-                            populateTestimoniesSection(sectionElement, websiteData.tharu.sections.find(s => s.id === 'testimonies').content);
+                            populateTestimoniesSection(sectionElement);
                             break;
                         case 'external-resources':
                             // Call the function to populate external resources
@@ -2069,7 +2072,7 @@ async function fetchJoshuaProjectData(upgName) {
         // Fetch data
         const response = await fetch(apiUrl);
         console.log('Joshua Project API response status:', response.status);
-        
+
         const data = await response.json();
 
         // Remove loading indicator
@@ -2106,7 +2109,7 @@ function populateExternalResourcesSection(sectionElement, groupName) {
     console.log(`Populating External Resources section for: ${groupName}`);
     clearContentKeepingProfilesAndMap(sectionElement);
 
-    
+
 
     // Add container for Joshua Project data
     sectionElement.innerHTML += `
@@ -2358,3 +2361,219 @@ function getEngagementStatus(gsecCode) {
     }
 }
 
+// Populate Testimonies Section
+async function populateTestimoniesSection(sectionElement, content) {
+    // Clear existing content while keeping profiles and map
+    clearContentKeepingProfilesAndMap(sectionElement);
+
+    // Add loading skeletons for testimonies
+    sectionElement.innerHTML += `
+        <div class="loading-skeletons">
+            <div class="loading-skeleton">
+                <div class="skeleton-title"></div>
+                <div class="skeleton-paragraph"></div>
+                <div class="skeleton-paragraph"></div>
+            </div>
+            <div class="skeleton-flex">
+                <div class="skeleton-testimony-card">
+                    <div class="skeleton-testimony-header">
+                        <div class="skeleton-title-small"></div>
+                        <div class="skeleton-date"></div>
+                    </div>
+                    <div class="skeleton-testimony-content">
+                        <div class="skeleton-paragraph"></div>
+                        <div class="skeleton-paragraph"></div>
+                    </div>
+                    <div class="skeleton-button"></div>
+                </div>
+                <div class="skeleton-testimony-card">
+                    <div class="skeleton-testimony-header">
+                        <div class="skeleton-title-small"></div>
+                        <div class="skeleton-date"></div>
+                    </div>
+                    <div class="skeleton-testimony-content">
+                        <div class="skeleton-paragraph"></div>
+                        <div class="skeleton-paragraph"></div>
+                    </div>
+                    <div class="skeleton-button"></div>
+                </div>
+                <div class="skeleton-testimony-card">
+                    <div class="skeleton-testimony-header">
+                        <div class="skeleton-title-small"></div>
+                        <div class="skeleton-date"></div>
+                    </div>
+                    <div class="skeleton-testimony-content">
+                        <div class="skeleton-paragraph"></div>
+                        <div class="skeleton-paragraph"></div>
+                    </div>
+                    <div class="skeleton-button"></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    try {
+        // Fetch testimonies from the story_collection table
+        // For now, fetching all testimonies but with a limit
+        const sql = "SELECT created_at, generated_story FROM story_collection ORDER BY created_at DESC LIMIT 20";
+        const data = await getData(sql);
+
+        // Remove loading skeletons
+        const loadingSkeletons = sectionElement.querySelector('.loading-skeletons');
+        if (loadingSkeletons) {
+            loadingSkeletons.remove();
+        }
+
+        // Create the testimonies container
+        let testimoniesHTML = `
+            <div class="testimonies-container">
+                <h2 class="section-title">Personal Testimonies</h2>
+                <div class="testimonies-grid">
+        `;
+
+        // Check if we have testimonies
+        if (data.rows && data.rows.length > 0) {
+            // Add each testimony as a card
+            data.rows.forEach((testimony, index) => {
+                const date = new Date(testimony.created_at);
+                const formattedDate = date.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                testimoniesHTML += `
+                    <div class="testimony-card">
+                        <div class="testimony-header">
+                            <div class="testimony-number">Testimony #${index + 1}</div>
+                            <div class="testimony-date">
+                                <span class="material-symbols-outlined">calendar_today</span>
+                                ${formattedDate}
+                            </div>
+                        </div>
+                        <div class="testimony-content">
+                            <p>${testimony.generated_story}</p>
+                        </div>
+                        <div class="testimony-footer">
+                            <button class="read-more-btn" onclick="expandTestimony(this)">
+                                <span class="material-symbols-outlined">expand_more</span>
+                                Read More
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        } else {
+            // No testimonies found
+            testimoniesHTML += `
+                <div class="no-testimonies">
+                    <span class="material-symbols-outlined">report</span>
+                    <p>No testimonies available at this time.</p>
+                </div>
+            `;
+        }
+
+        testimoniesHTML += `
+                </div>
+            </div>
+        `;
+
+        // Add the HTML to the section
+        sectionElement.innerHTML += testimoniesHTML;
+
+        // Re-initialize clickable media and info strip
+        const groupName = document.getElementById('group-name').textContent;
+        const group = loadedUPGs.find(g => g.name === groupName);
+        if (group) {
+            initializeClickableMedia(group);
+            initializeInfoStripCards();
+        }
+
+    } catch (error) {
+        console.error('Error loading testimonies:', error);
+
+        // Remove loading skeletons
+        const loadingSkeletons = sectionElement.querySelector('.loading-skeletons');
+        if (loadingSkeletons) {
+            loadingSkeletons.remove();
+        }
+
+        // Show error message
+        sectionElement.innerHTML += `
+            <div class="testimonies-error">
+                <span class="material-symbols-outlined">error</span>
+                <p>Failed to load testimonies. Please try again later.</p>
+            </div>
+        `;
+    }
+}
+
+// Function to expand/collapse testimony content
+function expandTestimony(button) {
+    const testimonyCard = button.closest('.testimony-card');
+    const testimonyContent = testimonyCard.querySelector('.testimony-content');
+    const icon = button.querySelector('.material-symbols-outlined');
+
+    if (testimonyCard.classList.contains('expanded')) {
+        // Collapse
+        testimonyCard.classList.remove('expanded');
+        icon.textContent = 'expand_more';
+        button.innerHTML = '<span class="material-symbols-outlined">expand_more</span> Read More';
+    } else {
+        // Expand
+        testimonyCard.classList.add('expanded');
+        icon.textContent = 'expand_less';
+        button.innerHTML = '<span class="material-symbols-outlined">expand_less</span> Read Less';
+    }
+}
+
+// Optional: Function to create a modal for full testimony view
+function viewFullTestimony(index) {
+    const testimony = document.querySelectorAll('.testimony-card')[index];
+    const content = testimony.querySelector('.testimony-content p').textContent;
+    const date = testimony.querySelector('.testimony-date').textContent.trim();
+
+    // Create modal if it doesn't exist
+    let modal = document.getElementById('testimony-modal');
+    if (!modal) {
+        modal = document.createElement('dialog');
+        modal.id = 'testimony-modal';
+        modal.className = 'testimony-modal';
+        document.body.appendChild(modal);
+    }
+
+    // Build modal HTML
+    modal.innerHTML = `
+        <div class="modal-close">
+            <span class="material-symbols-outlined">close</span>
+        </div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Testimony #${index + 1}</h2>
+                <div class="modal-date">
+                    <span class="material-symbols-outlined">calendar_today</span>
+                    ${date}
+                </div>
+            </div>
+            <div class="modal-body">
+                <p>${content}</p>
+            </div>
+        </div>
+    `;
+
+    // Show the modal
+    modal.showModal();
+
+    // Add close event listener
+    const closeButton = modal.querySelector('.modal-close');
+    closeButton.addEventListener('click', function () {
+        modal.close();
+    });
+
+    // Close on Escape key
+    modal.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            modal.close();
+        }
+    });
+}
