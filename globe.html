@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Massive Globe Explorer</title>
+
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <!-- Styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700;800;900&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lexend', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 30%, #e3f2fd 70%, #bbdefb 100%);
+            overflow: hidden;
+            height: 100vh;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                radial-gradient(1px 1px at 20px 30px, #2196f3, transparent),
+                radial-gradient(1px 1px at 40px 70px, #1976d2, transparent),
+                radial-gradient(0.5px 0.5px at 90px 40px, #42a5f5, transparent),
+                radial-gradient(0.5px 0.5px at 130px 80px, #64b5f6, transparent),
+                radial-gradient(1px 1px at 160px 30px, #2196f3, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        #chartdiv {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+        }
+
+        .title-section {
+            position: absolute;
+            top: 11px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            pointer-events: auto;
+        }
+
+        .controls-section {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 25px;
+            border-radius: 20px;
+            backdrop-filter: blur(20px);
+            box-shadow:
+                0 8px 32px rgba(25, 118, 210, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3),
+                0 1px 0 rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            pointer-events: auto;
+            width: 550px;
+            max-width: 90vw;
+        }
+
+        .title {
+            color: #000000;
+            font-size: 2.8rem;
+            font-weight: 400;
+            text-align: center;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        .control-panel {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+
+        .search-filter-row {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            align-items: flex-end;
+        }
+
+        .search-wrapper {
+            flex: 1;
+        }
+
+        .filter-wrapper {
+            width: 140px;
+            height: 100%;
+        }
+
+        /* Custom Dropdown Styles */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-input {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border: 2px solid #555;
+            border-radius: 12px;
+            background: white;
+            color: #424242;
+            font-size: 1rem;
+            font-family: 'Lexend', sans-serif;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            height: 100%;
+        }
+
+        .filter-dropdown .dropdown-input {
+            font-size: 1rem;
+            /* padding: 10px 35px 10px 12px; */
+        }
+
+        .dropdown-input:focus {
+            outline: none;
+            border-color: #999;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dropdown-arrow {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease;
+            pointer-events: none;
+            font-family: 'Material Symbols Outlined';
+            font-size: 20px;
+            color: #757575;
+        }
+
+        .filter-dropdown .dropdown-arrow {
+            font-size: 18px;
+            right: 10px;
+        }
+
+        .dropdown-arrow.open {
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 2px solid #555;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            display: none;
+        }
+
+        .dropdown-menu.open {
+            display: block;
+        }
+
+        .dropdown-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.2s ease;
+            font-family: 'Lexend', sans-serif;
+            font-weight: 400;
+        }
+
+        .filter-dropdown .dropdown-option {
+            padding: 10px 12px;
+        }
+
+        .dropdown-option:hover {
+            background-color: #f5f5f5;
+        }
+
+        .dropdown-option.selected {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            font-weight: 500;
+        }
+
+        .option-text {
+            flex: 1;
+            text-align: left;
+        }
+
+        .option-tags {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+
+        .option-tag {
+            font-size: 16px;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            cursor: help;
+        }
+
+        .tag-language {
+            background-color: #4caf50;
+        }
+
+        .tag-UPG {
+            /* purple */
+            background-color: #9c27b0;
+        }
+
+        .tag-buddhist {
+            background-color: #ff9800;
+        }
+
+        .tag-hinduism {
+            background-color: #e91e63;
+        }
+
+        .tag-muslim {
+            background-color: #2196f3;
+        }
+
+        .tag-islam {
+            background-color: #2196f3;
+        }
+
+        .dropdown-group-header {
+            padding: 8px 16px;
+            background-color: #f8f9fa;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Tooltip Styles */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            white-space: nowrap;
+            z-index: 10000;
+            pointer-events: none;
+            opacity: 0;
+            transform: translateY(-100%);
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .tooltip.visible {
+            opacity: 1;
+            transform: translateY(-120%);
+        }
+
+        .tooltip::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 5px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+        }
+
+        .explore-button {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, #222 0%, #555 100%);
+            border: 1px solid #bbb;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Lexend', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow:
+                0 4px 12px rgba(0, 0, 0, 0.18),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .explore-button:hover {
+            transform: translateY(-2px);
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        .explore-button:hover .button-arrow {
+            transform: translateX(4px);
+        }
+
+        .explore-button:active {
+            transform: translateY(0);
+        }
+
+        .button-arrow {
+            transition: transform 0.3s ease;
+            font-family: 'Material Symbols Outlined';
+            font-size: 18px;
+        }
+
+        /* Globe Image Styles */
+        .globe-image {
+            position: absolute;
+            width: 80px;
+            height: 60px;
+            border-radius: 12px;
+            border: 3px solid rgba(255, 255, 255, 0.9);
+            box-shadow:
+                0 8px 24px rgba(0, 0, 0, 0.3),
+                0 2px 8px rgba(0, 0, 0, 0.2);
+            object-fit: cover;
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.8s ease;
+            backdrop-filter: blur(2px);
+            z-index: 500;
+        }
+
+        .globe-image.visible {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .globe-image::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.1));
+            border-radius: 14px;
+            z-index: -1;
+        }
+
+        label {
+            color: #424242;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-shadow: none;
+            margin-bottom: 4px;
+        }
+
+        .filter-label {
+            font-size: 0.85rem;
+            margin-bottom: 2px;
+        }
+
+        .speed-control {
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.15);
+            padding: 20px;
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            box-shadow:
+                0 8px 24px rgba(25, 118, 210, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .speed-control label {
+            display: block;
+            margin-bottom: 10px;
+            color: #424242;
+            font-size: 0.9rem;
+            font-weight: 600;
+            font-family: 'Lexend', sans-serif;
+        }
+
+        input[type="range"] {
+            width: 100px;
+            background: transparent;
+        }
+
+        input[type="range"]::-webkit-slider-track {
+            background: #e3f2fd;
+            height: 4px;
+            border-radius: 2px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            background: #2196f3;
+            border: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        ::placeholder {
+            color: rgba(66, 66, 66, 0.6);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translate(-50%, -50%) translateY(0px) scale(1);
+            }
+
+            50% {
+                transform: translate(-50%, -50%) translateY(-10px) scale(1.05);
+            }
+        }
+
+        .floating-element {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .logo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 100px;
+            height: auto;
+            z-index: 1000;
+            pointer-events: none;
+        }
+    </style>
+
+    <!-- Resources -->
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+</head>
+
+<body>
+    <img src="cv-logo.png" alt="" class="logo">
+    <div id="chartdiv"></div>
+
+    <div class="title-section">
+        <h1 class="title">UPG Research</h1>
+    </div>
+
+    <div class="controls-section">
+        <div class="control-panel">
+            <div class="control-group">
+                <div class="search-filter-row">
+                    <div class="search-wrapper">
+                        <div class="custom-dropdown">
+                            <input type="text" id="dropdown-input" class="dropdown-input"
+                                placeholder="Type to get started" readonly>
+                            <span class="dropdown-arrow material-symbols-outlined">keyboard_arrow_down</span>
+                            <div class="dropdown-menu" id="dropdown-menu">
+                                <!-- Options will be populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="filter-wrapper">
+                        <div class="custom-dropdown filter-dropdown">
+                            <input type="text" id="filter-input" class="dropdown-input" placeholder="Filter" readonly>
+                            <span class="dropdown-arrow material-symbols-outlined">keyboard_arrow_down</span>
+                            <div class="dropdown-menu" id="filter-menu">
+                                <div class="dropdown-option selected" data-value="all">
+                                    <span class="option-text">All Religions</span>
+                                </div>
+                                <div class="dropdown-option" data-value="buddhist">
+                                    <span class="option-text">Buddhist</span>
+                                </div>
+                                <div class="dropdown-option" data-value="hinduism">
+                                    <span class="option-text">Hinduism</span>
+                                </div>
+                                <div class="dropdown-option" data-value="islam">
+                                    <span class="option-text">Islam</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="go-button" class="explore-button">
+                Explore
+                <span class="button-arrow material-symbols-outlined">arrow_forward</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Tooltip element -->
+    <div id="tooltip" class="tooltip"></div>
+
+    <!-- Chart code -->
+    <script>
+        // Data from the provided tables
+        const upgData = [
+            { name: "Japanese", religion: "Buddhist", type: "language", lat: 35.6762, lon: 139.6503 },
+            { name: "Japanese", religion: "Buddhist", type: "UPG", lat: 35.6762, lon: 139.6503 },
+            { name: "Burmese", religion: "Buddhist", type: "language", lat: 16.8661, lon: 96.1951 },
+            { name: "Burmese", religion: "Buddhist", type: "UPG", lat: 16.8661, lon: 96.1951 },
+            { name: "Thai", religion: "Buddhist", type: "language", lat: 13.7563, lon: 100.5018 },
+            { name: "Thai", religion: "Buddhist", type: "UPG", lat: 13.7563, lon: 100.5018 },
+            { name: "Khmer", religion: "Buddhist", type: "language", lat: 11.5564, lon: 104.9282 },
+            { name: "Khmer", religion: "Buddhist", type: "UPG", lat: 11.5564, lon: 104.9282 },
+            { name: "Shan", religion: "Buddhist", type: "language", lat: 21.1699, lon: 95.9777 },
+            { name: "Shan", religion: "Buddhist", type: "UPG", lat: 21.1699, lon: 95.9777 },
+            { name: "Lao", religion: "Buddhist", type: "language", lat: 17.9757, lon: 102.6331 },
+            { name: "Lao", religion: "Buddhist", type: "UPG", lat: 17.9757, lon: 102.6331 },
+            { name: "Vietnamese", religion: "Buddhist", type: "language", lat: 16.0544, lon: 108.2022 },
+            { name: "Vietnamese", religion: "Buddhist", type: "UPG", lat: 16.0544, lon: 108.2022 },
+            { name: "Mongolian", religion: "Buddhist", type: "language", lat: 47.8864, lon: 106.9057 },
+            { name: "Mongolian", religion: "Buddhist", type: "UPG", lat: 47.8864, lon: 106.9057 },
+            { name: "Rakhine", religion: "Buddhist", type: "language", lat: 20.1484, lon: 92.8726 },
+            { name: "Rakhine", religion: "Buddhist", type: "UPG", lat: 20.1484, lon: 92.8726 },
+            { name: "Sinhalese", religion: "Buddhist", type: "language", lat: 6.9271, lon: 79.8612 },
+            { name: "Sinhalese", religion: "Buddhist", type: "UPG", lat: 6.9271, lon: 79.8612 },
+            { name: "Aawadhi", religion: "Hinduism", type: "language", lat: 26.8467, lon: 80.9462 },
+            { name: "Aawadhi", religion: "Hinduism", type: "UPG", lat: 26.8467, lon: 80.9462 },
+            { name: "Bengali", religion: "Hinduism", type: "language", lat: 22.5726, lon: 88.3639 },
+            { name: "Bengali", religion: "Hinduism", type: "UPG", lat: 22.5726, lon: 88.3639 },
+            { name: "Bhojpuri", religion: "Hinduism", type: "language", lat: 25.5941, lon: 85.1376 },
+            { name: "Bhojpuri", religion: "Hinduism", type: "UPG", lat: 25.5941, lon: 85.1376 },
+            { name: "Dhimal", religion: "Hinduism", type: "language", lat: 26.6006, lon: 87.2661 },
+            { name: "Dhimal", religion: "Hinduism", type: "UPG", lat: 26.6006, lon: 87.2661 },
+            { name: "Javanese", religion: "Hinduism", type: "language", lat: -7.2575, lon: 112.7521 },
+            { name: "Javanese", religion: "Hinduism", type: "UPG", lat: -7.2575, lon: 112.7521 },
+            { name: "Gujarati", religion: "Hinduism", type: "language", lat: 23.0225, lon: 72.5714 },
+            { name: "Gujarati", religion: "Hinduism", type: "UPG", lat: 23.0225, lon: 72.5714 },
+            { name: "Hindi", religion: "Hinduism", type: "language", lat: 28.7041, lon: 77.1025 },
+            { name: "Magar", religion: "Hinduism", type: "language", lat: 28.3949, lon: 84.1240 },
+            { name: "Magar", religion: "Hinduism", type: "UPG", lat: 28.3949, lon: 84.1240 },
+            { name: "Maithili", religion: "Hinduism", type: "language", lat: 26.1197, lon: 85.9073 },
+            { name: "Maithili", religion: "Hinduism", type: "UPG", lat: 26.1197, lon: 85.9073 },
+            { name: "Marathi", religion: "Hinduism", type: "language", lat: 19.0760, lon: 72.8777 },
+            { name: "Marathi", religion: "Hinduism", type: "UPG", lat: 19.0760, lon: 72.8777 },
+            { name: "Nepali", religion: "Hinduism", type: "language", lat: 27.7172, lon: 85.3240 },
+            { name: "Nepali", religion: "Hinduism", type: "UPG", lat: 27.7172, lon: 85.3240 },
+            { name: "Newar", religion: "Hinduism", type: "language", lat: 27.7172, lon: 85.3240 },
+            { name: "Newar", religion: "Hinduism", type: "UPG", lat: 27.7172, lon: 85.3240 },
+            { name: "Oriya (Odia)", religion: "Hinduism", type: "language", lat: 20.2961, lon: 85.8245 },
+            { name: "Oriya (Odia)", religion: "Hinduism", type: "UPG", lat: 20.2961, lon: 85.8245 },
+            { name: "Punjabi", religion: "Hinduism", type: "language", lat: 30.7333, lon: 76.7794 },
+            { name: "Punjabi", religion: "Hinduism", type: "UPG", lat: 30.7333, lon: 76.7794 },
+            { name: "Santhali", religion: "Hinduism", type: "language", lat: 23.6102, lon: 85.2799 },
+            { name: "Santhali", religion: "Hinduism", type: "UPG", lat: 23.6102, lon: 85.2799 },
+            { name: "Tamang E", religion: "Hinduism", type: "language", lat: 27.7172, lon: 85.3240 },
+            { name: "Tamang E", religion: "Hinduism", type: "UPG", lat: 27.7172, lon: 85.3240 },
+            { name: "Telugu", religion: "Hinduism", type: "language", lat: 17.3850, lon: 78.4867 },
+            { name: "Telugu", religion: "Hinduism", type: "UPG", lat: 17.3850, lon: 78.4867 },
+            { name: "Tharu", religion: "Hinduism", type: "language", lat: 27.5069, lon: 83.4194 },
+            { name: "Tharu", religion: "Hinduism", type: "UPG", lat: 27.5069, lon: 83.4194 },
+            { name: "Thulung", religion: "Hinduism", type: "language", lat: 27.0238, lon: 86.8209 },
+            { name: "Thulung", religion: "Hinduism", type: "UPG", lat: 27.0238, lon: 86.8209 },
+            { name: "Arabic (Standard)", religion: "Islam", type: "language", lat: 24.7136, lon: 46.6753 },
+            { name: "Arabic (Standard)", religion: "Islam", type: "UPG", lat: 24.7136, lon: 46.6753 },
+            { name: "Arabic, Gulf (Najdi)", religion: "Islam", type: "language", lat: 24.7136, lon: 46.6753 },
+            { name: "Arabic, Gulf (Najdi)", religion: "Islam", type: "UPG", lat: 24.7136, lon: 46.6753 },
+            { name: "Arabic, Moroccan", religion: "Islam", type: "language", lat: 33.9716, lon: -6.8498 },
+            { name: "Arabic, Moroccan", religion: "Islam", type: "UPG", lat: 33.9716, lon: -6.8498 },
+            { name: "Arabic, Najdi", religion: "Islam", type: "language", lat: 24.7136, lon: 46.6753 },
+            { name: "Arabic, Najdi", religion: "Islam", type: "UPG", lat: 24.7136, lon: 46.6753 },
+            { name: "Azerbaijani", religion: "Islam", type: "language", lat: 40.4093, lon: 49.8671 },
+            { name: "Azerbaijani", religion: "Islam", type: "UPG", lat: 40.4093, lon: 49.8671 },
+            { name: "Bambara", religion: "Islam", type: "language", lat: 12.6392, lon: -8.0029 },
+            { name: "Bambara", religion: "Islam", type: "UPG", lat: 12.6392, lon: -8.0029 },
+            { name: "Banjar", religion: "Islam", type: "language", lat: -3.3194, lon: 114.5906 },
+            { name: "Banjar", religion: "Islam", type: "UPG", lat: -3.3194, lon: 114.5906 },
+            { name: "Bengali/Bangla", religion: "Islam", type: "language", lat: 23.8103, lon: 90.4125 },
+            { name: "Bengali/Bangla", religion: "Islam", type: "UPG", lat: 23.8103, lon: 90.4125 },
+            { name: "Brahui", religion: "Islam", type: "language", lat: 29.0361, lon: 66.9478 },
+            { name: "Brahui", religion: "Islam", type: "UPG", lat: 29.0361, lon: 66.9478 },
+            { name: "Dari", religion: "Islam", type: "language", lat: 34.5553, lon: 69.2075 },
+            { name: "Dari", religion: "Islam", type: "UPG", lat: 34.5553, lon: 69.2075 },
+            { name: "Fulfulde", religion: "Islam", type: "language", lat: 13.0827, lon: 2.1111 },
+            { name: "Fulfulde", religion: "Islam", type: "UPG", lat: 13.0827, lon: 2.1111 },
+            { name: "Hausa", religion: "Islam", type: "language", lat: 11.9804, lon: 8.5214 },
+            { name: "Hausa", religion: "Islam", type: "UPG", lat: 11.9804, lon: 8.5214 },
+            { name: "Hindko", religion: "Islam", type: "language", lat: 34.0151, lon: 71.5249 },
+            { name: "Hindko", religion: "Islam", type: "UPG", lat: 34.0151, lon: 71.5249 },
+            { name: "Indonesian", religion: "Islam", type: "language", lat: -6.2088, lon: 106.8456 },
+            { name: "Indonesian", religion: "Islam", type: "UPG", lat: -6.2088, lon: 106.8456 },
+            { name: "Kazakh", religion: "Islam", type: "language", lat: 51.1694, lon: 71.4491 },
+            { name: "Kazakh", religion: "Islam", type: "UPG", lat: 51.1694, lon: 71.4491 },
+            { name: "Kurdish", religion: "Islam", type: "language", lat: 36.1900, lon: 44.0092 },
+            { name: "Kurdish", religion: "Islam", type: "UPG", lat: 36.1900, lon: 44.0092 },
+            { name: "Malayu (Malay)", religion: "Islam", type: "language", lat: 3.1390, lon: 101.6869 },
+            { name: "Malayu (Malay)", religion: "Islam", type: "UPG", lat: 3.1390, lon: 101.6869 },
+            { name: "Maninkakan", religion: "Islam", type: "language", lat: 9.6412, lon: -13.5784 },
+            { name: "Maninkakan", religion: "Islam", type: "UPG", lat: 9.6412, lon: -13.5784 },
+            { name: "Mazandarani", religion: "Islam", type: "language", lat: 36.5659, lon: 53.0586 },
+            { name: "Mazandarani", religion: "Islam", type: "UPG", lat: 36.5659, lon: 53.0586 },
+            { name: "Oromo", religion: "Islam", type: "language", lat: 9.1450, lon: 40.4897 },
+            { name: "Oromo", religion: "Islam", type: "UPG", lat: 9.1450, lon: 40.4897 },
+            { name: "Pashto", religion: "Islam", type: "language", lat: 34.0151, lon: 71.5249 },
+            { name: "Pashto", religion: "Islam", type: "UPG", lat: 34.0151, lon: 71.5249 },
+            { name: "Persian", religion: "Islam", type: "language", lat: 35.6892, lon: 51.3890 },
+            { name: "Persian", religion: "Islam", type: "UPG", lat: 35.6892, lon: 51.3890 },
+            { name: "Punjabi", religion: "Islam", type: "language", lat: 31.5204, lon: 74.3587 },
+            { name: "Punjabi", religion: "Islam", type: "UPG", lat: 31.5204, lon: 74.3587 },
+            { name: "Rohingya", religion: "Islam", type: "language", lat: 21.1699, lon: 92.8749 },
+            { name: "Rohingya", religion: "Islam", type: "UPG", lat: 21.1699, lon: 92.8749 },
+            { name: "Saraiki", religion: "Islam", type: "language", lat: 30.1575, lon: 71.5249 },
+            { name: "Saraiki", religion: "Islam", type: "UPG", lat: 30.1575, lon: 71.5249 },
+            { name: "Shina", religion: "Islam", type: "language", lat: 35.9216, lon: 74.3080 },
+            { name: "Shina", religion: "Islam", type: "UPG", lat: 35.9216, lon: 74.3080 },
+            { name: "Sindhi", religion: "Islam", type: "language", lat: 24.8607, lon: 67.0011 },
+            { name: "Sindhi", religion: "Islam", type: "UPG", lat: 24.8607, lon: 67.0011 },
+            { name: "Somali", religion: "Islam", type: "language", lat: 2.0469, lon: 45.3182 },
+            { name: "Somali", religion: "Islam", type: "UPG", lat: 2.0469, lon: 45.3182 },
+            { name: "Sunda", religion: "Islam", type: "language", lat: -6.9175, lon: 107.6191 },
+            { name: "Sunda", religion: "Islam", type: "UPG", lat: -6.9175, lon: 107.6191 },
+            { name: "Sylheti", religion: "Islam", type: "language", lat: 24.8949, lon: 91.8687 },
+            { name: "Sylheti", religion: "Islam", type: "UPG", lat: 24.8949, lon: 91.8687 },
+            { name: "Tajik", religion: "Islam", type: "language", lat: 38.5598, lon: 68.7870 },
+            { name: "Tajik", religion: "Islam", type: "UPG", lat: 38.5598, lon: 68.7870 },
+            { name: "Tamazight/Amazigh", religion: "Islam", type: "language", lat: 31.2001, lon: -7.0920 },
+            { name: "Tamazight/Amazigh", religion: "Islam", type: "UPG", lat: 31.2001, lon: -7.0920 },
+            { name: "Tamil", religion: "Islam", type: "language", lat: 13.0827, lon: 80.2707 },
+            { name: "Tamil", religion: "Islam", type: "UPG", lat: 13.0827, lon: 80.2707 },
+            { name: "Turkish", religion: "Islam", type: "language", lat: 39.9334, lon: 32.8597 },
+            { name: "Turkish", religion: "Islam", type: "UPG", lat: 39.9334, lon: 32.8597 },
+            { name: "Urdu", religion: "Islam", type: "language", lat: 33.6844, lon: 73.0479 },
+            { name: "Urdu", religion: "Islam", type: "UPG", lat: 33.6844, lon: 73.0479 },
+            { name: "Uzbek", religion: "Islam", type: "language", lat: 41.2995, lon: 69.2401 },
+            { name: "Uzbek", religion: "Islam", type: "UPG", lat: 41.2995, lon: 69.2401 },
+            { name: "Wolof", religion: "Islam", type: "language", lat: 14.7167, lon: -17.4677 },
+            { name: "Wolof", religion: "Islam", type: "UPG", lat: 14.7167, lon: -17.4677 }
+        ];
+
+        // Remove duplicates and sort
+        const uniqueUpgData = upgData.filter((item, index, self) =>
+            index === self.findIndex(t => t.name === item.name && t.religion === item.religion && t.type === item.type)
+        ).sort((a, b) => a.name.localeCompare(b.name));
+
+        am5.ready(function () {
+            // Create root element
+            var root = am5.Root.new("chartdiv");
+
+            // Set themes
+            root.setThemes([
+                am5themes_Animated.new(root)
+            ]);
+
+            // Create the map chart with orthographic projection for 3D globe effect
+            var chart = root.container.children.push(am5map.MapChart.new(root, {
+                panX: "rotateX",
+                panY: "rotateY",
+                projection: am5map.geoOrthographic(),
+                paddingBottom: 0,
+                paddingTop: 0,
+                paddingLeft: 0,
+                paddingRight: 0,
+                // Center the globe horizontally and halfway up
+                x: am5.percent(0),
+                y: am5.percent(60)
+            }));
+
+            // Make the globe massive by zooming in and set initial viewing angle
+            chart.set("zoomLevel", 2);
+            chart.set("rotationY", 10); // Tilt up significantly to show equator from below
+            chart.set("rotationX", -120);  // Slight rotation for better continent view
+
+            // Create series for background fill (atmosphere/space)
+            var backgroundSeries = chart.series.push(
+                am5map.MapPolygonSeries.new(root, {})
+            );
+
+            backgroundSeries.mapPolygons.template.setAll({
+                fill: am5.color("#e3f2fd"),
+                fillOpacity: 1,
+                strokeOpacity: 0
+            });
+
+            backgroundSeries.data.push({
+                geometry: am5map.getGeoRectangle(90, 180, -90, -180)
+            });
+
+            // Create main polygon series for countries
+            var polygonSeries = chart.series.push(am5map.MapPolygonSeries.new(root, {
+                geoJSON: am5geodata_worldLow
+            }));
+
+            // Style the countries with white/grey/blue theme
+            polygonSeries.mapPolygons.template.setAll({
+                fill: am5.color("#f5f5f5"),
+                fillOpacity: 0.9,
+                strokeWidth: 0.8,
+                stroke: am5.color("#9e9e9e"),
+                tooltipText: "{name}"
+            });
+
+            // Add hover effects
+            polygonSeries.mapPolygons.template.states.create("hover", {
+                fill: am5.color("#222"),
+                fillOpacity: 0.8
+            });
+
+            // Auto-rotation functionality
+            let rotationSpeed = 0.3;
+            let autoRotate = true;
+
+            function startRotation() {
+                if (autoRotate) {
+                    chart.animate({
+                        key: "rotationX",
+                        to: chart.get("rotationX", 0) + 360,
+                        duration: 120000 / rotationSpeed,
+                        loops: Infinity
+                    });
+                }
+            }
+
+            // Start the rotation
+            startRotation();
+
+            // Tooltip functionality
+            function showTooltip(element, text) {
+                const tooltip = document.getElementById('tooltip');
+                const rect = element.getBoundingClientRect();
+
+                tooltip.textContent = text;
+                tooltip.style.left = rect.left + rect.width / 2 + 'px';
+                tooltip.style.top = rect.top + 'px';
+                tooltip.style.transform = 'translateX(-50%) translateY(-120%)';
+                tooltip.classList.add('visible');
+            }
+
+            function hideTooltip() {
+                const tooltip = document.getElementById('tooltip');
+                tooltip.classList.remove('visible');
+            }
+
+            // Custom dropdown functionality
+            function initializeDropdown() {
+                const dropdownInput = document.getElementById('dropdown-input');
+                const dropdownMenu = document.getElementById('dropdown-menu');
+                const dropdownArrow = document.querySelector('.custom-dropdown:not(.filter-dropdown) .dropdown-arrow');
+                const filterInput = document.getElementById('filter-input');
+                const filterMenu = document.getElementById('filter-menu');
+                const filterArrow = document.querySelector('.filter-dropdown .dropdown-arrow');
+
+                let selectedValue = 'world';
+                let selectedUpgData = null; // Store the actual UPG data for the selected item
+                let selectedFilter = 'all';
+                let isOpen = false;
+                let isFilterOpen = false;
+
+                // Populate dropdown with data
+                function populateDropdown() {
+                    const filteredData = selectedFilter === 'all'
+                        ? uniqueUpgData
+                        : uniqueUpgData.filter(item => item.religion.toLowerCase() === selectedFilter);
+
+                    // Group by religion
+                    const groupedData = filteredData.reduce((acc, item) => {
+                        if (!acc[item.religion]) acc[item.religion] = [];
+                        acc[item.religion].push(item);
+                        return acc;
+                    }, {});
+
+                    dropdownMenu.innerHTML = '';
+
+                    Object.keys(groupedData).sort().forEach(religion => {
+                        // Add group header
+                        const header = document.createElement('div');
+                        header.className = 'dropdown-group-header';
+                        header.textContent = religion;
+                        dropdownMenu.appendChild(header);
+
+                        // Add options
+                        groupedData[religion].forEach(item => {
+                            const option = document.createElement('div');
+                            option.className = 'dropdown-option';
+                            option.setAttribute('data-value', item.name.toLowerCase().replace(/[^a-z0-9]/g, '-'));
+                            option.setAttribute('data-upg', JSON.stringify(item)); // Store the full UPG data
+
+                            const optionText = document.createElement('span');
+                            optionText.className = 'option-text';
+                            optionText.textContent = item.name;
+
+                            const tagsContainer = document.createElement('div');
+                            tagsContainer.className = 'option-tags';
+
+                            // Language tag
+                            const typeTag = document.createElement('div');
+                            typeTag.className = `option-tag tag-${item.type} material-symbols-outlined`;
+                            typeTag.textContent = item.type === 'language' ? 'language' : 'group';
+                            typeTag.addEventListener('mouseenter', (e) => {
+                                showTooltip(e.target, item.type === 'language' ? 'Language' : 'UPG');
+                            });
+                            typeTag.addEventListener('mouseleave', hideTooltip);
+
+                            // Religion tag
+                            const religionTag = document.createElement('div');
+                            religionTag.className = `option-tag tag-${religion.toLowerCase()} material-symbols-outlined`;
+                            religionTag.textContent = religion === 'Buddhist' ? 'self_improvement' :
+                                religion === 'Hinduism' ? 'temple_hindu' : 'mosque';
+                            religionTag.addEventListener('mouseenter', (e) => {
+                                showTooltip(e.target, religion);
+                            });
+                            religionTag.addEventListener('mouseleave', hideTooltip);
+
+                            tagsContainer.appendChild(typeTag);
+                            tagsContainer.appendChild(religionTag);
+
+                            option.appendChild(optionText);
+                            option.appendChild(tagsContainer);
+
+                            option.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                selectOption(option, item.name, item);
+                            });
+
+                            dropdownMenu.appendChild(option);
+                        });
+                    });
+                }
+
+                // Filter options based on input
+                function filterOptions(searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    const options = dropdownMenu.querySelectorAll('.dropdown-option');
+                    const headers = dropdownMenu.querySelectorAll('.dropdown-group-header');
+
+                    options.forEach(option => {
+                        const text = option.querySelector('.option-text')?.textContent.toLowerCase() || '';
+                        if (text.includes(term)) {
+                            option.style.display = 'flex';
+                        } else {
+                            option.style.display = 'none';
+                        }
+                    });
+
+                    // Show/hide headers based on visible options
+                    headers.forEach(header => {
+                        const nextSibling = header.nextElementSibling;
+                        let hasVisibleOptions = false;
+                        let current = nextSibling;
+
+                        while (current && !current.classList.contains('dropdown-group-header')) {
+                            if (current.style.display !== 'none') {
+                                hasVisibleOptions = true;
+                                break;
+                            }
+                            current = current.nextElementSibling;
+                        }
+
+                        header.style.display = hasVisibleOptions ? 'block' : 'none';
+                    });
+                }
+
+                // Handle option selection
+                function selectOption(option, text, upgItem = null) {
+                    dropdownInput.value = text;
+                    selectedValue = option.dataset.value;
+                    selectedUpgData = upgItem; // Store the actual UPG data
+
+                    // Update selected state
+                    dropdownMenu.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+
+                    isOpen = false;
+                    dropdownMenu.classList.remove('open');
+                    dropdownArrow.classList.remove('open');
+                    dropdownInput.setAttribute('readonly', true);
+                }
+
+                // Handle filter selection
+                function selectFilter(option, value, text) {
+                    filterInput.value = text;
+                    selectedFilter = value;
+
+                    // Update selected state
+                    filterMenu.querySelectorAll('.dropdown-option').forEach(opt => opt.classList.remove('selected'));
+                    option.classList.add('selected');
+
+                    isFilterOpen = false;
+                    filterMenu.classList.remove('open');
+                    filterArrow.classList.remove('open');
+
+                    // Repopulate main dropdown
+                    populateDropdown();
+
+                    // Reset search
+                    dropdownInput.value = '';
+                    dropdownInput.placeholder = 'Type to get started';
+                    selectedUpgData = null; // Reset UPG data when filter changes
+                    // selectedValue = 'world';
+                }
+
+                // Toggle main dropdown
+                function toggleDropdown(e) {
+                    e.stopPropagation();
+                    isOpen = !isOpen;
+                    dropdownMenu.classList.toggle('open', isOpen);
+                    dropdownArrow.classList.toggle('open', isOpen);
+
+                    if (isOpen) {
+                        dropdownInput.removeAttribute('readonly');
+                        dropdownInput.focus();
+                        filterOptions('');
+                    } else {
+                        dropdownInput.setAttribute('readonly', true);
+                        const selectedOption = document.querySelector('.dropdown-option.selected');
+                        if (selectedOption) {
+                            dropdownInput.value = selectedOption.querySelector('.option-text').textContent;
+                        }
+                    }
+                }
+
+                // Toggle filter dropdown
+                function toggleFilterDropdown(e) {
+                    e.stopPropagation();
+                    isFilterOpen = !isFilterOpen;
+                    filterMenu.classList.toggle('open', isFilterOpen);
+                    filterArrow.classList.toggle('open', isFilterOpen);
+                }
+
+                // Event listeners
+                dropdownInput.addEventListener('click', toggleDropdown);
+                dropdownArrow.addEventListener('click', toggleDropdown);
+                filterInput.addEventListener('click', toggleFilterDropdown);
+                filterArrow.addEventListener('click', toggleFilterDropdown);
+
+                dropdownInput.addEventListener('input', (e) => {
+                    if (isOpen) {
+                        filterOptions(e.target.value);
+                    }
+                });
+
+                dropdownInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        isOpen = false;
+                        dropdownMenu.classList.remove('open');
+                        dropdownArrow.classList.remove('open');
+                        dropdownInput.setAttribute('readonly', true);
+                    }
+                });
+
+                // Filter dropdown options
+                filterMenu.querySelectorAll('.dropdown-option').forEach(option => {
+                    option.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const value = option.dataset.value;
+                        const text = option.querySelector('.option-text').textContent;
+                        selectFilter(option, value, text);
+                    });
+                });
+
+                // Close dropdowns when clicking outside
+                document.addEventListener('click', (e) => {
+                    if (!e.target.closest('.custom-dropdown') && (isOpen || isFilterOpen)) {
+                        if (isOpen) {
+                            isOpen = false;
+                            dropdownMenu.classList.remove('open');
+                            dropdownArrow.classList.remove('open');
+                            dropdownInput.setAttribute('readonly', true);
+                            const selectedOption = document.querySelector('.dropdown-option.selected');
+                            if (selectedOption) {
+                                dropdownInput.value = selectedOption.querySelector('.option-text').textContent;
+                            }
+                        }
+                        if (isFilterOpen) {
+                            isFilterOpen = false;
+                            filterMenu.classList.remove('open');
+                            filterArrow.classList.remove('open');
+                        }
+                    }
+                });
+
+                // Initialize dropdown
+                populateDropdown();
+
+                // Return both the selectedValue getter and selectedUpgData getter for the button
+                return {
+                    getSelectedValue: () => selectedValue,
+                    getSelectedUpgData: () => selectedUpgData
+                };
+            }
+
+            // Initialize dropdown and get selection getters
+            const dropdownControls = initializeDropdown();
+
+            const regionCoords = {
+                'world': { rotationX: -20, rotationY: 10, zoomLevel: 2 },
+                // Add coordinates for specific regions based on the data
+                'sinhala': { rotationX: -80, rotationY: 5, zoomLevel: 6 },
+                'burmese': { rotationX: -95, rotationY: 22, zoomLevel: 6 },
+                'japanese': { rotationX: -140, rotationY: 35, zoomLevel: 5 },
+                'hindi': { rotationX: -80, rotationY: 25, zoomLevel: 4 },
+                'arabic--yemen-': { rotationX: -45, rotationY: 15, zoomLevel: 6 },
+                'turkish': { rotationX: -35, rotationY: 39, zoomLevel: 5 },
+                // Add more as needed
+            };
+
+            // Go button functionality
+            const goButton = document.getElementById('go-button');
+            goButton.addEventListener('click', function () {
+                const selectedUpgData = dropdownControls.getSelectedUpgData();
+
+                // Stop auto-rotation temporarily
+                autoRotate = false;
+                chart.animate({
+                    key: "rotationX",
+                    to: chart.get("rotationX", 0),
+                    duration: 0
+                });
+
+                // If a specific UPG is selected, zoom to its coordinates
+                if (selectedUpgData && selectedUpgData.lat && selectedUpgData.lon) {
+                    console.log(`Zooming to ${selectedUpgData.name} at lat: ${selectedUpgData.lat}, lon: ${selectedUpgData.lon}`);
+
+                    // Temporarily center the chart for accurate zooming
+
+
+                    // Wait a moment then zoom to the location
+                    // Set slower animation duration for the chart
+                    chart.set("animationDuration", 2000);
+                    // chart.animate({
+                    //     key: "y",
+                    //     to: am5.percent(50),
+                    //     duration: 500
+                    // });
+
+                    chart.zoomToGeoPoint(
+                        {
+                            latitude: selectedUpgData.lat,
+                            longitude: selectedUpgData.lon
+                        },
+                        8, // zoom level
+                        false // animate
+                    );
+
+                    // Reset animation duration back to default after zoom
+                    setTimeout(() => {
+                        chart.set("animationDuration", 1000);
+                    }, 4500);
+
+                    // After zoom completes, restore original position
+                    // setTimeout(() => {
+                    //     chart.animate({
+                    //         key: "y",
+                    //         to: am5.percent(60),
+                    //         duration: 1000
+                    //     });
+                    // }, 5500);
+
+                } else {
+                    // Fallback to world view if no specific location is selected
+                    chart.animate({
+                        key: "rotationX",
+                        to: -120,
+                        duration: 2000
+                    });
+                    chart.animate({
+                        key: "rotationY",
+                        to: 10,
+                        duration: 2000
+                    });
+                    chart.animate({
+                        key: "zoomLevel",
+                        to: 2,
+                        duration: 2000
+                    });
+                }
+
+                // Resume auto-rotation after focusing
+                // setTimeout(() => {
+                //     if (speedSlider && speedSlider.value > 0) {
+                //         autoRotate = true;
+                //         startRotation();
+                //     }
+                // }, 7000); // Extended timeout to account for slower zoom
+            });
+
+            // Add some ambient lighting effect with gratings
+            var gratingSeries = chart.series.push(am5map.GraticuleSeries.new(root, {}));
+            gratingSeries.mapLines.template.setAll({
+                stroke: am5.color("#bdbdbd"),
+                strokeOpacity: 0.3,
+                strokeWidth: 0.5
+            });
+
+            // Create floating images system using amCharts point series for proper globe attachment
+            var floatingImageSeries = chart.series.push(am5map.MapPointSeries.new(root, {}));
+
+            // Custom bullet template for floating images
+            floatingImageSeries.bullets.push(function (root, series, dataItem) {
+                // Array of actual image URLs - keep random images
+                const imageData = [
+                    {
+                        url: 'https://chatfuel-media.s3.ap-southeast-2.amazonaws.com/images/2025/06/20/Bhramins_Nepal__1__f4865293.jpg',
+                        title: 'Athpariya'
+                    },
+                    {
+                        url: 'https://chatfuel-media.s3.ap-southeast-2.amazonaws.com/images/2025/06/20/Bhramins_Nepal_06fce18b.jpg',
+                        title: 'Badhi'
+                    },
+                    {
+                        url: 'https://chatfuel-media.s3.ap-southeast-2.amazonaws.com/images/2025/06/20/Dhimal_Nepal__1__c203544b.jpg',
+                        title: 'Darji'
+                    },
+                    {
+                        url: 'https://chatfuel-media.s3.ap-southeast-2.amazonaws.com/images/2025/06/20/Dhimal_Nepal_48f696dc.jpg',
+                        title: 'Kami'
+                    }
+                ];
+
+                // FIXED: Get the correct name from the dataItem instead of random selection
+                const correctName = dataItem.dataContext.name;
+                const randomImage = imageData[Math.floor(Math.random() * imageData.length)];
+
+                var container = am5.Container.new(root, {
+                    width: 80,
+                    height: 140,
+                    centerX: am5.p50,
+                    centerY: am5.p50
+                });
+
+                // Simple rectangular background/border (radius)
+                var background = am5.RoundedRectangle.new(root, {
+                    width: 48,
+                    height: 69,
+                    // fill empty to create a border effect
+                    stroke: am5.color("#000"),
+                    strokeWidth: 6,
+                    centerX: am5.p50,
+                    centerY: am5.p30,
+                    cornerRadius: 5,
+
+                });
+
+                // The actual image (radius)
+                var image = am5.Picture.new(root, {
+                    width: 48,
+                    height: 69,
+                    centerX: am5.p50,
+                    centerY: am5.p30,
+                    src: randomImage.url,
+                    cornerRadius: 12
+                });
+
+                // Image title at the actual bottom using absolute positioning
+                // FIXED: Use the correct name that matches the location
+                var titleLabel = am5.Label.new(root, {
+                    text: correctName.length > 9 ? correctName.slice(0, 9) + "…" : correctName,
+                    fontSize: 10,
+                    fontWeight: "bold",
+                    fill: am5.color("#ffffff"),
+                    centerX: am5.p50,
+                    y: 60, // Absolute position near bottom of 140px container
+                    textAlign: "center",
+                    maxWidth: 78,
+                    background: am5.RoundedRectangle.new(root, {
+                        fill: am5.color("#000000"),
+                        fillOpacity: 0.8,
+                        cornerRadiusAll: 6,
+                        width: am5.percent(100),
+                        height: am5.percent(100),
+                    }),
+                    paddingTop: 4,
+                    paddingBottom: 4,
+                    paddingLeft: 8,
+                    paddingRight: 8
+                });
+
+                container.children.push(image);
+                container.children.push(background);
+                container.children.push(titleLabel);
+
+                // Fade in animation when created
+                container.set("opacity", 0);
+                container.animate({
+                    key: "opacity",
+                    from: 0,
+                    to: 1,
+                    duration: 1500,
+                    easing: am5.ease.out(am5.ease.cubic)
+                });
+
+                return am5.Bullet.new(root, {
+                    sprite: container
+                });
+            });
+
+
+            function getRandomLocation() {
+                return upgData[Math.floor(Math.random() * upgData.length)];
+            }
+
+            // Start with initial floating images - make sure we have exactly 5
+            function createInitialImages() {
+                var initialData = [];
+                for (let i = 0; i < 5; i++) {
+                    const location = getRandomLocation();
+                    initialData.push({
+                        geometry: {
+                            type: "Point",
+                            coordinates: [location.lon, location.lat]
+                        },
+                        name: location.name
+                    });
+                }
+                floatingImageSeries.data.setAll(initialData);
+            }
+
+            // Initialize the images
+            createInitialImages();
+
+            // Counter for ordered image rotation
+            let imageRotationIndex = 0;
+
+            // Function to relocate images - with ordered rotation instead of random
+            function relocateRandomImage() {
+                if (floatingImageSeries.data.length > 0) {
+                    console.log('Current images count:', floatingImageSeries.data.length);
+
+                    // Use ordered rotation instead of random
+                    const targetIndex = imageRotationIndex % floatingImageSeries.data.length;
+                    const dataItem = floatingImageSeries.dataItems[targetIndex];
+
+                    console.log('Fading out image at index:', targetIndex, '(rotation index:', imageRotationIndex, ')');
+
+                    // Increment rotation counter for next time
+                    imageRotationIndex++;
+
+                    if (dataItem && dataItem.bullets && dataItem.bullets[0]) {
+                        const bullet = dataItem.bullets[0];
+                        const sprite = bullet.get("sprite");
+
+                        if (sprite) {
+                            // Fade out the image
+                            const animation = sprite.animate({
+                                key: "opacity",
+                                from: 1,
+                                to: 0,
+                                duration: 1000
+                            });
+
+                            // Use setTimeout instead of onEnd callback
+                            setTimeout(function () {
+                                console.log('Fade out complete, removing image');
+
+                                // Now remove the image from data
+                                floatingImageSeries.data.removeIndex(targetIndex);
+
+                                // Add a new image at a random location
+                                setTimeout(function () {
+                                    const newLocation = getRandomLocation();
+                                    console.log('Adding new image at:', newLocation.name);
+
+                                    const newImageData = {
+                                        geometry: {
+                                            type: "Point",
+                                            coordinates: [newLocation.lon, newLocation.lat]
+                                        },
+                                        name: newLocation.name
+                                    };
+                                    floatingImageSeries.data.push(newImageData);
+                                    console.log('New images count:', floatingImageSeries.data.length);
+                                }, 200);
+                            }, 1100); // Slightly longer than animation duration
+
+                        } else {
+                            console.log('Could not access sprite for fade animation');
+                            // Fallback: just remove and add
+                            floatingImageSeries.data.removeIndex(targetIndex);
+                            setTimeout(function () {
+                                const newLocation = getRandomLocation();
+                                const newImageData = {
+                                    geometry: {
+                                        type: "Point",
+                                        coordinates: [newLocation.lon, newLocation.lat]
+                                    },
+                                    name: newLocation.name
+                                };
+                                floatingImageSeries.data.push(newImageData);
+                            }, 500);
+                        }
+                    } else {
+                        console.log('Could not access dataItem or bullet');
+                        // Fallback: just remove and add
+                        floatingImageSeries.data.removeIndex(targetIndex);
+                        setTimeout(function () {
+                            const newLocation = getRandomLocation();
+                            const newImageData = {
+                                geometry: {
+                                    type: "Point",
+                                    coordinates: [newLocation.lon, newLocation.lat]
+                                },
+                                name: newLocation.name
+                            };
+                            floatingImageSeries.data.push(newImageData);
+                        }, 500);
+                    }
+                }
+            }
+
+            // Start the relocation cycle - every 4 seconds to allow for fade animations
+            console.log('Starting relocation cycle...');
+            setInterval(function () {
+                console.log('Relocating image...');
+                relocateRandomImage();
+            }, 4000);
+
+        }); // end am5.ready()
+    </script>
+</body>
+
+</html>

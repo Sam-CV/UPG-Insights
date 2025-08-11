@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whitespace Character Permutations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+        th, td {
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f0f0f0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Whitespace Character Permutations</h1>
+    
+    <button onclick="exportToCSV()" style="margin-bottom: 20px; padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;">Export to CSV</button>
+    
+    <table id="permutationTable">
+        <thead>
+            <tr>
+                <th>Unicode 1</th>
+                <th>Unicode 2</th>
+                <th>Whitespace 1</th>
+                <th>Whitespace 2</th>
+                <th>Combined Whitespace</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+
+    <script>
+        // Define the whitespace characters
+        const whitespaceChars = [
+            { unicode: 'U+2000', char: '\u2000' },
+            { unicode: 'U+2002', char: '\u2002' },
+            { unicode: 'U+2004', char: '\u2004' },
+            { unicode: 'U+2005', char: '\u2005' },
+            { unicode: 'U+2006', char: '\u2006' },
+            { unicode: 'U+2007', char: '\u2007' },
+            { unicode: 'U+2008', char: '\u2008' },
+            { unicode: 'U+2009', char: '\u2009' },
+            { unicode: 'U+200A', char: '\u200A' },
+            { unicode: 'U+200B', char: '\u200B' },
+            { unicode: 'U+200D', char: '\u200D' },
+            { unicode: 'U+200E', char: '\u200E' },
+            { unicode: 'U+2060', char: '\u2060' },
+            { unicode: 'U+FEFF', char: '\uFEFF' }
+        ];
+
+        // Generate all permutations and populate table
+        function generatePermutations() {
+            const tableBody = document.getElementById('tableBody');
+            
+            for (let i = 0; i < whitespaceChars.length; i++) {
+                for (let j = 0; j < whitespaceChars.length; j++) {
+                    const char1 = whitespaceChars[i];
+                    const char2 = whitespaceChars[j];
+                    const combined = char1.char + char2.char;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${char1.unicode}</td>
+                        <td>${char2.unicode}</td>
+                        <td>${char1.char}</td>
+                        <td>${char2.char}</td>
+                        <td>${combined}</td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                }
+            }
+        }
+
+        // Export data to CSV
+        function exportToCSV() {
+            let csvContent = "Unicode 1,Unicode 2,Whitespace 1,Whitespace 2,Combined Whitespace\n";
+            
+            for (let i = 0; i < whitespaceChars.length; i++) {
+                for (let j = 0; j < whitespaceChars.length; j++) {
+                    const char1 = whitespaceChars[i];
+                    const char2 = whitespaceChars[j];
+                    const combined = char1.char + char2.char;
+                    
+                    // Escape any quotes in the data and wrap in quotes
+                    const row = [
+                        `"${char1.unicode}"`,
+                        `"${char2.unicode}"`,
+                        `"${char1.char}"`,
+                        `"${char2.char}"`,
+                        `"${combined}"`
+                    ].join(",");
+                    
+                    csvContent += row + "\n";
+                }
+            }
+            
+            // Create and download the file
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'whitespace_permutations.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize the table when page loads
+        document.addEventListener('DOMContentLoaded', generatePermutations);
+    </script>
+</body>
+</html>
