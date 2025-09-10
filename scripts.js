@@ -1651,7 +1651,7 @@ async function getData(sql, cacheBust = false) {
     }
 
     // Fetch data from the API
-    const response = await fetch('https://khnl5wvfdtpayvznnbh2r7kiqi0nshuu.lambda-url.ap-southeast-2.on.aws/', {
+    const response = await fetch('https://tseqda7qkkmjlhkmaierarxge40jnuqi.lambda-url.ap-southeast-2.on.aws/', {
         method: 'POST',
         body: JSON.stringify({ sql })
     });

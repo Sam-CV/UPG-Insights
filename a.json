@@ -1,0 +1,38 @@
+{
+    "version": "2.0",
+    "routeKey": "$default",
+    "rawPath": "/",
+    "rawQueryString": "",
+    "headers": {
+        "x-amzn-tls-cipher-suite": "ECDHE-RSA-AES128-GCM-SHA256",
+        "content-length": "4196",
+        "x-amzn-tls-version": "TLSv1.2",
+        "x-amzn-trace-id": "Root=1-689a9bcc-0c42862043cc72950cd14347",
+        "x-forwarded-proto": "https",
+        "host": "qhmjw3c7cttlauv5eb4qhry5qq0egslt.lambda-url.ap-southeast-2.on.aws",
+        "x-forwarded-port": "443",
+        "content-type": "application/json",
+        "x-forwarded-for": "34.73.20.62",
+        "user-agent": "Chatfuel"
+    },
+    "requestContext": {
+        "accountId": "anonymous",
+        "apiId": "qhmjw3c7cttlauv5eb4qhry5qq0egslt",
+        "domainName": "qhmjw3c7cttlauv5eb4qhry5qq0egslt.lambda-url.ap-southeast-2.on.aws",
+        "domainPrefix": "qhmjw3c7cttlauv5eb4qhry5qq0egslt",
+        "http": {
+            "method": "POST",
+            "path": "/",
+            "protocol": "HTTP/1.1",
+            "sourceIp": "34.73.20.62",
+            "userAgent": "Chatfuel"
+        },
+        "requestId": "b3da6d0c-a50e-4367-834e-a5f042d48864",
+        "routeKey": "$default",
+        "stage": "$default",
+        "time": "12/Aug/2025:01:41:32 +0000",
+        "timeEpoch": 1754962892547
+    },
+    "body": "{\"whatsapp phone\":61410793256,\"whatsapp name\":\"Morag Cheshire\",\"chatfuel user id\":\"61410793256_694753697062271\",\"eu restricted\":\"No\",\"profile pic url\":\"\",\"signed up\":\"2025-08-12 01:38:11\",\"last seen\":\"2025-08-12 01:41:28\",\"sessions\":1,\"whatsapp user id\":\"61410793256_694753697062271\"}",
+    "isBase64Encoded": false
+}
