@@ -14,6 +14,12 @@
         integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
         crossorigin=""/>
 
+    <!-- amCharts 5 -->
+    <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/map.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/geodata/worldLow.js"></script>
+    <script src="https://cdn.amcharts.com/lib/5/themes/Animated.js"></script>
+
     <link rel="stylesheet" href="static/css/details.css">
 </head>
 
@@ -82,7 +88,7 @@
                         <div class="overview-left">
                             <div style="display: flex; gap: 10px; justify-content: center;">
                                 <div style="flex: 1; text-align: center;">
-                                    <img id="upg-image-female" src="https://via.placeholder.com/200x300" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <img id="upg-image-female" src="https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/female/Bhramins_Nepal.jpg" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
                                 </div>
                                 <div style="flex: 1; text-align: center;">
                                     <img id="upg-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
@@ -147,11 +153,13 @@
                     <div class="overview-grid">
                         <div class="overview-left">
                             <div style="display: flex; gap: 10px; justify-content: center;">
-                                <div style="flex: 1; text-align: center;">
+                                <div style="flex: 1; text-align: center; position: relative;">
                                     <img id="digital-image-female" src="https://via.placeholder.com/200x300" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <div class="image-label">Female</div>
                                 </div>
-                                <div style="flex: 1; text-align: center;">
+                                <div style="flex: 1; text-align: center; position: relative;">
                                     <img id="digital-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <div class="image-label">Male</div>
                                 </div>
                             </div>
                         </div>

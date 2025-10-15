@@ -384,7 +384,8 @@ body::before {
 
 .map-container {
     width: 100%;
-    height: 350px;
+    height: 100%;
+    min-height: 350px;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px);
     border-radius: 16px;
@@ -395,6 +396,23 @@ body::before {
     justify-content: center;
     color: #666;
     font-size: 1.1rem;
+}
+
+/* Image Labels */
+.image-label {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(34, 34, 34, 0.85);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* Quick Numbers and Top Performing Sections */

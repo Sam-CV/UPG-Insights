@@ -64,8 +64,12 @@ function loadUpgImages(upgName, country) {
     const imageFilename = `${formattedName}_${country}.jpg`;
 
     const baseUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles';
-    const femaleImageUrl = `${baseUrl}/${country}/female/${imageFilename}`;
-    const maleImageUrl = `${baseUrl}/${country}/male/${imageFilename}`;
+    let femaleImageUrl = `${baseUrl}/${country}/female/${imageFilename}`;
+    let maleImageUrl = `${baseUrl}/${country}/male/${imageFilename}`;
+
+    // PLACEHOLDERS FOR NOW
+    femaleImageUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/female/Bhramins_Nepal.jpg';
+    maleImageUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/male/Bantawa_Nepal.jpg';
 
     console.log('Loading images:', { femaleImageUrl, maleImageUrl });
 
@@ -122,18 +126,169 @@ function loadUpgImages(upgName, country) {
     }
 }
 
-// Map initialization function (placeholder)
+// Map initialization function with amCharts 5 globe
 function initializeMap(lat, lon) {
-    const mapContainer = document.getElementById('map');
-    mapContainer.innerHTML = `
-        <img src="static/images/placeholder-map.jpg" alt="Map Location" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">
-    `;
+    // Use default coordinates if not provided
+    const latitude = lat || 27.7172;
+    const longitude = lon || 85.3240;
 
-    // Initialize digital map as well
-    const digitalMapContainer = document.getElementById('digital-map');
-    if (digitalMapContainer) {
-        digitalMapContainer.innerHTML = mapContainer.innerHTML;
+    // Initialize overview map
+    createGlobeMap('map', latitude, longitude);
+
+    // Initialize digital map
+    createGlobeMap('digital-map', latitude, longitude);
+}
+
+function createGlobeMap(containerId, lat, lon) {
+    const mapContainer = document.getElementById(containerId);
+    if (!mapContainer) return;
+
+    // Clear any existing content
+    mapContainer.innerHTML = '';
+
+    // Detect screen size - use globe for screens wider than 1024px
+    const isLargeScreen = window.innerWidth > 1024;
+    const useGlobe = isLargeScreen;
+
+    // Update container styling based on map type
+    if (useGlobe) {
+        mapContainer.style.background = 'transparent';
+        mapContainer.style.backdropFilter = 'none';
+        mapContainer.style.border = 'none';
+        mapContainer.style.boxShadow = 'none';
+    } else {
+        mapContainer.style.background = 'rgba(255, 255, 255, 0.5)';
+        mapContainer.style.backdropFilter = 'blur(10px)';
+        mapContainer.style.border = '1px solid rgba(255, 255, 255, 0.3)';
+        mapContainer.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.1)';
     }
+
+    // Create root element
+    const root = am5.Root.new(containerId);
+
+    // Set themes
+    root.setThemes([am5themes_Animated.new(root)]);
+
+    // Create the map chart with appropriate projection
+    const chart = root.container.children.push(
+        am5map.MapChart.new(root, {
+            projection: useGlobe ? am5map.geoOrthographic() : am5map.geoMercator(),
+            panX: useGlobe ? "rotateX" : "none",
+            panY: useGlobe ? "rotateY" : "none",
+            wheelY: useGlobe ? "zoom" : "none",
+            maxPanOut: 0
+        })
+    );
+
+    // Disable interaction for flat map
+    if (!useGlobe) {
+        chart.set("zoomControl", null);
+        chart.chartContainer.set("interactive", false);
+    }
+
+    // Create background series (ocean)
+    const backgroundSeries = chart.series.push(
+        am5map.MapPolygonSeries.new(root, {})
+    );
+
+    // Use more saturated blue ocean color
+    backgroundSeries.mapPolygons.template.setAll({
+        fill: am5.color("#bbdefb"),
+        fillOpacity: 1,
+        strokeOpacity: 0
+    });
+
+    backgroundSeries.data.push({
+        geometry: am5map.getGeoRectangle(90, 180, -90, -180)
+    });
+
+    // Create main polygon series for countries
+    const polygonSeries = chart.series.push(
+        am5map.MapPolygonSeries.new(root, {
+            geoJSON: am5geodata_worldLow
+        })
+    );
+
+    // Style the countries with white/grey/blue theme
+    polygonSeries.mapPolygons.template.setAll({
+        fill: am5.color("#f5f5f5"),
+        fillOpacity: 0.9,
+        strokeWidth: 0.8,
+        stroke: am5.color("#9e9e9e"),
+        tooltipText: "{name}"
+    });
+
+    // Add hover effects
+    polygonSeries.mapPolygons.template.states.create("hover", {
+        fill: am5.color("#222"),
+        fillOpacity: 0.8
+    });
+
+    // Create point series for the location marker
+    const pointSeries = chart.series.push(
+        am5map.MapPointSeries.new(root, {})
+    );
+
+    pointSeries.bullets.push(function() {
+        const circle = am5.Circle.new(root, {
+            radius: 8,
+            fill: am5.color("#2196f3"),
+            stroke: am5.color("#ffffff"),
+            strokeWidth: 2,
+            tooltipText: "Location: {title}"
+        });
+
+        return am5.Bullet.new(root, {
+            sprite: circle
+        });
+    });
+
+    // Add the point
+    pointSeries.data.setAll([{
+        geometry: { type: "Point", coordinates: [lon, lat] },
+        title: "UPG Location"
+    }]);
+
+    if (useGlobe) {
+        // Rotate globe to center on the location
+        chart.animate({
+            key: "rotationX",
+            to: -lon,
+            duration: 1500,
+            easing: am5.ease.inOut(am5.ease.cubic)
+        });
+
+        chart.animate({
+            key: "rotationY",
+            to: -lat,
+            duration: 1500,
+            easing: am5.ease.inOut(am5.ease.cubic)
+        });
+    } else {
+        // For flat map, zoom to show classic horizontal world view
+        chart.set("zoomLevel", 2.6);
+        chart.set("centerMapOnZoomIn", false);
+        chart.set("centerMapOnZoomOut", false);
+        // Move map up by translating vertically
+        chart.chartContainer.set("dy", 80);
+    }
+
+    // Make stuff animate on load
+    chart.appear(1000, 100);
+
+    // Re-initialize on window resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const newIsLargeScreen = window.innerWidth > 1024;
+            if (newIsLargeScreen !== isLargeScreen) {
+                // Screen size category changed, recreate the map
+                root.dispose();
+                createGlobeMap(containerId, lat, lon);
+            }
+        }, 250);
+    });
 }
 
 // Data type filter functionality for Digital Learning tab
