@@ -1,81 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPG Details - UPG Insights</title>
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/material-design-icons/4.0.0/font/MaterialIcons.min.css">
-    <link rel="stylesheet"
-        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap"
-        rel="stylesheet">
-    <link rel="stylesheet" href="static/css/styles.css">
+    <title>UPG Insights Data</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <!-- no cache -->
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
-    <meta http-equiv="Pragma" content="no-cache" />
-    <meta http-equiv="Expires" content="0" />
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #ffffff;
+            padding: 40px 20px;
+        }
+
+        .insights-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .insights-header {
+            margin-bottom: 40px;
+        }
+
+        .insights-header h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 8px;
+        }
+
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 0;
+            margin-bottom: 0;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            padding: 24px 16px;
+            text-align: center;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .metric-card:not(:nth-child(5n)) {
+            border-right: 1px solid #f0f0f0;
+        }
+
+        .metric-row {
+            display: contents;
+        }
+
+        .metric-row:not(:last-child) .metric-card {
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .metric-label {
+            font-size: 10px;
+            color: #666666;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 400;
+            line-height: 1.2;
+        }
+
+        .metric-value {
+            font-size: 36px;
+            font-weight: 400;
+            color: #0056ff;
+            line-height: 1;
+        }
+
+        .metric-value.small {
+            font-size: 32px;
+        }
+
+        .metric-value.large {
+            font-size: 40px;
+        }
+
+        .metric-value.int {
+            color: #0056ff;
+        }
+
+        .metrics-wrapper {
+            background: #ffffff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f0f0f0;
+            margin-bottom: 24px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px;
+            color: #999999;
+        }
+
+        .loading-spinner {
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #0056ff;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .filter-section {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 8px 12px;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            font-size: 13px;
+            min-width: 180px;
+            background: #fafafa;
+        }
+
+        .filter-button {
+            padding: 8px 20px;
+            background: #0056ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .filter-button:hover {
+            background: #0045dd;
+        }
+
+        .clear-button {
+            padding: 8px 20px;
+            background: #f0f0f0;
+            color: #333;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .clear-button:hover {
+            background: #e0e0e0;
+        }
+
+        .campaign-title {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            padding: 12px 16px;
+            background: #fafafa;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        @media (max-width: 768px) {
+            .metrics-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .metric-card:nth-child(2n) {
+                border-right: none;
+            }
+
+            .metric-card:not(:nth-child(2n)) {
+                border-right: 1px solid #f0f0f0;
+            }
+        }
+    </style>
 </head>
-
 <body>
-    <header>
-        <div class="logo">
-            <span class="material-symbols-outlined">
-                insights
-            </span>
-            <span id="site-name">UPG Insights</span>
-        </div>
-
-        <nav id="main-nav">
-            <!-- Navigation will be populated by JavaScript -->
-        </nav>
-    </header>
-
-    <div class="container" id="main-content">
-        <div class="title-section">
-            <h1 class="title"><span id="group-name">Group</span> <span id="current-section">Section</span></h1>
-
-            <div class="filter-buttons" id="section-filters">
-                <!-- Section filter buttons will be populated by JavaScript -->
-            </div>
-        </div>
-
-        <!-- Content Sections -->
-        <div id="content-sections">
-            <!-- All content sections will be dynamically injected here -->
-        </div>
+<div class="insights-container">
+    <div class="insights-header">
+        <h1>Insights Data</h1>
     </div>
 
-    <!-- Load scripts -->
-    <script src="static/js/scripts.js"></script>
-    <script src="static/js/details.js"></script>
-
-    <!-- settings modal-->
-    <dialog id="settings-dialog" class="settings-dialog">
-        <div class="close" onclick="this.parentElement.close()">&times;</div>
-        <!-- clear cache, dark mode -->
-        <div class="settings-modal">
-            <h2>Settings</h2>
-            <div class="settings-option">
-                <label for="dark-mode">Dark Mode</label>
-                <input type="checkbox" id="dark-mode" class="toggle-switch">
-            </div>
-            <div class="settings-option">
-                <label for="clear-cache">Clear Cache</label>
-                <button id="clear-cache-btn" class="clear-cache-button" onclick="clearCache()">Clear</button>
-            </div>
+    <!-- Main content area -->
+    <div id="insights-content">
+        <div class="loading">
+            <div class="loading-spinner"></div>
+            Loading insights data...
         </div>
-    </dialog>
-
-    <div class="loading-fill" id="loading-fill">
-        <img src="static/image/cv-logo.gif" alt="">
-        <div class="loading-text">Loading UPG Data...</div>
     </div>
+</div>
+
+<script>
+    // Parse the actual data from your file
+    const rawDataRows = [
+        ['2024-01-01', '120200179478710053', '120200179478680053', '120200179478650053', 'Nguoi Ban Than: AP - Vietnam - VV - Winning - SufferingPhysical Needs - Worries - Stage 3 - S3C - GP - POAU4477', 'https://www.facebook.com/107598335585422_293695596985805', '107598335585422', 173, 128, 174, 0, 0.130, 'Physical Need', 'Anxiety'],
+        ['2024-01-01', '120200179478710053', '120200179478680053', '120200179478650053', 'Nguoi Ban Than: AP - Vietnam - VV - Winning - SufferingPhysical Needs - Worries - Stage 3 - S3C - GP - POAU4477', 'https://www.facebook.com/107598335585422_293695596985805', '107598335585422', 166, 127, 167, 0, 0.150, 'Physical Need', 'Anxiety'],
+        ['2024-01-01', '120200179478710053', '120200179478680053', '120200179478650053', 'Nguoi Ban Than: AP - Vietnam - VV - Winning - SufferingPhysical Needs - Worries - Stage 3 - S3C - GP - POAU4477', 'https://www.facebook.com/107598335585422_293695596985805', '107598335585422', 110, 82, 111, 0, 0.090, 'Physical Need', 'Anxiety'],
+        ['2024-01-01', '120200179478710053', '120200179478680053', '120200179478650053', 'Nguoi Ban Than: AP - Vietnam - VV - Winning - SufferingPhysical Needs - Worries - Stage 3 - S3C - GP - POAU4477', 'https://www.facebook.com/107598335585422_293695596985805', '107598335585422', 202, 157, 204, 0, 0.210, 'Physical Need', 'Anxiety'],
+        ['2024-01-01', '120200381580070669', '120200381580180669', '120200381580150669', 'NPI: BE - Dec - Jan - GP', 'https://www.facebook.com/103487639228230_307137172189281', '103487639228230', 1156, 16620, 20407, 138, 0.002, 'Spiritual', 'Prayer'],
+        ['2024-01-01', '120200381580070669', '120200381580180669', '120200381580150669', 'NPI: BE - Dec - Jan - GP', 'https://www.facebook.com/103487639228230_307137172189281', '103487639228230', 1114, 6173, 6816, 133, 0.002, 'Spiritual', 'Prayer'],
+        ['2024-01-01', '120200381580070669', '120200381580180669', '120200381580150669', 'NPI: BE - Dec - Jan - GP', 'https://www.facebook.com/103487639228230_307137172189281', '103487639228230', 352, 1962, 2112, 42, 0.002, 'Spiritual', 'Prayer'],
+        ['2024-01-01', '120200381580070669', '120200381580180669', '120200381580150669', 'NPI: BE - Dec - Jan - GP', 'https://www.facebook.com/103487639228230_307137172189281', '103487639228230', 142, 686, 941, 17, 0.002, 'Spiritual', 'Prayer']
+    ];
+
+    // Convert raw data to structured format
+    const mockData = {
+        rows: rawDataRows.map(row => ({
+            date: row[0],
+            campaign_id: row[1],
+            campaign_id2: row[2],
+            campaign_id3: row[3],
+            campaign_name: row[4],
+            url: row[5],
+            page_id: row[6],
+            impressions: row[7],
+            reach: row[8],
+            engagement: row[9],
+            shares: row[10],
+            cpa_per_iti: row[11],
+            category: row[12],
+            subcategory: row[13]
+        }))
+    };
+
+    let currentData = [];
+    let filteredData = [];
+
+    // Data fetching function with caching (matching your pattern)
+    async function getData(query, cacheBust = false) {
+        const cacheKey = `insights_cache_${btoa(query)}`;
+        const cacheTimestampKey = `${cacheKey}_timestamp`;
+
+        if (cacheBust) {
+            localStorage.removeItem(cacheKey);
+            localStorage.removeItem(cacheTimestampKey);
+        }
+
+        const cachedData = localStorage.getItem(cacheKey);
+        const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
+        const now = Date.now();
+
+        if (cachedData && cachedTimestamp && (now - parseInt(cachedTimestamp, 10) < 3600000)) {
+            console.log('Fetching from cache:', cacheKey);
+            return JSON.parse(cachedData);
+        }
+
+        // In production, replace this with actual API call
+        // const response = await fetch('your-api-endpoint', {
+        //     method: 'POST',
+        //     body: JSON.stringify({ sql: query })
+        // });
+        // const data = await response.json();
+
+        const data = mockData;
+
+        localStorage.setItem(cacheKey, JSON.stringify(data));
+        localStorage.setItem(cacheTimestampKey, now.toString());
+
+        return data;
+    }
+
+    async function loadInsights() {
+        const sql = `
+                SELECT date, campaign_id, campaign_name, page_id,
+                       impressions, reach, engagement, shares,
+                       cpa_per_iti, category, subcategory
+                FROM upg_insights_data
+                ORDER BY date DESC, campaign_name
+            `;
+
+        let insights = await getData(sql);
+
+        console.log("Raw API response:", insights);
+
+        // Normalize data structure
+        if (insights.rows) {
+            insights = insights.rows;
+        } else if (insights.data) {
+            insights = insights.data;
+        }
+
+        currentData = insights;
+        filteredData = insights;
+
+        renderMetrics(insights);
+    }
+
+    // Render metrics
+    function renderMetrics(data) {
+        const contentDiv = document.getElementById('insights-content');
+
+        if (!Array.isArray(data) || data.length === 0) {
+            contentDiv.innerHTML = '<div style="text-align: center; padding: 40px; color: #999;">No data found</div>';
+            return;
+        }
+
+        const totalImpressions = data.reduce((sum, row) => sum + row.impressions, 0);
+        const totalReach = data.reduce((sum, row) => sum + row.reach, 0);
+        const totalEngagement = data.reduce((sum, row) => sum + row.engagement, 0);
+        const totalShares = data.reduce((sum, row) => sum + row.shares, 0);
+        const avgCPA = data.reduce((sum, row) => sum + row.cpa_per_iti, 0) / data.length;
+
+        // Group by campaign for individual metrics
+        const campaigns = {};
+        data.forEach(row => {
+            if (!campaigns[row.campaign_name]) {
+                campaigns[row.campaign_name] = {
+                    impressions: 0,
+                    reach: 0,
+                    engagement: 0,
+                    shares: 0,
+                    cpa_values: [],
+                    category: row.category,
+                    count: 0
+                };
+            }
+            campaigns[row.campaign_name].impressions += row.impressions;
+            campaigns[row.campaign_name].reach += row.reach;
+            campaigns[row.campaign_name].engagement += row.engagement;
+            campaigns[row.campaign_name].shares += row.shares;
+            campaigns[row.campaign_name].cpa_values.push(row.cpa_per_iti);
+            campaigns[row.campaign_name].count++;
+        });
+
+        let html = '';
+
+        html += `
+                <div class="metrics-wrapper">
+                    <div class="metrics-grid">
+                        <div class="metric-row">
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per ITI (USD)</div>
+                                <div class="metric-value">0.002</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Total Reach</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">Avg CPA</div>
+                                <div class="metric-value">0.002</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per ITI (USD)</div>
+                                <div class="metric-value">0.002</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per ITI (USD)</div>
+                                <div class="metric-value">0.002</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per ITI (USD)</div>
+                                <div class="metric-value">0.002</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per ITI (USD)</div>
+                                <div class="metric-value">0.002</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                        </div>
+                        <div class="metric-row">
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per ITI (USD)</div>
+                                <div class="metric-value">0.002</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per ITI (USD)</div>
+                                <div class="metric-value">0.002</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                            <div class="metric-card">
+                                <div class="metric-label">CPA per fgfgf</div>
+                                <div class="metric-value small">0.05</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+        // Add real data section
+        Object.entries(campaigns).forEach(([campaignName, stats]) => {
+            const avgCampaignCPA = stats.cpa_values.reduce((a, b) => a + b, 0) / stats.cpa_values.length;
+
+            html += `
+                    <div class="metrics-wrapper">
+                        <div class="campaign-title">${campaignName.substring(0, 50)}... - ${stats.category}</div>
+                        <div class="metrics-grid">
+                            <div class="metric-row">
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Impressions</div>
+                                    <div class="metric-value int">${stats.impressions.toLocaleString()}</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Reach</div>
+                                    <div class="metric-value int">${stats.reach.toLocaleString()}</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Engagement</div>
+                                    <div class="metric-value int">${stats.engagement.toLocaleString()}</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Total Shares</div>
+                                    <div class="metric-value int">${stats.shares}</div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-label">Avg CPA per ITI</div>
+                                    <div class="metric-value">${avgCampaignCPA.toFixed(3)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+        });
+
+        contentDiv.innerHTML = html;
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadInsights();
+    });
+
+    // Auto-refresh every 5 minutes
+    setInterval(() => {
+        loadInsights();
+    }, 300000);
+</script>
 </body>
-
 </html>

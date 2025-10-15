@@ -93,7 +93,7 @@
 
     // Render users as cards
     async function loadUsers() {
-        const sql = "SELECT name, social_handle, last_seen FROM chatfuel_user_data";
+        const sql = "SELECT TOP 100 name, social_handle, last_seen FROM chatfuel_user_data";
         let users = await getData(sql);
 
         console.log("Raw API response:", users);

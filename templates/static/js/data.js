@@ -1,12 +1,10 @@
-// All website data stored as JavaScript objects
+
 const websiteData = {
-    // Navigation and site info
     siteName: "UPG Insights",
     navigation: [
         { name: "Home", url: "index.html", active: window.location.pathname === "/index.html" },
     ],
 
-    // Search filters
     searchFilters: {
         regions: ["South Asia", "Southeast Asia", "Middle East", "East Africa", "West Africa"],
         countries: ["Nepal", "India", "Bangladesh", "Pakistan", "Thailand"],
@@ -15,7 +13,6 @@ const websiteData = {
         religions: ["Hindu", "Buddhist", "Muslim", "Christian", "Animist"]
     },
 
-    // Search results - people groups
     peopleGroups: [
         {
             id: "tharu",
@@ -49,7 +46,6 @@ const websiteData = {
         }
     ],
 
-    // Section data for Tharu people group
     tharu: {
         name: "Tharu",
         mapImage: "https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=1020&height=720&center=lonlat:15,35&zoom=0.15&styleCustomization=background:%23e2e2e2|water-offset:none|water:%23ffffff|water-pattern:none|landcover-glacier:none|boundary-land-level-4:none|boundary-land-level-2:%23c8c8c8|boundary-land-disputed:none|boundary-water:none|water-name-ocean:none|water-name-other:none|place-country-2:none|place-country-1:none|place-continent:none&marker=lonlat:84.124,28.3949;type:circle;color:blue;size:medium;icontype:material;iconsize:small&apiKey=eccf4dc1db37462898e8beb9a3377d4f",
@@ -457,7 +453,6 @@ const websiteData = {
     }
 };
 
-// Add this to your existing data.js file
 
 // Historical Data
 websiteData.historicalData = {

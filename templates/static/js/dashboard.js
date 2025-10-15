@@ -883,7 +883,7 @@ class Dashboard {
         if (this.filters[index]) {
             this.filters[index][field] = value;
             if (field === 'operator') {
-                this.renderFilters(); // Re-render to update disabled state
+                this.renderFilters();
             }
         }
     }
@@ -907,7 +907,6 @@ class Dashboard {
         }
 
         try {
-            // Build SQL Server export query (without pagination)
             let sql = `SELECT * FROM [dbo].[${this.selectedTable}]`;
 
             if (this.filters.length > 0) {
@@ -923,7 +922,6 @@ class Dashboard {
                 sql += ` ORDER BY (SELECT NULL)`;
             }
 
-            // Limit to prevent timeout using TOP
             sql = sql.replace('SELECT *', 'SELECT TOP 10000 *');
 
             console.log('Export SQL:', sql);
@@ -935,7 +933,6 @@ class Dashboard {
                 return;
             }
 
-            // Convert to CSV
             const headers = Object.keys(data[0]);
             const csvHeaders = headers.map(h => `"${h}"`).join(',');
 
@@ -981,7 +978,6 @@ class Dashboard {
     }
 
     showNotification(message, type = 'success') {
-        // Remove existing notifications
         const existing = document.querySelectorAll('.notification');
         existing.forEach(n => n.remove());
 
@@ -996,10 +992,9 @@ class Dashboard {
 
         document.body.appendChild(notification);
 
-        // Show notification
         setTimeout(() => notification.classList.add('show'), 100);
 
-        // Hide after 3 seconds
+
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);

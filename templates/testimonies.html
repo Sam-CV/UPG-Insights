@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Impact Stories</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #fafbfc;
+      color: #1a1a1a;
+      line-height: 1.6;
+    }
+
+    .hero-section {
+      background: #ffffff;
+      padding: 80px 20px;
+      text-align: center;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .hero-content {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .hero-section h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 16px;
+      letter-spacing: -0.025em;
+    }
+
+    .hero-section p {
+      font-size: 1.25rem;
+      color: #6b7280;
+      font-weight: 400;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 60px 20px;
+    }
+
+    .testimonies-wrapper {
+      position: relative;
+    }
+
+    .testimony-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 24px;
+      border: 1px solid #e5e7eb;
+      position: relative;
+      transition: all 0.2s ease;
+    }
+
+    .testimony-text::before {
+      content: '"';
+      font-size: 32px;
+      font-weight: 300;
+      color: #e5e7eb;
+      font-family: Georgia, serif;
+      line-height: 1;
+      animation: quoteFloat 3s ease-in-out infinite;
+      margin-right: 8px;
+      display: inline-block;
+      vertical-align: top;
+    }
+
+    @keyframes quoteFloat {
+      0%, 100% {
+        transform: translateY(0px);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-4px);
+        opacity: 0.6;
+      }
+    }
+
+    .testimony-card:hover {
+      border-color: #d1d5db;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+
+    .testimony-card:hover .testimony-text::before {
+      color: #3b82f6;
+      animation-duration: 1.5s;
+    }
+
+    .testimony-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 600;
+      color: #374151;
+      flex-shrink: 0;
+    }
+
+    .person-details {
+      flex: 1;
+    }
+
+    .person-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 4px;
+    }
+
+    .person-title {
+      font-size: 0.875rem;
+      color: #6b7280;
+      font-weight: 500;
+      margin-bottom: 8px;
+    }
+
+    .location-info {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .location-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: #6b7280;
+      background: #f9fafb;
+      padding: 4px 8px;
+      border-radius: 6px;
+    }
+
+    .location-badge svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .testimony-content {
+      margin-bottom: 20px;
+    }
+
+    .testimony-heading {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: #111827;
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    .testimony-text {
+      font-size: 1rem;
+      color: #374151;
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .testimony-text.truncated {
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .read-more-btn {
+      background: none;
+      border: none;
+      color: #3b82f6;
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      padding: 4px 0;
+      transition: color 0.2s ease;
+    }
+
+    .read-more-btn:hover {
+      color: #2563eb;
+    }
+
+    .testimony-highlight {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .highlight-bubble {
+      background: #3b82f6;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+
+    .part-bubbles {
+      display: flex;
+      gap: 8px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .part-bubble {
+      background: #3b82f6;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .part-bubble.part-one {
+      background: #10b981;
+    }
+
+    .part-bubble.part-two {
+      background: #f59e0b;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-content {
+      background-color: #ffffff;
+      margin: 5% auto;
+      padding: 0;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      animation: modalSlideIn 0.3s ease-out;
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-header {
+      padding: 24px 32px 16px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #111827;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .modal-close:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .modal-body {
+      padding: 24px 32px 32px;
+    }
+
+    .modal-testimony {
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #374151;
+      margin-bottom: 20px;
+    }
+
+    .modal-highlight {
+      display: flex;
+      gap: 8px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .modal-bubble {
+      background: #3b82f6;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
+
+    .testimony-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #f3f4f6;
+    }
+
+    .date-stamp {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .date-stamp svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .gender-indicator {
+      font-size: 0.75rem;
+      padding: 4px 8px;
+      background: #f3f4f6;
+      color: #6b7280;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .loading-dots {
+      display: inline-flex;
+      gap: 6px;
+    }
+
+    .loading-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #3b82f6;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    .loading-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .loading-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes pulse {
+      0%, 80%, 100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+      }
+      40% {
+        opacity: 1;
+        transform: scale(1.2);
+      }
+    }
+
+    .error-state {
+      text-align: center;
+      padding: 80px 20px;
+    }
+
+    .error-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      opacity: 0.4;
+    }
+
+    .error-message {
+      font-size: 1rem;
+      color: #6b7280;
+      margin-bottom: 16px;
+    }
+
+    .retry-button {
+      display: inline-block;
+      padding: 8px 16px;
+      background: #3b82f6;
+      color: white;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      font-size: 0.875rem;
+      transition: background 0.2s ease;
+    }
+
+    .retry-button:hover {
+      background: #2563eb;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 80px 20px;
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .hero-section h1 {
+        font-size: 2.5rem;
+      }
+
+      .hero-section p {
+        font-size: 1.125rem;
+      }
+
+      .testimony-card {
+        padding: 24px 20px;
+      }
+
+      .testimony-header {
+        gap: 12px;
+      }
+
+      .avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 16px;
+      }
+
+      .person-name {
+        font-size: 1.125rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="hero-section">
+  <div class="hero-content">
+    <h1>Impact Stories</h1>
+    <p>Real testimonies from our community around the world</p>
+  </div>
+</div>
+
+<div class="container">
+  <div id="testimonies-container" class="testimonies-wrapper">
+    <div class="loading">
+      <div class="loading-dots">
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+      <p style="margin-top: 24px; color: #64748b;">Loading testimonies...</p>
+    </div>
+  </div>
+</div>
+
+<!-- Modal for full testimony -->
+<div id="testimony-modal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 class="modal-title" id="modal-title">Full Testimony</h2>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-testimony" id="modal-testimony"></div>
+      <div class="modal-highlight" id="modal-highlight" style="display: none;"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Data fetching function with caching
+  async function getData(sql, cacheBust = false) {
+    const cacheKey = `cache_${btoa(sql)}`;
+    const cacheTimestampKey = `${cacheKey}_timestamp`;
+
+    if (cacheBust) {
+      localStorage.removeItem(cacheKey);
+      localStorage.removeItem(cacheTimestampKey);
+    }
+
+    const cachedData = localStorage.getItem(cacheKey);
+    const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
+    const now = Date.now();
+
+    if (cachedData && cachedTimestamp && now - parseInt(cachedTimestamp, 10) < 3600000) {
+      console.log('Fetching from cache: ', cacheKey);
+      return JSON.parse(cachedData);
+    }
+
+    try {
+      const response = await fetch('https://aas64vholvreom5xklwjcrmr740smjug.lambda-url.ap-southeast-2.on.aws/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ sql })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Fetching data from API:', data);
+
+      localStorage.setItem(cacheKey, JSON.stringify(data));
+      localStorage.setItem(cacheTimestampKey, now.toString());
+
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      throw error;
+    }
+  }
+
+  // Load testimonies
+  async function loadTestimonies() {
+    const sql = `SELECT * FROM impact_stories.testimonies LIMIT 100`;
+
+    try {
+      let testimonies = await getData(sql);
+      console.log("Raw API response:", testimonies);
+
+      // Normalize API response
+      if (testimonies.rows) {
+        testimonies = testimonies.rows;
+      } else if (testimonies.data) {
+        testimonies = testimonies.data;
+      }
+
+      if (!Array.isArray(testimonies) || testimonies.length === 0) {
+        displayNoResults();
+        return;
+      }
+
+      window.currentTestimonies = testimonies;
+      displayTestimonies(testimonies);
+    } catch (error) {
+      displayError();
+    }
+  }
+
+  // Display testimonies
+  function displayTestimonies(testimonies) {
+    const container = document.getElementById('testimonies-container');
+
+    if (testimonies.length === 0) {
+      container.innerHTML = '<div class="no-results">No testimonies found in the database.</div>';
+      return;
+    }
+
+    container.innerHTML = testimonies.map((testimony, index) => {
+      const cleanName = (testimony.name || 'Anonymous').replace(/_/g, ' ');
+      const initials = cleanName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const updateDate = testimony.latest_update ?
+              new Date(testimony.latest_update).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              }) : 'Recently updated';
+
+      const testimonyText = testimony.testimony || 'Story coming soon...';
+      const isLongText = testimonyText.length > 300;
+      const truncatedText = isLongText ? testimonyText.substring(0, 300) + '...' : testimonyText;
+
+      return `
+                    <div class="testimony-card">
+                        <div class="testimony-header">
+                            <div class="avatar">${initials}</div>
+                            <div class="person-details">
+                                 <div class="person-name">${(testimony.name || 'Community Member').replace(/_/g, ' ')}</div>
+                                ${testimony.title ? `<div class="person-title">${testimony.title.replace(/_/g, ' ')}</div>` : ''}
+                                <div class="location-info">
+                                    ${testimony.country ? `
+                                        <span class="location-badge">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
+                                            </svg>
+                                             ${testimony.country.replace(/_/g, ' ')}
+                                        </span>` : ''}
+                                    ${testimony.region ? `
+                                        <span class="location-badge">
+                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                            </svg>
+                                             ${testimony.region.replace(/_/g, ' ')}
+                                        </span>` : ''}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="testimony-content">
+                            ${testimony.testimony_heading ?
+              `<div class="testimony-heading">"${testimony.testimony_heading.replace(/_/g, ' ')}"</div>` : ''}
+
+                            <div class="testimony-text ${isLongText ? 'truncated' : ''}" id="testimony-text-${index}">
+                                ${isLongText ? truncatedText : testimonyText}
+                            </div>
+
+                            ${isLongText ? `
+                                <button class="read-more-btn" data-index="${index}" data-full-text="${testimonyText.replace(/"/g, '&quot;')}">
+                                    Read more
+                                </button>
+                            ` : ''}
+
+                             ${testimony.testimony_partwise ? `
+                                 <div class="testimony-highlight">
+                                      <span class="highlight-bubble">${testimony.testimony_partwise.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2')}</span>
+                                 </div>
+                             ` : ''}
+                        </div>
+
+                        <div class="testimony-footer">
+                            <span class="date-stamp">
+                                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                ${updateDate}
+                            </span>
+                            ${testimony.gender ? `<span class="gender-indicator">${testimony.gender}</span>` : ''}
+                        </div>
+                    </div>
+                `;
+    }).join('');
+  }
+
+  // Open modal with full testimony
+  function openModal(testimony) {
+    const modal = document.getElementById('testimony-modal');
+    const modalTitle = document.getElementById('modal-title');
+    const modalTestimony = document.getElementById('modal-testimony');
+    const modalHighlight = document.getElementById('modal-highlight');
+    
+    modalTitle.textContent = (testimony.name || 'Community Member').replace(/_/g, ' ');
+    modalTestimony.textContent = testimony.testimony || 'Story coming soon...';
+    
+    if (testimony.testimony_partwise) {
+      modalHighlight.innerHTML = `<span class="modal-bubble">${testimony.testimony_partwise.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2')}</span>`;
+      modalHighlight.style.display = 'flex';
+    } else {
+      modalHighlight.style.display = 'none';
+    }
+    
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  // Close modal
+  function closeModal() {
+    const modal = document.getElementById('testimony-modal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+
+  // Event delegation for read more buttons
+  document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('read-more-btn')) {
+      const index = e.target.getAttribute('data-index');
+      const testimonies = window.currentTestimonies || [];
+      if (testimonies[index]) {
+        openModal(testimonies[index]);
+      }
+    }
+  });
+
+  // Close modal when clicking outside
+  document.addEventListener('click', function(e) {
+    const modal = document.getElementById('testimony-modal');
+    if (e.target === modal) {
+      closeModal();
+    }
+  });
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+
+  function displayNoResults() {
+    const container = document.getElementById('testimonies-container');
+    container.innerHTML = `
+                <div class="no-results">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📚</div>
+                    <div>No testimonies found in the database.</div>
+                </div>
+            `;
+  }
+
+  function displayError() {
+    const container = document.getElementById('testimonies-container');
+    container.innerHTML = `
+                <div class="error-state">
+                    <svg class="error-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div class="error-message">Unable to load testimonies</div>
+                    <button class="retry-button" onclick="loadTestimonies()">Try Again</button>
+                </div>
+            `;
+  }
+
+  // Load testimonies on page load
+  loadTestimonies();
+</script>
+</body>
+</html>
