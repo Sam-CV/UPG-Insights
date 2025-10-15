@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPG Research</title>
+
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+
+    <link rel="stylesheet" href="static/css/landingpage.css">
+</head>
+
+<body>
+    <div class="page-container">
+        <!-- Navbar Fragment -->
+        <div id="navbar-container"></div>
+
+        <div class="title-section">
+            <h1 class="title">UPG Research</h1>
+        </div>
+
+        <div class="controls-section">
+            <div class="control-panel">
+                <div class="control-group">
+                    <div class="search-filter-row">
+                        <div class="search-wrapper">
+                            <div class="custom-dropdown">
+                                <input type="text" id="dropdown-input" class="dropdown-input"
+                                    placeholder="Type to get started" readonly>
+                                <span class="dropdown-arrow material-symbols-outlined">keyboard_arrow_down</span>
+                                <div class="dropdown-menu" id="dropdown-menu">
+                                    <!-- Options will be populated by JavaScript -->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="filter-wrapper">
+                            <div class="custom-dropdown filter-dropdown">
+                                <input type="text" id="filter-input" class="dropdown-input" placeholder="Filter" readonly>
+                                <span class="dropdown-arrow material-symbols-outlined">keyboard_arrow_down</span>
+                                <div class="dropdown-menu" id="filter-menu">
+                                    <div class="dropdown-option selected" data-value="all">
+                                        <span class="option-text">All Religions</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="buddhist">
+                                        <span class="option-text">Buddhist</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="hinduism">
+                                        <span class="option-text">Hinduism</span>
+                                    </div>
+                                    <div class="dropdown-option" data-value="islam">
+                                        <span class="option-text">Islam</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="go-button" class="explore-button">
+                    Explore
+                    <span class="button-arrow material-symbols-outlined">arrow_forward</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tooltip element -->
+    <div id="tooltip" class="tooltip"></div>
+
+    <script src="static/js/landingpage.js"></script>
+</body>
+
+</html>
