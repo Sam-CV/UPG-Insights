@@ -46,7 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
             mainTitle.textContent = upgData.name || 'Tharu';
         }
         if (typeTag) {
-            typeTag.textContent = upgData.language ? 'Language' : 'Country';
+            // Check type field from landing page data
+            typeTag.textContent = upgData.type === 'language' ? 'Language' : 'Unreached People Group';
         }
 
         document.getElementById('population').textContent = upgData.population || '1.96 M';
@@ -58,9 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         initializeMap(upgData.lat, upgData.lon);
 
-        // Initialize additional maps for Demographic and Testimonies tabs
-        createGlobeMap('demographic-map', upgData.lat, upgData.lon);
-        createGlobeMap('testimonies-map', upgData.lat, upgData.lon);
+        // Initialize country outline in header
+        initializeCountryOutline(upgData.country);
 
         // Load images for Demographic and Testimonies tabs
         loadSectionImages('demographic', upgData.name, upgData.country);
@@ -345,9 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }, 100);
         });
-
-        // Initialize header map
-        initializeHeaderMap(upgData.lat, upgData.lon);
     }
 });
 
@@ -478,6 +475,78 @@ function loadSectionImages(sectionPrefix, upgName, country) {
         maleImg.onerror = function() { this.src = placeholderImage; };
         maleImg.style.display = 'block';
     }
+}
+
+// Country code mapping
+const countryCodeMap = {
+    'afghanistan': 'af',
+    'azerbaijan': 'az',
+    'bangladesh': 'bd',
+    'cambodia': 'kh',
+    'china': 'cn',
+    'ethiopia': 'et',
+    'guinea': 'gn',
+    'india': 'in',
+    'indonesia': 'id',
+    'iran': 'ir',
+    'iraq': 'iq',
+    'japan': 'jp',
+    'kazakhstan': 'kz',
+    'laos': 'la',
+    'malaysia': 'my',
+    'mali': 'ml',
+    'mongolia': 'mn',
+    'morocco': 'ma',
+    'myanmar': 'mm',
+    'nepal': 'np',
+    'niger': 'ne',
+    'nigeria': 'ng',
+    'pakistan': 'pk',
+    'saudi arabia': 'sa',
+    'senegal': 'sn',
+    'somalia': 'so',
+    'sri lanka': 'lk',
+    'tajikistan': 'tj',
+    'thailand': 'th',
+    'turkey': 'tr',
+    'uzbekistan': 'uz',
+    'vietnam': 'vn'
+};
+
+// Country outline initialization function using SVG
+function initializeCountryOutline(countryName) {
+    const container = document.getElementById('country-outline');
+    if (!container) return;
+
+    // Get country code
+    const countryCode = countryCodeMap[countryName.toLowerCase()];
+
+    if (!countryCode) {
+        console.warn(`Country code not found for: ${countryName}`);
+        container.innerHTML = '<div style="color: #999; font-size: 0.8rem; text-align: center;">Country map not available</div>';
+        return;
+    }
+
+    // Build SVG path
+    const svgPath = `/mapsicon/all/${countryCode}/vector.svg`;
+
+    // Create img element for SVG
+    const img = document.createElement('img');
+    img.src = svgPath;
+    img.alt = `${countryName} outline`;
+    img.style.width = '100%';
+    img.style.height = '100%';
+    img.style.objectFit = 'contain';
+    img.style.filter = 'brightness(0)'; // Make it black
+
+    img.onerror = function() {
+        console.warn(`SVG not found at: ${svgPath}`);
+        container.innerHTML = '<div style="color: #999; font-size: 0.8rem; text-align: center;">Country map not available</div>';
+    };
+
+    // Clear and add to container
+    container.innerHTML = '';
+    container.appendChild(img);
 }
 
 // Map initialization function with amCharts 5 globe
