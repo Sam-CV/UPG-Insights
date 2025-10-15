@@ -1,5 +1,5 @@
 <nav
-    style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 15px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);">
+    style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 15px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 4px 12px var(--drop-shadow-color);">
     <div style="max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
         <div style="display: flex; align-items: center;">
             <a href="landingpage.html"
@@ -13,7 +13,13 @@
         <div style="display: flex; align-items: center;">
             <button
                 style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
-                <span class="material-symbols-outlined" style="color: #424242; font-size: 24px;">settings</span>
+                <span class="material-symbols-outlined" id="dark-mode-button" style="color: #424242; font-size: 24px; cursor: pointer;"
+                    onclick="
+                        document.body.classList.toggle('dark-mode');
+                        this.textContent = document.body.classList.contains('dark-mode') ? 'light_mode' : 'dark_mode';
+                    ">
+                    dark_mode
+                </span>
             </button>
         </div>
     </div>
