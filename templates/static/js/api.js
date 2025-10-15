@@ -122,3 +122,55 @@ async function getAllHypothesisData(cacheBust = false) {
         return [];
     }
 }
+
+/**
+ * Fetch distinct countries for filter dropdowns
+ * @param {boolean} cacheBust
+ * @returns {Promise<Array<string>>}
+ */
+async function getDistinctCountries(cacheBust = false) {
+    const sql = `SELECT DISTINCT country FROM upg_historical_hypothesis_tests WHERE country IS NOT NULL AND country <> '' ORDER BY country`;
+    try {
+        const result = await getData(sql, cacheBust);
+        if (Array.isArray(result)) {
+            return result.map(r => r.country).filter(Boolean);
+        }
+        if (result && Array.isArray(result.rows)) {
+            return result.rows.map(r => r.country).filter(Boolean);
+        }
+        if (result && Array.isArray(result.data)) {
+            return result.data.map(r => r.country).filter(Boolean);
+        }
+        return [];
+    } catch (e) {
+        console.error('getDistinctCountries error', e);
+        return [];
+    }
+}
+
+/**
+ * Fetch testimonies from upg_testimonies table
+ * Columns: id, country, outcome, impacting, date_posted, testimony
+ * @param {Object} options - Optional filters and options
+ * @param {string} [options.country] - Filter by country
+ * @param {number} [options.limit=100] - Max number of rows to return
+ * @param {boolean} [options.cacheBust=false] - Force refresh from API
+ * @returns {Promise<Array>} - Array of testimony records
+ */
+async function getTestimonies(options = {}) {
+    const { country, limit = 100, cacheBust = false } = options;
+
+    const whereClause = country ? `WHERE country = '${country.replace(/'/g, "''")}'` : '';
+    const sql = `SELECT id, country, outcome, impacting, date_posted, testimony FROM upg_testimonies ${whereClause} ORDER BY date_posted DESC NULLS LAST, id DESC LIMIT ${limit}`.trim();
+
+    try {
+        const result = await getData(sql, cacheBust);
+        if (result && Array.isArray(result)) return result;
+        if (result && Array.isArray(result.rows)) return result.rows;
+        if (result && Array.isArray(result.data)) return result.data;
+        return [];
+    } catch (error) {
+        console.error('Error in getTestimonies:', error);
+        return [];
+    }
+}

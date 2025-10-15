@@ -136,7 +136,24 @@
 
                 <!-- Demographic Tab -->
                 <div class="tab-content" id="demographic-content">
-                    <div class="loading-message">Demographic data coming soon...</div>
+                    <div class="overview-grid">
+                        <div class="overview-left">
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <div style="flex: 1; text-align: center; position: relative;">
+                                    <img id="demographic-image-female" src="https://via.placeholder.com/200x300" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <div class="image-label">Female</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; position: relative;">
+                                    <img id="demographic-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <div class="image-label">Male</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overview-right">
+                            <div id="demographic-map" class="map-container"></div>
+                        </div>
+                    </div>
+                    <div id="demographic-sections" style="margin-top: 16px;"></div>
                 </div>
 
                 <!-- Digital Learning Tab -->
@@ -206,13 +223,32 @@
 
                 <!-- Testimonies Tab -->
                 <div class="tab-content" id="testimonies-content">
-                    <div class="loading-message">Testimonies coming soon...</div>
+                    <div class="overview-grid">
+                        <div class="overview-left">
+                            <div style="display: flex; gap: 10px; justify-content: center;">
+                                <div style="flex: 1; text-align: center; position: relative;">
+                                    <img id="testimonies-image-female" src="https://via.placeholder.com/200x300" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <div class="image-label">Female</div>
+                                </div>
+                                <div style="flex: 1; text-align: center; position: relative;">
+                                    <img id="testimonies-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <div class="image-label">Male</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="overview-right">
+                            <div id="testimonies-map" class="map-container"></div>
+                        </div>
+                    </div>
+                    <div id="testimonies-cards-container" style="margin-top: 16px;"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="static/js/api.js"></script>
+    <script src="static/js/upgdata.js"></script>
+    <script src="static/js/sampledata.js"></script>
     <script src="static/js/details.js"></script>
 </body>
 

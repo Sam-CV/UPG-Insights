@@ -26,6 +26,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (sectionTitle) {
                 sectionTitle.textContent = tabName;
             }
+            // When switching to Demographic tab, render sample data
+            if (targetTab === 'demographic') {
+                renderDemographicSampleData();
+            }
         });
     });
 
@@ -53,6 +57,294 @@ document.addEventListener('DOMContentLoaded', () => {
         loadUpgImages(upgData.name, upgData.country);
 
         initializeMap(upgData.lat, upgData.lon);
+
+        // Initialize additional maps for Demographic and Testimonies tabs
+        createGlobeMap('demographic-map', upgData.lat, upgData.lon);
+        createGlobeMap('testimonies-map', upgData.lat, upgData.lon);
+
+        // Load images for Demographic and Testimonies tabs
+        loadSectionImages('demographic', upgData.name, upgData.country);
+        loadSectionImages('testimonies', upgData.name, upgData.country);
+
+        // Render demographic sample data on initial load (Overview active, but data ready when user switches)
+        renderDemographicSampleData();
+    }
+
+    // Populate dropdowns
+    populateCountryFilterOptions();
+    populateLanguageFilterOptions();
+    populateReligionFilterOptions();
+
+    // Wire up Languages and Religions dropdown open/close behavior
+    wireDropdown('languages');
+    wireDropdown('religions');
+});
+
+async function populateCountryFilterOptions() {
+    const countriesMenu = document.getElementById('countries-menu');
+    if (!countriesMenu) return;
+
+    try {
+        // Prefer provided upgData list if available, else fall back to DB
+        let countries = [];
+        if (Array.isArray(window.upgData)) {
+            countries = Array.from(new Set(window.upgData.map(d => d.country).filter(Boolean))).sort();
+        } else if (typeof getDistinctCountries === 'function') {
+            countries = await getDistinctCountries();
+        }
+        // Keep the first "All Countries" option; clear others
+        const baseOption = countriesMenu.querySelector('.dropdown-option[data-value="all"]');
+        countriesMenu.innerHTML = '';
+        if (baseOption) countriesMenu.appendChild(baseOption);
+
+        countries.forEach(country => {
+            const option = document.createElement('div');
+            option.className = 'dropdown-option';
+            option.setAttribute('data-value', country);
+            option.innerHTML = `<span class="option-text">${country}</span>`;
+            countriesMenu.appendChild(option);
+        });
+
+        // Click handling to set input value
+        countriesMenu.addEventListener('click', (e) => {
+            const option = e.target.closest('.dropdown-option');
+            if (!option) return;
+            const input = document.getElementById('countries-input');
+            if (!input) return;
+            const value = option.getAttribute('data-value');
+            const text = option.querySelector('.option-text')?.textContent || value;
+            input.value = value === 'all' ? 'All Countries' : text;
+        });
+    } catch (e) {
+        console.error('Failed to populate country filter', e);
+    }
+}
+
+// Render demographic sample data into #demographic-sections using LANGUAGE_GROUP_SAMPLE_DATA
+function renderDemographicSampleData() {
+    const container = document.getElementById('demographic-sections');
+    if (!container || typeof getSampleDemographicData !== 'function') return;
+
+    // Derive the language group name from selectedUpg (prefer name field)
+    const selectedUpgJson = sessionStorage.getItem('selectedUpg');
+    let languageGroupName = 'Example Group';
+    if (selectedUpgJson) {
+        try {
+            const data = JSON.parse(selectedUpgJson);
+            languageGroupName = data.name || languageGroupName;
+        } catch {}
+    }
+
+    const sample = getSampleDemographicData(languageGroupName);
+
+    // Helper to create a section block
+    const createSection = (title, content) => {
+        const block = document.createElement('div');
+        block.style.border = '1px solid #e5e7eb';
+        block.style.borderRadius = '12px';
+        block.style.padding = '16px';
+        block.style.background = '#fff';
+        block.style.marginBottom = '12px';
+
+        block.innerHTML = `
+            <div style="font-weight:700;color:#0f172a;margin-bottom:8px;">${title}</div>
+            <div style="white-space:pre-line;color:#334155;line-height:1.7;">${(content || 'Coming soon...')}</div>
+        `;
+        return block;
+    };
+
+    container.innerHTML = '';
+    container.appendChild(createSection('Introduction/History', sample.introduction_history));
+    container.appendChild(createSection('Everyday Lives', sample.everyday_lives));
+    container.appendChild(createSection('Demographics', sample.demographics));
+    container.appendChild(createSection('Enviroment', sample.environment));
+    container.appendChild(createSection('Stories and Music', sample.stories_music));
+    container.appendChild(createSection('Linguistics', sample.linguistics));
+}
+
+// Expand/collapse long testimonies on click
+document.addEventListener('click', (e) => {
+    const textEl = e.target.closest('.testimony-text');
+    if (!textEl) return;
+    const id = textEl.id || '';
+    if (!id.startsWith('details-testimony-text-')) return;
+
+    const isExpanded = textEl.getAttribute('data-expanded') === 'true';
+    const indexStr = id.replace('details-testimony-text-', '');
+    const index = parseInt(indexStr, 10);
+    if (Number.isNaN(index)) return;
+
+    // Retrieve selected country context
+    const countriesInput = document.getElementById('countries-input');
+    const selectedCountry = countriesInput && countriesInput.value && countriesInput.value !== 'All Countries' ? countriesInput.value : null;
+    const selectedUpgJson = sessionStorage.getItem('selectedUpg');
+    const fallbackCountry = selectedUpgJson ? (function(){ try { return JSON.parse(selectedUpgJson).country || null; } catch { return null; } })() : null;
+
+    getTestimonies({ country: selectedCountry || fallbackCountry || undefined, limit: 30 })
+        .then(list => {
+            if (!Array.isArray(list) || !list[index]) return;
+            const full = String(list[index].testimony || '');
+            const longThreshold = 600;
+            const collapsed = full.length > longThreshold ? (full.substring(0, longThreshold) + '...') : full;
+            if (isExpanded) {
+                textEl.innerHTML = collapsed.replace(/</g,'&lt;');
+                textEl.setAttribute('data-expanded', 'false');
+                textEl.style.cursor = full.length > longThreshold ? 'pointer' : '';
+            } else {
+                textEl.innerHTML = full.replace(/</g,'&lt;');
+                textEl.setAttribute('data-expanded', 'true');
+                textEl.style.cursor = 'pointer';
+            }
+        })
+        .catch(() => {});
+});
+
+// Load and render Testimonies for the selected country
+async function loadTestimoniesData() {
+    const container = document.getElementById('testimonies-content');
+    if (!container) return;
+
+    // Use the dedicated cards container so we don't wipe out the images/globe layout
+    const cardsContainerInit = document.getElementById('testimonies-cards-container');
+    if (cardsContainerInit) {
+        cardsContainerInit.innerHTML = '<div class="loading-message">Loading testimonies...</div>';
+    } else {
+        container.innerHTML = '<div class="loading-message">Loading testimonies...</div>';
+    }
+
+    try {
+        // Determine selected country; prefer filter input, fallback to selectedUpg
+        const countriesInput = document.getElementById('countries-input');
+        const selectedCountry = countriesInput && countriesInput.value && countriesInput.value !== 'All Countries'
+            ? countriesInput.value
+            : (function() {
+                const selectedUpgJson = sessionStorage.getItem('selectedUpg');
+                if (!selectedUpgJson) return null;
+                try { return JSON.parse(selectedUpgJson).country || null; } catch { return null; }
+            })();
+
+        const testimonies = await getTestimonies({ country: selectedCountry || undefined, limit: 30 });
+
+        if (!Array.isArray(testimonies) || testimonies.length === 0) {
+            const message = selectedCountry ? `No testimonies found for ${selectedCountry}.` : 'No testimonies found.';
+            const target = document.getElementById('testimonies-cards-container') || container;
+            target.innerHTML = `<div class="loading-message">${message}</div>`;
+            return;
+        }
+
+        // Render testimonies in a responsive 2-column layout (no title)
+        const cardsContainer = document.getElementById('testimonies-cards-container') || container;
+        cardsContainer.innerHTML = '';
+        const grid = document.createElement('div');
+        grid.style.display = 'grid';
+        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+        grid.style.gap = '16px';
+        grid.style.alignItems = 'stretch';
+
+        testimonies.forEach((t, index) => {
+            grid.appendChild(createTestimonyCardElement(t, index));
+        });
+
+        cardsContainer.innerHTML = '';
+        cardsContainer.appendChild(grid);
+
+        function applyResponsiveGrid() {
+            if (window.innerWidth < 800) {
+                grid.style.gridTemplateColumns = '1fr';
+            } else {
+                grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+            }
+        }
+        applyResponsiveGrid();
+        window.addEventListener('resize', applyResponsiveGrid);
+    } catch (error) {
+        console.error('Error loading testimonies:', error);
+        const target = document.getElementById('testimonies-cards-container') || container;
+        target.innerHTML = '<div class="loading-message">Error loading testimonies. Please try again.</div>';
+    }
+}
+
+function createTestimonyCardElement(testimony, index) {
+    const country = (testimony.country || 'Unknown country').replace(/_/g, ' ');
+    const initials = country.split(' ').map(part => part && part[0] ? part[0] : '').join('').substring(0, 2).toUpperCase();
+    const postedDate = testimony.date_posted ? new Date(testimony.date_posted).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Recently posted';
+    const testimonyText = testimony.testimony || 'Story coming soon...';
+    const longThreshold = 600;
+    const isLong = testimonyText.length > longThreshold;
+    const collapsed = isLong ? (testimonyText.substring(0, longThreshold) + '...') : testimonyText;
+    const outcome = testimony.outcome ? String(testimony.outcome).replace(/_/g, ' ') : '';
+    const impacting = testimony.impacting ? String(testimony.impacting).replace(/_/g, ' ') : '';
+
+    const card = document.createElement('div');
+    card.className = 'testimony-card';
+    card.style.border = '1px solid #e5e7eb';
+    card.style.borderRadius = '14px';
+    card.style.padding = '18px 18px 14px 18px';
+    card.style.background = '#fff';
+    card.style.boxShadow = '0 1px 2px rgba(0,0,0,0.04)';
+
+    card.innerHTML = `
+        <div class="testimony-header" style="display:flex;align-items:center;gap:12px;margin-bottom:10px;">
+            <div class="avatar" style="width:42px;height:42px;border-radius:10px;background:linear-gradient(135deg,#eff6ff,#dbeafe);display:flex;align-items:center;justify-content:center;font-weight:700;color:#1e40af;">${initials}</div>
+            <div class="person-details" style="flex:1;">
+                <div class="person-name" style="font-weight:700;color:#0f172a;">${country}</div>
+                <div class="location-info" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                    <span class="location-badge" style="display:inline-flex;align-items:center;gap:4px;font-size:12px;color:#475569;background:#f1f5f9;padding:3px 8px;border-radius:9999px;">
+                        <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a 2 2 0 00-2 2z"></path></svg>
+                        ${country}
+                    </span>
+                </div>
+            </div>
+        </div>
+        <div class="testimony-content" style="margin-bottom:10px;">
+            <div class="testimony-text" id="details-testimony-text-${index}" style="color:#334155;line-height:1.7;${isLong ? 'cursor:pointer;' : ''}">${collapsed.replace(/</g,'&lt;')}</div>
+            ${(outcome || impacting) ? `
+                <div class="testimony-highlight" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+                    ${outcome ? `<span class=\"highlight-bubble\" style=\"background:#3b82f6;color:#fff;padding:6px 12px;border-radius:9999px;font-size:12px;font-weight:700;\">Outcome: ${outcome}</span>` : ''}
+                    ${impacting ? `<span class=\"highlight-bubble\" style=\"background:#10b981;color:#fff;padding:6px 12px;border-radius:9999px;font-size:12px;font-weight:700;\">Impacting: ${impacting}</span>` : ''}
+                </div>
+            ` : ''}
+        </div>
+        <div class="testimony-footer" style="display:flex;justify-content:space-between;align-items:center;border-top:1px solid #f1f5f9;padding-top:8px;">
+            <span class="date-stamp" style="font-size:12px;color:#94a3b8;display:flex;align-items:center;gap:4px;">
+                <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a 2 2 0 00-2-2H5a2 2 0 00-2 2z"></path></svg>
+                ${postedDate}
+            </span>
+        </div>
+    `;
+
+    return card;
+}
+
+// Hook up Testimonies tab to load data when selected, and refresh on filter changes
+document.addEventListener('DOMContentLoaded', () => {
+    const testimoniesTabButton = document.querySelector('.tab-button[data-tab="testimonies"]');
+    if (testimoniesTabButton) {
+        testimoniesTabButton.addEventListener('click', () => {
+            loadTestimoniesData();
+        });
+    }
+
+    const filterButton = document.querySelector('.filter-button');
+    if (filterButton) {
+        filterButton.addEventListener('click', () => {
+            const testimoniesContent = document.getElementById('testimonies-content');
+            if (testimoniesContent && testimoniesContent.classList.contains('active')) {
+                loadTestimoniesData();
+            }
+        });
+    }
+
+    const countriesMenu = document.getElementById('countries-menu');
+    if (countriesMenu) {
+        countriesMenu.addEventListener('click', () => {
+            setTimeout(() => {
+                const testimoniesContent = document.getElementById('testimonies-content');
+                if (testimoniesContent && testimoniesContent.classList.contains('active')) {
+                    loadTestimoniesData();
+                }
+            }, 100);
+        });
 
         // Initialize header map
         initializeHeaderMap(upgData.lat, upgData.lon);
@@ -152,12 +444,40 @@ function loadUpgImages(upgName, country) {
     }
 }
 
-// Header map initialization function
-function initializeHeaderMap(lat, lon) {
-    const latitude = lat || 27.7172;
-    const longitude = lon || 85.3240;
+// Load images for a given section prefix ('demographic' or 'testimonies')
+function loadSectionImages(sectionPrefix, upgName, country) {
+    if (!sectionPrefix || !upgName || !country) return;
 
-    createGlobeMap('header-map', latitude, longitude);
+    const formattedName = upgName.replace(/\s+/g, '_').replace(/[()]/g, '');
+    const imageFilename = `${formattedName}_${country}.jpg`;
+    const baseUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles';
+    let femaleImageUrl = `${baseUrl}/${country}/female/${imageFilename}`;
+    let maleImageUrl = `${baseUrl}/${country}/male/${imageFilename}`;
+
+    // Placeholder fallbacks
+    femaleImageUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/female/Bhramins_Nepal.jpg';
+    maleImageUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/male/Bantawa_Nepal.jpg';
+
+    const femaleImg = document.getElementById(`${sectionPrefix}-image-female`);
+    const maleImg = document.getElementById(`${sectionPrefix}-image-male`);
+
+    const placeholderImage = 'data:image/svg+xml,' + encodeURIComponent(`
+        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="300" viewBox="0 0 200 300">
+            <rect width="200" height="300" fill="#f0f0f0"/>
+            <text x="50%" y="50%" text-anchor="middle" fill="#999" font-family="Arial" font-size="14">No image here yet!</text>
+        </svg>
+    `);
+
+    if (femaleImg) {
+        femaleImg.src = femaleImageUrl;
+        femaleImg.onerror = function() { this.src = placeholderImage; };
+        femaleImg.style.display = 'block';
+    }
+    if (maleImg) {
+        maleImg.src = maleImageUrl;
+        maleImg.onerror = function() { this.src = placeholderImage; };
+        maleImg.style.display = 'block';
+    }
 }
 
 // Map initialization function with amCharts 5 globe
@@ -182,7 +502,7 @@ function createGlobeMap(containerId, lat, lon) {
 
     // Detect screen size - use globe for screens wider than 1024px
     const isLargeScreen = window.innerWidth > 1024;
-    const useGlobe = isLargeScreen;
+    const useGlobe = containerId !== 'digital-map' ? isLargeScreen : true; // force globe for primary map
 
     // Update container styling based on map type
     if (useGlobe) {
@@ -378,15 +698,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Also reload when dropdown selection changes
+    // Also reload when dropdown selection changes (country only affects data, not map)
     const countriesMenu = document.getElementById('countries-menu');
     if (countriesMenu) {
         countriesMenu.addEventListener('click', (e) => {
             const option = e.target.closest('.dropdown-option');
             if (option) {
-                // Give the dropdown time to update the input value
                 setTimeout(() => {
                     loadHypothesisData();
+                    const testimoniesContent = document.getElementById('testimonies-content');
+                    if (testimoniesContent && testimoniesContent.classList.contains('active')) {
+                        loadTestimoniesData();
+                    }
                 }, 100);
             }
         });

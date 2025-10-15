@@ -516,66 +516,12 @@
   </div>
 </div>
 
+<script src="static/js/api.js"></script>
 <script>
-  // Data fetching function with caching
-  async function getData(sql, cacheBust = false) {
-    const cacheKey = `cache_${btoa(sql)}`;
-    const cacheTimestampKey = `${cacheKey}_timestamp`;
-
-    if (cacheBust) {
-      localStorage.removeItem(cacheKey);
-      localStorage.removeItem(cacheTimestampKey);
-    }
-
-    const cachedData = localStorage.getItem(cacheKey);
-    const cachedTimestamp = localStorage.getItem(cacheTimestampKey);
-    const now = Date.now();
-
-    if (cachedData && cachedTimestamp && now - parseInt(cachedTimestamp, 10) < 3600000) {
-      console.log('Fetching from cache: ', cacheKey);
-      return JSON.parse(cachedData);
-    }
-
-    try {
-      const response = await fetch('https://aas64vholvreom5xklwjcrmr740smjug.lambda-url.ap-southeast-2.on.aws/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ sql })
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      console.log('Fetching data from API:', data);
-
-      localStorage.setItem(cacheKey, JSON.stringify(data));
-      localStorage.setItem(cacheTimestampKey, now.toString());
-
-      return data;
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      throw error;
-    }
-  }
-
-  // Load testimonies
+  // Load testimonies using shared API helper
   async function loadTestimonies() {
-    const sql = `SELECT * FROM impact_stories.testimonies LIMIT 100`;
-
     try {
-      let testimonies = await getData(sql);
-      console.log("Raw API response:", testimonies);
-
-      // Normalize API response
-      if (testimonies.rows) {
-        testimonies = testimonies.rows;
-      } else if (testimonies.data) {
-        testimonies = testimonies.data;
-      }
+      const testimonies = await getTestimonies({ limit: 100 });
 
       if (!Array.isArray(testimonies) || testimonies.length === 0) {
         displayNoResults();
@@ -599,65 +545,57 @@
     }
 
     container.innerHTML = testimonies.map((testimony, index) => {
-      const cleanName = (testimony.name || 'Anonymous').replace(/_/g, ' ');
-      const initials = cleanName.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-      const updateDate = testimony.latest_update ?
-              new Date(testimony.latest_update).toLocaleDateString('en-US', {
+      const country = (testimony.country || 'Unknown country').replace(/_/g, ' ');
+      const initials = country.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+      const postedDate = testimony.date_posted ?
+              new Date(testimony.date_posted).toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
-              }) : 'Recently updated';
+              }) : 'Recently posted';
 
       const testimonyText = testimony.testimony || 'Story coming soon...';
       const isLongText = testimonyText.length > 300;
       const truncatedText = isLongText ? testimonyText.substring(0, 300) + '...' : testimonyText;
+
+      const outcome = testimony.outcome ? String(testimony.outcome).replace(/_/g, ' ') : '';
+      const impacting = testimony.impacting ? String(testimony.impacting).replace(/_/g, ' ') : '';
 
       return `
                     <div class="testimony-card">
                         <div class="testimony-header">
                             <div class="avatar">${initials}</div>
                             <div class="person-details">
-                                 <div class="person-name">${(testimony.name || 'Community Member').replace(/_/g, ' ')}</div>
-                                ${testimony.title ? `<div class="person-title">${testimony.title.replace(/_/g, ' ')}</div>` : ''}
-                                <div class="location-info">
-                                    ${testimony.country ? `
+                                 <div class="person-name">${country}</div>
+                                 <div class="location-info">
+                                    ${country ? `
                                         <span class="location-badge">
                                             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"></path>
                                             </svg>
-                                             ${testimony.country.replace(/_/g, ' ')}
+                                             ${country}
                                         </span>` : ''}
-                                    ${testimony.region ? `
-                                        <span class="location-badge">
-                                            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                            </svg>
-                                             ${testimony.region.replace(/_/g, ' ')}
-                                        </span>` : ''}
-                                </div>
+                                 </div>
                             </div>
                         </div>
 
                         <div class="testimony-content">
-                            ${testimony.testimony_heading ?
-              `<div class="testimony-heading">"${testimony.testimony_heading.replace(/_/g, ' ')}"</div>` : ''}
-
                             <div class="testimony-text ${isLongText ? 'truncated' : ''}" id="testimony-text-${index}">
                                 ${isLongText ? truncatedText : testimonyText}
                             </div>
+
+                            ${(outcome || impacting) ? `
+                                 <div class="testimony-highlight">
+                                      ${outcome ? `<span class=\"highlight-bubble\">Outcome: ${outcome}</span>` : ''}
+                                      ${impacting ? `<span class=\"highlight-bubble\">Impacting: ${impacting}</span>` : ''}
+                                 </div>
+                             ` : ''}
 
                             ${isLongText ? `
                                 <button class="read-more-btn" data-index="${index}" data-full-text="${testimonyText.replace(/"/g, '&quot;')}">
                                     Read more
                                 </button>
                             ` : ''}
-
-                             ${testimony.testimony_partwise ? `
-                                 <div class="testimony-highlight">
-                                      <span class="highlight-bubble">${testimony.testimony_partwise.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2')}</span>
-                                 </div>
-                             ` : ''}
                         </div>
 
                         <div class="testimony-footer">
@@ -665,9 +603,8 @@
                                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
                                 </svg>
-                                ${updateDate}
+                                ${postedDate}
                             </span>
-                            ${testimony.gender ? `<span class="gender-indicator">${testimony.gender}</span>` : ''}
                         </div>
                     </div>
                 `;
@@ -681,11 +618,17 @@
     const modalTestimony = document.getElementById('modal-testimony');
     const modalHighlight = document.getElementById('modal-highlight');
     
-    modalTitle.textContent = (testimony.name || 'Community Member').replace(/_/g, ' ');
+    modalTitle.textContent = (testimony.country || 'Testimony').replace(/_/g, ' ');
     modalTestimony.textContent = testimony.testimony || 'Story coming soon...';
     
-    if (testimony.testimony_partwise) {
-      modalHighlight.innerHTML = `<span class="modal-bubble">${testimony.testimony_partwise.replace(/_/g, ' ').replace(/([a-z])([A-Z])/g, '$1 $2')}</span>`;
+    const outcome = testimony.outcome ? String(testimony.outcome).replace(/_/g, ' ') : '';
+    const impacting = testimony.impacting ? String(testimony.impacting).replace(/_/g, ' ') : '';
+    const bubbles = [];
+    if (outcome) bubbles.push(`<span class="modal-bubble">Outcome: ${outcome}</span>`);
+    if (impacting) bubbles.push(`<span class="modal-bubble">Impacting: ${impacting}</span>`);
+
+    if (bubbles.length) {
+      modalHighlight.innerHTML = bubbles.join('\n');
       modalHighlight.style.display = 'flex';
     } else {
       modalHighlight.style.display = 'none';
