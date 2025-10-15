@@ -9,28 +9,21 @@
 
 body {
     font-family: 'Lexend', sans-serif;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 30%, #e3f2fd 70%, #bbdefb 100%);
+    /* background: linear-gradient(135deg, #f5f9fc 0%, #f8f9fa 30%, #e3f2fd 70%, #bbdefb 100%); */
+    overflow-x: hidden;
     min-height: 100vh;
     position: relative;
 }
 
 body::before {
     content: '';
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-image:
-        radial-gradient(1px 1px at 20px 30px, #2196f3, transparent),
-        radial-gradient(1px 1px at 40px 70px, #1976d2, transparent),
-        radial-gradient(0.5px 0.5px at 90px 40px, #42a5f5, transparent),
-        radial-gradient(0.5px 0.5px at 130px 80px, #64b5f6, transparent),
-        radial-gradient(1px 1px at 160px 30px, #2196f3, transparent);
-    background-repeat: repeat;
-    background-size: 200px 100px;
-    opacity: 0.1;
-    pointer-events: none;
+    background: linear-gradient(135deg, #f5f9fc 0%, #f8f9fa 30%, #e3f2fd 70%, #bbdefb 100%);
+
 }
 
 #navbar-container {
@@ -155,7 +148,7 @@ body::before {
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 249, 250, 0.9) 100%);
     backdrop-filter: blur(20px);
     border-radius: 0 0 24px 24px;
-    padding: 40px 50px;
+    padding: 70px 50px;
     margin: 0 -40px 30px -40px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.3);
@@ -405,15 +398,29 @@ body::before {
 
 
 .tabs-container {
+    position: relative;
     display: flex;
-    gap: 0;
     background: rgba(255, 255, 255, 0.5);
     border-radius: 10px;
     padding: 4px;
     backdrop-filter: blur(10px);
 }
 
+.tab-highlight {
+    position: absolute;
+    top: 4px;
+    bottom: 4px;
+    left: 4px;
+    width: 0;
+    background: linear-gradient(135deg, #222, #555);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    z-index: 0;
+}
+
 .tab-button {
+    position: relative;
+    z-index: 1;
     padding: 8px 16px;
     background: transparent;
     border: none;
@@ -423,17 +430,11 @@ body::before {
     color: #424242;
     cursor: pointer;
     border-radius: 8px;
-    transition: all 0.3s ease;
-}
-
-.tab-button:hover {
-    background: rgba(255, 255, 255, 0.5);
+    transition: color 0.3s ease;
 }
 
 .tab-button.active {
-    background: linear-gradient(135deg, #222 0%, #555 100%);
     color: white;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 /* Content Wrapper */
@@ -447,6 +448,7 @@ body::before {
 
 .tab-content.active {
     display: block;
+    background: none;
 }
 
 /* Overview Grid */
@@ -460,16 +462,46 @@ body::before {
 .overview-left {
     display: flex;
     align-items: center;
-    justify-content: center;
+}
+
+.overview-images {
+    justify-content: space-between;
+    display: flex;
+    width: 100%;
+    gap: 10px;
+    justify-content: start;
+}
+
+.image-wrapper {
+    flex: 1;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    /* ensures zoom stays within container */
+    border-radius: 16px;
+    cursor: pointer;
+    max-width: 233px;
 }
 
 .upg-image {
-    width: 100%;
-    max-width: 400px;
-    height: auto;
-    border-radius: 16px;
+    height: 100%;
+    width: auto;
+    max-height: 310px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    transition: transform 0.5s ease;
 }
+
+.upg-image:hover {
+    transform: scale(1.05);
+    /* zoom in 15% */
+}
+
+.image-label {
+    margin-top: 6px;
+    font-weight: 600;
+    color: #0f172a;
+}
+
 
 .overview-right {
     display: flex;
@@ -480,10 +512,10 @@ body::before {
 .map-container {
     width: 100%;
     height: 100%;
-    min-height: 350px;
+    min-height: 310px;
     background: rgba(255, 255, 255, 0.5);
     backdrop-filter: blur(10px);
-    border-radius: 16px;
+    border-radius: 50px;
     border: 1px solid rgba(255, 255, 255, 0.3);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     display: flex;
@@ -491,6 +523,14 @@ body::before {
     justify-content: center;
     color: #666;
     font-size: 1.1rem;
+}
+
+.am5-layer-30 {
+    border-radius: 30px;
+}
+
+.am5-layer-0 {
+    border-radius: 16px;
 }
 
 /* Image Labels */
@@ -555,13 +595,33 @@ body::before {
     color: #424242;
 }
 
+.quiz-image-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.quiz-image {
+    height: auto;
+    width: 50%;
+    max-width: 600px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.quiz-image:hover {
+    transform: scale(1.01);
+}
+
 /* Digital Learning Data Type Filters */
 .data-type-filters {
     display: flex;
     gap: 10px;
     margin-bottom: 30px;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: start;
 }
 
 .data-type-button {
@@ -580,8 +640,9 @@ body::before {
 
 .data-type-button:hover {
     background: rgba(255, 255, 255, 0.7);
-    transform: translateY(-2px);
+    /* transform: translateY(-2px); */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
 }
 
 .data-type-button.active {
@@ -601,6 +662,30 @@ body::before {
     font-weight: 600;
     color: #424242;
     margin-bottom: 20px;
+}
+
+.pagination-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 50px;
+    /* margin-top: 20px; */
+    margin: auto;
+}
+
+.pagination-controls button {
+    padding: 8px 16px;
+    width: 120px;
+    background: linear-gradient(135deg, #222 0%, #555 100%);
+    border: 1px solid #bbb;
+    color: white;
+    border-radius: 12px;
+    font-family: 'Lexend', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
 }
 
 .coming-soon-box {

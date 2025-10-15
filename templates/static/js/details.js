@@ -1,3 +1,5 @@
+let am5Root; // store globally so we can dispose it
+
 // Load navbar
 fetch('navbar.html')
     .then(response => response.text())
@@ -9,46 +11,87 @@ fetch('navbar.html')
 document.addEventListener('DOMContentLoaded', () => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
+    const tabContainer = document.querySelector('.tabs-container');
+    const highlight = document.querySelector('.tab-highlight');
+
+
+    const setHighlightPosition = (button) => {
+        if (!tabContainer || !highlight || !button) return; // prevents crash
+
+        const containerRect = tabContainer.getBoundingClientRect();
+        const buttonRect = button.getBoundingClientRect();
+        highlight.style.width = `${buttonRect.width}px`;
+        highlight.style.left = `${buttonRect.left - containerRect.left}px`;
+    };
+
+    // Initialize highlight safely
+    const activeButton = document.querySelector('.tab-button.active');
+    if (activeButton) setHighlightPosition(activeButton);
+
 
     tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', async () => {
             const targetTab = button.getAttribute('data-tab');
 
+            // Remove active states
             tabButtons.forEach(btn => btn.classList.remove('active'));
             tabContents.forEach(content => content.classList.remove('active'));
 
+            // Set active states
             button.classList.add('active');
-            document.getElementById(`${targetTab}-content`).classList.add('active');
+            const activeContent = document.getElementById(`${targetTab}-content`);
+            if (activeContent) activeContent.classList.add('active');
 
-            // Update section title
-            const tabName = button.textContent;
+            // Smooth highlight
+            setHighlightPosition(button);
+
+            // Update title
             const sectionTitle = document.getElementById('section-title');
-            if (sectionTitle) {
-                sectionTitle.textContent = tabName;
-            }
-            // When switching to Demographic tab, render sample data
-            if (targetTab === 'demographic') {
-                renderDemographicSampleData();
+            if (sectionTitle) sectionTitle.textContent = button.textContent;
+
+            // --- Tab-specific actions (unified) ---
+            switch (targetTab) {
+                case 'overview':
+                    // Refresh overview visuals
+                    const selectedUpg = JSON.parse(sessionStorage.getItem('selectedUpg') || '{}');
+                    if (selectedUpg.name && selectedUpg.country) {
+                        loadUpgImages(selectedUpg.name, selectedUpg.country);
+                        initializeCountryOutline(selectedUpg.country);
+                        initializeMap(selectedUpg.lat, selectedUpg.lon);
+                        focusMapOnLocation(true);
+                    }
+                    break;
+
+                case 'demographic':
+                    renderDemographicSampleData();
+                    focusMapOnLocation(false); // zoom out to show whole world
+                    break;
+
+                case 'digital':
+                    focusMapOnLocation(false);
+
+                    break;
+
+                case 'testimonies':
+                    focusMapOnLocation(false);
+                    await loadTestimoniesData();
+                    break;
+
+                default:
+                    console.log(`No special action for tab: ${targetTab}`);
+                    break;
             }
         });
     });
 
     // Load UPG details from sessionStorage
     const selectedUpgJson = sessionStorage.getItem('selectedUpg');
-
     if (selectedUpgJson) {
         const upgData = JSON.parse(selectedUpgJson);
-
-        // Update header title and tag
         const mainTitle = document.getElementById('upg-main-title');
         const typeTag = document.getElementById('upg-type-tag');
-        if (mainTitle) {
-            mainTitle.textContent = upgData.name || 'Tharu';
-        }
-        if (typeTag) {
-            // Check type field from landing page data
-            typeTag.textContent = upgData.type === 'language' ? 'Language' : 'Unreached People Group';
-        }
+        if (mainTitle) mainTitle.textContent = upgData.name || 'Tharu';
+        if (typeTag) typeTag.textContent = upgData.type === 'language' ? 'Language' : 'Unreached People Group';
 
         document.getElementById('population').textContent = upgData.population || '1.96 M';
         document.getElementById('language').textContent = upgData.name || 'Dangaura';
@@ -56,29 +99,69 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('country').textContent = upgData.country || 'Nepal';
 
         loadUpgImages(upgData.name, upgData.country);
-
         initializeMap(upgData.lat, upgData.lon);
-
-        // Initialize country outline in header
         initializeCountryOutline(upgData.country);
 
-        // Load images for Demographic and Testimonies tabs
         loadSectionImages('demographic', upgData.name, upgData.country);
         loadSectionImages('testimonies', upgData.name, upgData.country);
 
-        // Render demographic sample data on initial load (Overview active, but data ready when user switches)
         renderDemographicSampleData();
     }
-
-    // Populate dropdowns
-    populateCountryFilterOptions();
-    populateLanguageFilterOptions();
-    populateReligionFilterOptions();
-
-    // Wire up Languages and Religions dropdown open/close behavior
-    wireDropdown('languages');
-    wireDropdown('religions');
 });
+
+function focusMapOnLocation(zoomOut = false) {
+    if (!am5Root) return;
+    const chart = am5Root.container.children.getIndex(0); // your MapChart
+    if (!chart) return;
+
+    const selectedUpg = JSON.parse(sessionStorage.getItem('selectedUpg') || '{}');
+    const lat = selectedUpg.lat || 0;
+    const lon = selectedUpg.lon || 0;
+
+    if (zoomOut) {
+        console.log('Zooming out to show whole world');
+        chart.animate({
+            key: "rotationX",
+            to: -lon,
+            duration: 1000,
+            easing: am5.ease.inOut(am5.ease.cubic)
+        });
+
+        chart.animate({
+            key: "rotationY",
+            to: -lat,
+            duration: 1000,
+            easing: am5.ease.inOut(am5.ease.cubic)
+        });
+        chart.animate({
+            key: "zoomLevel",
+            to: 1,
+            duration: 1000,
+            easing: am5.ease.inOut(am5.ease.cubic)
+        });
+    } else {
+        // Zoom in to the selected location
+        chart.animate({
+            key: "zoomLevel",
+            to: 5, // adjust zoom in level as needed
+            duration: 1000,
+            easing: am5.ease.inOut(am5.ease.cubic)
+        });
+        chart.animate({
+            key: "rotationX",
+            to: -lon,
+            duration: 1000,
+            easing: am5.ease.inOut(am5.ease.cubic)
+        });
+        chart.animate({
+            key: "rotationY",
+            to: -lat,
+            duration: 1000,
+            easing: am5.ease.inOut(am5.ease.cubic)
+        });
+    }
+}
+
 
 async function populateCountryFilterOptions() {
     const countriesMenu = document.getElementById('countries-menu');
@@ -132,7 +215,7 @@ function renderDemographicSampleData() {
         try {
             const data = JSON.parse(selectedUpgJson);
             languageGroupName = data.name || languageGroupName;
-        } catch {}
+        } catch { }
     }
 
     const sample = getSampleDemographicData(languageGroupName);
@@ -178,7 +261,7 @@ document.addEventListener('click', (e) => {
     const countriesInput = document.getElementById('countries-input');
     const selectedCountry = countriesInput && countriesInput.value && countriesInput.value !== 'All Countries' ? countriesInput.value : null;
     const selectedUpgJson = sessionStorage.getItem('selectedUpg');
-    const fallbackCountry = selectedUpgJson ? (function(){ try { return JSON.parse(selectedUpgJson).country || null; } catch { return null; } })() : null;
+    const fallbackCountry = selectedUpgJson ? (function () { try { return JSON.parse(selectedUpgJson).country || null; } catch { return null; } })() : null;
 
     getTestimonies({ country: selectedCountry || fallbackCountry || undefined, limit: 30 })
         .then(list => {
@@ -187,16 +270,16 @@ document.addEventListener('click', (e) => {
             const longThreshold = 600;
             const collapsed = full.length > longThreshold ? (full.substring(0, longThreshold) + '...') : full;
             if (isExpanded) {
-                textEl.innerHTML = collapsed.replace(/</g,'&lt;');
+                textEl.innerHTML = collapsed.replace(/</g, '&lt;');
                 textEl.setAttribute('data-expanded', 'false');
                 textEl.style.cursor = full.length > longThreshold ? 'pointer' : '';
             } else {
-                textEl.innerHTML = full.replace(/</g,'&lt;');
+                textEl.innerHTML = full.replace(/</g, '&lt;');
                 textEl.setAttribute('data-expanded', 'true');
                 textEl.style.cursor = 'pointer';
             }
         })
-        .catch(() => {});
+        .catch(() => { });
 });
 
 // Load and render Testimonies for the selected country
@@ -217,7 +300,7 @@ async function loadTestimoniesData() {
         const countriesInput = document.getElementById('countries-input');
         const selectedCountry = countriesInput && countriesInput.value && countriesInput.value !== 'All Countries'
             ? countriesInput.value
-            : (function() {
+            : (function () {
                 const selectedUpgJson = sessionStorage.getItem('selectedUpg');
                 if (!selectedUpgJson) return null;
                 try { return JSON.parse(selectedUpgJson).country || null; } catch { return null; }
@@ -236,10 +319,10 @@ async function loadTestimoniesData() {
         const cardsContainer = document.getElementById('testimonies-cards-container') || container;
         cardsContainer.innerHTML = '';
         const grid = document.createElement('div');
-        grid.style.display = 'grid';
-        grid.style.gridTemplateColumns = 'repeat(2, 1fr)';
+        grid.style.display = 'flex';
+        grid.style.flexDirection= 'column';
         grid.style.gap = '16px';
-        grid.style.alignItems = 'stretch';
+        // grid.style.alignItems = 'stretch';
 
         testimonies.forEach((t, index) => {
             grid.appendChild(createTestimonyCardElement(t, index));
@@ -297,7 +380,7 @@ function createTestimonyCardElement(testimony, index) {
             </div>
         </div>
         <div class="testimony-content" style="margin-bottom:10px;">
-            <div class="testimony-text" id="details-testimony-text-${index}" style="color:#334155;line-height:1.7;${isLong ? 'cursor:pointer;' : ''}">${collapsed.replace(/</g,'&lt;')}</div>
+            <div class="testimony-text" id="details-testimony-text-${index}" style="color:#334155;line-height:1.7;${isLong ? 'cursor:pointer;' : ''}">${collapsed.replace(/</g, '&lt;')}</div>
             ${(outcome || impacting) ? `
                 <div class="testimony-highlight" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
                     ${outcome ? `<span class=\"highlight-bubble\" style=\"background:#3b82f6;color:#fff;padding:6px 12px;border-radius:9999px;font-size:12px;font-weight:700;\">Outcome: ${outcome}</span>` : ''}
@@ -316,37 +399,7 @@ function createTestimonyCardElement(testimony, index) {
     return card;
 }
 
-// Hook up Testimonies tab to load data when selected, and refresh on filter changes
-document.addEventListener('DOMContentLoaded', () => {
-    const testimoniesTabButton = document.querySelector('.tab-button[data-tab="testimonies"]');
-    if (testimoniesTabButton) {
-        testimoniesTabButton.addEventListener('click', () => {
-            loadTestimoniesData();
-        });
-    }
 
-    const filterButton = document.querySelector('.filter-button');
-    if (filterButton) {
-        filterButton.addEventListener('click', () => {
-            const testimoniesContent = document.getElementById('testimonies-content');
-            if (testimoniesContent && testimoniesContent.classList.contains('active')) {
-                loadTestimoniesData();
-            }
-        });
-    }
-
-    const countriesMenu = document.getElementById('countries-menu');
-    if (countriesMenu) {
-        countriesMenu.addEventListener('click', () => {
-            setTimeout(() => {
-                const testimoniesContent = document.getElementById('testimonies-content');
-                if (testimoniesContent && testimoniesContent.classList.contains('active')) {
-                    loadTestimoniesData();
-                }
-            }, 100);
-        });
-    }
-});
 
 // Load UPG images (male and female)
 function loadUpgImages(upgName, country) {
@@ -386,7 +439,7 @@ function loadUpgImages(upgName, country) {
 
     if (femaleImg) {
         femaleImg.src = femaleImageUrl;
-        femaleImg.onerror = function() {
+        femaleImg.onerror = function () {
             console.log('Female image not found:', femaleImageUrl);
             this.src = placeholderImage;
         };
@@ -395,49 +448,11 @@ function loadUpgImages(upgName, country) {
 
     if (maleImg) {
         maleImg.src = maleImageUrl;
-        maleImg.onerror = function() {
+        maleImg.onerror = function () {
             console.log('Male image not found:', maleImageUrl);
             this.src = placeholderImage;
         };
         maleImg.style.display = 'block';
-    }
-
-    // Update header images
-    const headerFemaleImg = document.getElementById('header-image-female');
-    const headerMaleImg = document.getElementById('header-image-male');
-
-    if (headerFemaleImg) {
-        headerFemaleImg.src = femaleImageUrl;
-        headerFemaleImg.onerror = function() {
-            this.src = placeholderImage;
-        };
-    }
-
-    if (headerMaleImg) {
-        headerMaleImg.src = maleImageUrl;
-        headerMaleImg.onerror = function() {
-            this.src = placeholderImage;
-        };
-    }
-
-    // Update Digital Learning tab images
-    const digitalFemaleImg = document.getElementById('digital-image-female');
-    const digitalMaleImg = document.getElementById('digital-image-male');
-
-    if (digitalFemaleImg) {
-        digitalFemaleImg.src = femaleImageUrl;
-        digitalFemaleImg.onerror = function() {
-            this.src = placeholderImage;
-        };
-        digitalFemaleImg.style.display = 'block';
-    }
-
-    if (digitalMaleImg) {
-        digitalMaleImg.src = maleImageUrl;
-        digitalMaleImg.onerror = function() {
-            this.src = placeholderImage;
-        };
-        digitalMaleImg.style.display = 'block';
     }
 }
 
@@ -467,12 +482,12 @@ function loadSectionImages(sectionPrefix, upgName, country) {
 
     if (femaleImg) {
         femaleImg.src = femaleImageUrl;
-        femaleImg.onerror = function() { this.src = placeholderImage; };
+        femaleImg.onerror = function () { this.src = placeholderImage; };
         femaleImg.style.display = 'block';
     }
     if (maleImg) {
         maleImg.src = maleImageUrl;
-        maleImg.onerror = function() { this.src = placeholderImage; };
+        maleImg.onerror = function () { this.src = placeholderImage; };
         maleImg.style.display = 'block';
     }
 }
@@ -539,7 +554,7 @@ function initializeCountryOutline(countryName) {
     img.style.objectFit = 'contain';
     img.style.filter = 'brightness(0)'; // Make it black
 
-    img.onerror = function() {
+    img.onerror = function () {
         console.warn(`SVG not found at: ${svgPath}`);
         container.innerHTML = '<div style="color: #999; font-size: 0.8rem; text-align: center;">Country map not available</div>';
     };
@@ -551,15 +566,17 @@ function initializeCountryOutline(countryName) {
 
 // Map initialization function with amCharts 5 globe
 function initializeMap(lat, lon) {
+    // If the map already exists, dispose of it first
+    if (am5Root) {
+        return; // already initialized
+    }
+
     // Use default coordinates if not provided
     const latitude = lat || 27.7172;
     const longitude = lon || 85.3240;
 
     // Initialize overview map
     createGlobeMap('map', latitude, longitude);
-
-    // Initialize digital map
-    createGlobeMap('digital-map', latitude, longitude);
 }
 
 function createGlobeMap(containerId, lat, lon) {
@@ -586,15 +603,20 @@ function createGlobeMap(containerId, lat, lon) {
         mapContainer.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.1)';
     }
 
+    // clear any existing root
+    if (am5Root) {
+        am5Root.dispose();
+    }
+
     // Create root element
-    const root = am5.Root.new(containerId);
+    am5Root = am5.Root.new(containerId);
 
     // Set themes
-    root.setThemes([am5themes_Animated.new(root)]);
+    am5Root.setThemes([am5themes_Animated.new(am5Root)]);
 
     // Create the map chart with appropriate projection
-    const chart = root.container.children.push(
-        am5map.MapChart.new(root, {
+    const chart = am5Root.container.children.push(
+        am5map.MapChart.new(am5Root, {
             projection: useGlobe ? am5map.geoOrthographic() : am5map.geoMercator(),
             panX: useGlobe ? "rotateX" : "none",
             panY: useGlobe ? "rotateY" : "none",
@@ -611,7 +633,7 @@ function createGlobeMap(containerId, lat, lon) {
 
     // Create background series (ocean)
     const backgroundSeries = chart.series.push(
-        am5map.MapPolygonSeries.new(root, {})
+        am5map.MapPolygonSeries.new(am5Root, {})
     );
 
     // Use more saturated blue ocean color
@@ -627,7 +649,7 @@ function createGlobeMap(containerId, lat, lon) {
 
     // Create main polygon series for countries
     const polygonSeries = chart.series.push(
-        am5map.MapPolygonSeries.new(root, {
+        am5map.MapPolygonSeries.new(am5Root, {
             geoJSON: am5geodata_worldLow
         })
     );
@@ -649,19 +671,19 @@ function createGlobeMap(containerId, lat, lon) {
 
     // Create point series for the location marker
     const pointSeries = chart.series.push(
-        am5map.MapPointSeries.new(root, {})
+        am5map.MapPointSeries.new(am5Root, {})
     );
 
-    pointSeries.bullets.push(function() {
-        const circle = am5.Circle.new(root, {
+    pointSeries.bullets.push(function () {
+        const circle = am5.Circle.new(am5Root, {
             radius: 8,
             fill: am5.color("#2196f3"),
             stroke: am5.color("#ffffff"),
             strokeWidth: 2,
-            tooltipText: "Location: {title}"
+            tooltipText: "{title}"
         });
 
-        return am5.Bullet.new(root, {
+        return am5.Bullet.new(am5Root, {
             sprite: circle
         });
     });
@@ -707,7 +729,7 @@ function createGlobeMap(containerId, lat, lon) {
             const newIsLargeScreen = window.innerWidth > 1024;
             if (newIsLargeScreen !== isLargeScreen) {
                 // Screen size category changed, recreate the map
-                root.dispose();
+                am5Root.dispose();
                 createGlobeMap(containerId, lat, lon);
             }
         }, 250);
@@ -748,41 +770,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 insightSection.style.display = 'none';
                 quizSection.style.display = 'none';
                 hypothesisSection.style.display = 'block';
+                loadHypothesisData();
             }
         });
     });
 
-    // Load sample metrics data for Digital Learning
-    loadDigitalMetrics();
+    insightSection.style.display = 'block';
+    quizSection.style.display = 'none';
+    hypothesisSection.style.display = 'none';
 
-    // Load hypothesis data
+    // Load data in the background
+    loadDigitalMetrics();
     loadHypothesisData();
 
-    // Add event listener to filter button to reload hypothesis data when country changes
-    const filterButton = document.querySelector('.filter-button');
-    if (filterButton) {
-        filterButton.addEventListener('click', () => {
-            // Reload hypothesis data when filter is applied
-            loadHypothesisData();
-        });
-    }
+    // Load sample metrics data for Digital Learning
 
-    // Also reload when dropdown selection changes (country only affects data, not map)
-    const countriesMenu = document.getElementById('countries-menu');
-    if (countriesMenu) {
-        countriesMenu.addEventListener('click', (e) => {
-            const option = e.target.closest('.dropdown-option');
-            if (option) {
-                setTimeout(() => {
-                    loadHypothesisData();
-                    const testimoniesContent = document.getElementById('testimonies-content');
-                    if (testimoniesContent && testimoniesContent.classList.contains('active')) {
-                        loadTestimoniesData();
-                    }
-                }, 100);
-            }
-        });
-    }
+    // Load hypothesis data
+
+    // Add event listener to filter button to reload hypothesis data when country changes
+    // const filterButton = document.querySelector('.filter-button');
+    // if (filterButton) {
+    //     filterButton.addEventListener('click', () => {
+    //         // Reload hypothesis data when filter is applied
+    //         loadHypothesisData();
+    //     });
+    // }
+
+    // // Also reload when dropdown selection changes (country only affects data, not map)
+    // const countriesMenu = document.getElementById('countries-menu');
+    // if (countriesMenu) {
+    //     countriesMenu.addEventListener('click', (e) => {
+    //         const option = e.target.closest('.dropdown-option');
+    //         if (option) {
+    //             setTimeout(() => {
+    //                 loadHypothesisData();
+    //                 const testimoniesContent = document.getElementById('testimonies-content');
+    //                 if (testimoniesContent && testimoniesContent.classList.contains('active')) {
+    //                     loadTestimoniesData();
+    //                 }
+    //             }, 100);
+    //         }
+    //     });
+    // }
 });
 
 // Load Digital Learning Metrics
@@ -841,28 +870,20 @@ function loadDigitalMetrics() {
 }
 
 // Load Hypothesis Data
-async function loadHypothesisData() {
+async function loadHypothesisData(page = 1) {
     const container = document.getElementById('hypothesis-cards-container');
     container.innerHTML = '<div class="loading-message">Loading hypothesis data...</div>';
 
     try {
-        // Get the selected country from the filter dropdown
         const countriesInput = document.getElementById('countries-input');
         const selectedCountry = countriesInput ? countriesInput.value : null;
 
-        console.log('Selected country from filter:', selectedCountry);
-
-        // Fetch hypothesis data based on selected country
         let hypotheses;
         if (!selectedCountry || selectedCountry === 'All Countries') {
-            // If no country selected or "All Countries" selected, get all data
             hypotheses = await getAllHypothesisData();
         } else {
-            // Fetch data for specific country
             hypotheses = await getHypothesisData(selectedCountry);
         }
-
-        console.log('Loaded hypotheses:', hypotheses);
 
         if (!hypotheses || hypotheses.length === 0) {
             const message = selectedCountry && selectedCountry !== 'All Countries'
@@ -872,12 +893,45 @@ async function loadHypothesisData() {
             return;
         }
 
-        // Clear container and render cards
+        // Pagination logic
+        const pageSize = 10;
+        const totalPages = Math.ceil(hypotheses.length / pageSize);
+        const currentPage = Math.max(1, Math.min(page, totalPages));
+        const startIdx = (currentPage - 1) * pageSize;
+        const endIdx = startIdx + pageSize;
+        const pageHypotheses = hypotheses.slice(startIdx, endIdx);
+
         container.innerHTML = '';
-        hypotheses.forEach(hypothesis => {
+        pageHypotheses.forEach(hypothesis => {
             const card = createHypothesisCard(hypothesis);
             container.appendChild(card);
         });
+
+        // Pagination controls
+        if (totalPages > 1) {
+            const pagination = document.createElement('div');
+            pagination.className = 'pagination-controls';
+
+            const prevBtn = document.createElement('button');
+            prevBtn.textContent = 'Previous';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => loadHypothesisData(currentPage - 1);
+
+            const nextBtn = document.createElement('button');
+            nextBtn.textContent = 'Next';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => loadHypothesisData(currentPage + 1);
+
+            const pageInfo = document.createElement('span');
+            pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            pageInfo.style.alignSelf = 'center';
+
+            pagination.appendChild(prevBtn);
+            pagination.appendChild(pageInfo);
+            pagination.appendChild(nextBtn);
+
+            container.appendChild(pagination);
+        }
 
     } catch (error) {
         console.error('Error loading hypothesis data:', error);
@@ -924,7 +978,7 @@ function openImageModal(imageSrc) {
     modal.style.display = 'flex';
 
     // Close modal when clicking outside the image
-    modal.onclick = function(event) {
+    modal.onclick = function (event) {
         if (event.target === modal) {
             closeImageModal();
         }

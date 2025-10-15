@@ -8,7 +8,7 @@
 
 body {
     font-family: 'Lexend', sans-serif;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 30%, #e3f2fd 70%, #bbdefb 100%);
+    /* background: linear-gradient(135deg, #f5f9fc 0%, #f8f9fa 30%, #e3f2fd 70%, #bbdefb 100%); */
     overflow-x: hidden;
     min-height: 100vh;
     position: relative;
@@ -21,16 +21,8 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image:
-        radial-gradient(1px 1px at 20px 30px, #2196f3, transparent),
-        radial-gradient(1px 1px at 40px 70px, #1976d2, transparent),
-        radial-gradient(0.5px 0.5px at 90px 40px, #42a5f5, transparent),
-        radial-gradient(0.5px 0.5px at 130px 80px, #64b5f6, transparent),
-        radial-gradient(1px 1px at 160px 30px, #2196f3, transparent);
-    background-repeat: repeat;
-    background-size: 200px 100px;
-    opacity: 0.1;
-    pointer-events: none;
+    background: linear-gradient(135deg, #f5f9fc 0%, #f8f9fa 30%, #e3f2fd 70%, #bbdefb 100%);
+
 }
 
 #navbar-container {
@@ -96,7 +88,7 @@ body::before {
 
 .search-filter-row {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     gap: 12px;
     width: 100%;
     align-items: center;
@@ -108,7 +100,7 @@ body::before {
 }
 
 .filter-wrapper {
-    width: 100%;
+    width: 40%;
     max-width: 200px;
 }
 
@@ -167,7 +159,8 @@ body::before {
 
 .dropdown-menu {
     position: absolute;
-    top: 100%;
+    top: 80%;
+    padding-top: 20px;
     left: 0;
     right: 0;
     background: white;
@@ -177,12 +170,19 @@ body::before {
     max-height: 300px;
     overflow-y: auto;
     z-index: 1000;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    /* box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15); */
     display: none;
+    transform: scaleY(0);
+    opacity: 0;
+    transform-origin: top;
+    transition: all 0.3s ease;
+    display: block;
+
 }
 
 .dropdown-menu.open {
-    display: block;
+    transform: scaleY(1);
+    opacity: 1;
 }
 
 .dropdown-option {

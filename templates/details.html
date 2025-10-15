@@ -10,9 +10,8 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
 
     <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossorigin=""/>
+    <!-- <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" /> -->
 
     <!-- amCharts 5 -->
     <script src="https://cdn.amcharts.com/lib/5/index.js"></script>
@@ -68,6 +67,7 @@
             <div class="section-nav">
                 <h2 class="section-title" id="section-title">Overview</h2>
                 <div class="tabs-container">
+                    <div class="tab-highlight"></div>
                     <button class="tab-button active" data-tab="overview">Overview</button>
                     <button class="tab-button" data-tab="demographic">Demographic</button>
                     <button class="tab-button" data-tab="digital">Digital Learning</button>
@@ -75,27 +75,33 @@
                 </div>
             </div>
 
+
             <!-- Content Section -->
             <div class="details-content-wrapper">
-                <!-- Overview Tab -->
-                <div class="tab-content active" id="overview-content">
-                    <div class="overview-grid">
-                        <div class="overview-left">
-                            <div style="display: flex; gap: 10px; justify-content: center;">
-                                <div style="flex: 1; text-align: center; position: relative;">
-                                    <img id="upg-image-female" src="https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/female/Bhramins_Nepal.jpg" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                                    <div class="image-label">Female</div>
-                                </div>
-                                <div style="flex: 1; text-align: center; position: relative;">
-                                    <img id="upg-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                                    <div class="image-label">Male</div>
-                                </div>
+                <div class="overview-grid">
+                    <div class="overview-left">
+                        <div class="overview-images">
+                            <div class="image-wrapper">
+                                <img id="upg-image-female"
+                                    src="https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/female/Bhramins_Nepal.jpg"
+                                    alt="UPG Female" class="upg-image" onclick="openImageModal(this.src)">
+                                <div class="image-label">Female</div>
+                            </div>
+                            <div class="image-wrapper">
+                                <img id="upg-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male"
+                                    class="upg-image" onclick="openImageModal(this.src)">
+                                <div class="image-label">Male</div>
                             </div>
                         </div>
-                        <div class="overview-right">
-                            <div id="map" class="map-container"></div>
-                        </div>
                     </div>
+                    <div class="overview-right">
+                        <div id="map" class="map-container"></div>
+                    </div>
+                </div>
+
+                <!-- Overview Tab -->
+                <div class="tab-content active" id="overview-content">
+
 
                     <!-- Quick Numbers Section -->
                     <div class="quick-numbers-section">
@@ -142,52 +148,18 @@
 
                 <!-- Demographic Tab -->
                 <div class="tab-content" id="demographic-content">
-                    <div class="overview-grid">
-                        <div class="overview-left">
-                            <div style="display: flex; gap: 10px; justify-content: center;">
-                                <div style="flex: 1; text-align: center; position: relative;">
-                                    <img id="demographic-image-female" src="https://via.placeholder.com/200x300" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                                    <div class="image-label">Female</div>
-                                </div>
-                                <div style="flex: 1; text-align: center; position: relative;">
-                                    <img id="demographic-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                                    <div class="image-label">Male</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="overview-right">
-                            <div id="demographic-map" class="map-container"></div>
-                        </div>
-                    </div>
+
                     <div id="demographic-sections" style="margin-top: 16px;"></div>
                 </div>
 
                 <!-- Digital Learning Tab -->
                 <div class="tab-content" id="digital-content">
-                    <div class="overview-grid">
-                        <div class="overview-left">
-                            <div style="display: flex; gap: 10px; justify-content: center;">
-                                <div style="flex: 1; text-align: center; position: relative;">
-                                    <img id="digital-image-female" src="https://via.placeholder.com/200x300" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                                    <div class="image-label">Female</div>
-                                </div>
-                                <div style="flex: 1; text-align: center; position: relative;">
-                                    <img id="digital-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                                    <div class="image-label">Male</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="overview-right">
-                            <div id="digital-map" class="map-container"></div>
-                        </div>
-                    </div>
-
                     <!-- Data Type Filters -->
                     <div class="data-type-filters">
-                        <button class="data-type-button active" data-type="all">All</button>
-                        <button class="data-type-button" data-type="insight">Insight Data</button>
-                        <button class="data-type-button" data-type="quizzes">Quizzes</button>
-                        <button class="data-type-button" data-type="hypothesis">Hypothesis Data</button>
+                        <!-- <button class="data-type-button active" data-type="all">All</button> -->
+                        <button class="data-type-button active" data-type="insight">Online Metrics</button>
+                        <button class="data-type-button" data-type="quizzes">Quiz Results</button>
+                        <button class="data-type-button" data-type="hypothesis">Hypothesis Tests</button>
                     </div>
 
                     <!-- Insights Data Section -->
@@ -202,54 +174,49 @@
 
                     <!-- Quiz Data Section -->
                     <div class="digital-data-section" id="quiz-data-section">
-                        <h3>Quiz Data</h3>
                         <div class="quiz-image-container" style="display: flex; justify-content: center;">
-                            <img id="quiz-image"
-                                 src="https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/quiz-results/nepal.png"
-                                 alt="Quiz Results"
-                                 style="width: 100%; max-width: 600px; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); cursor: pointer;"
-                                 onclick="openImageModal(this.src)">
+                            <img class="quiz-image"
+                                src="https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/quiz-results/nepal.png"
+                                alt="Quiz Results" onclick="openImageModal(this.src)">
+                            <img class="quiz-image"
+                                src="https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/quiz-results/nepal.png"
+                                alt="Quiz Results" onclick="openImageModal(this.src)">
                         </div>
-                    </div>
-
-                    <!-- Image Modal -->
-                    <div id="image-modal" style="display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center;">
-                        <span onclick="closeImageModal()" style="position: absolute; top: 20px; right: 40px; color: white; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
-                        <img id="modal-image" src="" style="max-width: 90%; max-height: 90%; object-fit: contain;">
                     </div>
 
                     <!-- Hypothesis Data Section -->
                     <div class="digital-data-section" id="hypothesis-data-section">
-                        <h3>Hypothesis Data</h3>
                         <div id="hypothesis-cards-container" class="hypothesis-cards-grid">
                             <div class="loading-message">Loading hypothesis data...</div>
                         </div>
                     </div>
+
+
                 </div>
 
                 <!-- Testimonies Tab -->
                 <div class="tab-content" id="testimonies-content">
-                    <div class="overview-grid">
-                        <div class="overview-left">
-                            <div style="display: flex; gap: 10px; justify-content: center;">
-                                <div style="flex: 1; text-align: center; position: relative;">
-                                    <img id="testimonies-image-female" src="https://via.placeholder.com/200x300" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                                    <div class="image-label">Female</div>
-                                </div>
-                                <div style="flex: 1; text-align: center; position: relative;">
-                                    <img id="testimonies-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
-                                    <div class="image-label">Male</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="overview-right">
-                            <div id="testimonies-map" class="map-container"></div>
-                        </div>
-                    </div>
                     <div id="testimonies-cards-container" style="margin-top: 16px;"></div>
                 </div>
+
+
+
+
+                <!-- Image Modal -->
+                <div id="image-modal"
+                    style="display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center;">
+                    <span onclick="closeImageModal()"
+                        style="position: absolute; top: 20px; right: 40px; color: white; font-size: 40px; font-weight: bold; cursor: pointer;">&times;</span>
+                    <img id="modal-image" src="" style="max-width: 90%; max-height: 90%; object-fit: contain;">
+                </div>
+
+
             </div>
+
+
         </div>
+    </div>
+    </div>
     </div>
 
     <script src="static/js/api.js"></script>

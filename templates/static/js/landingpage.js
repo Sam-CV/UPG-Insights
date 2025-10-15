@@ -297,6 +297,7 @@ function initializeDropdown() {
         dropdownInput.setAttribute('readonly', true);
     }
 
+    
     // Handle filter selection
     function selectFilter(option, value, text) {
         filterInput.value = text;
@@ -401,6 +402,7 @@ function initializeDropdown() {
 
     // Initialize dropdown
     populateDropdown();
+    selectFilter(filterMenu.querySelector('.dropdown-option[data-value="all"]'), 'all', 'All');
 
     return {
         getSelectedValue: () => selectedValue,
