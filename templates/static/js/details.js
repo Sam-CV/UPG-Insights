@@ -320,7 +320,7 @@ async function loadTestimoniesData() {
         cardsContainer.innerHTML = '';
         const grid = document.createElement('div');
         grid.style.display = 'flex';
-        grid.style.flexDirection= 'column';
+        grid.style.flexDirection = 'column';
         grid.style.gap = '16px';
         // grid.style.alignItems = 'stretch';
 
@@ -620,16 +620,16 @@ function createGlobeMap(containerId, lat, lon) {
             projection: useGlobe ? am5map.geoOrthographic() : am5map.geoMercator(),
             panX: useGlobe ? "rotateX" : "none",
             panY: useGlobe ? "rotateY" : "none",
-            wheelY: useGlobe ? "zoom" : "none",
+            wheelY: useGlobe ? "none" : "none",
             maxPanOut: 0
         })
     );
 
     // Disable interaction for flat map
-    if (!useGlobe) {
-        chart.set("zoomControl", null);
-        chart.chartContainer.set("interactive", false);
-    }
+    // if (!useGlobe) {
+    chart.set("zoomControl", null);
+    chart.chartContainer.set("interactive", false);
+    // }
 
     // Create background series (ocean)
     const backgroundSeries = chart.series.push(
