@@ -20,10 +20,12 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
             document.getElementById(`${targetTab}-content`).classList.add('active');
 
+            // Update section title
             const tabName = button.textContent;
-            const upgTitle = document.getElementById('upg-title');
-            const baseName = upgTitle.textContent.split(' - ')[0];
-            upgTitle.textContent = `${baseName} - ${tabName}`;
+            const sectionTitle = document.getElementById('section-title');
+            if (sectionTitle) {
+                sectionTitle.textContent = tabName;
+            }
         });
     });
 
@@ -33,21 +35,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (selectedUpgJson) {
         const upgData = JSON.parse(selectedUpgJson);
 
-        document.getElementById('upg-title').textContent = `${upgData.name} - Overview`;
+        // Update header title and tag
+        const mainTitle = document.getElementById('upg-main-title');
+        const typeTag = document.getElementById('upg-type-tag');
+        if (mainTitle) {
+            mainTitle.textContent = upgData.name || 'Tharu';
+        }
+        if (typeTag) {
+            typeTag.textContent = upgData.language ? 'Language' : 'Country';
+        }
 
         document.getElementById('population').textContent = upgData.population || '1.96 M';
         document.getElementById('language').textContent = upgData.name || 'Dangaura';
         document.getElementById('religion').textContent = upgData.religion || 'Hindu';
         document.getElementById('country').textContent = upgData.country || 'Nepal';
 
-        const countriesInput = document.getElementById('countries-input');
-        if (countriesInput && upgData.country) {
-            countriesInput.value = upgData.country;
-        }
-
         loadUpgImages(upgData.name, upgData.country);
 
         initializeMap(upgData.lat, upgData.lon);
+
+        // Initialize header map
+        initializeHeaderMap(upgData.lat, upgData.lon);
     }
 });
 
@@ -105,6 +113,24 @@ function loadUpgImages(upgName, country) {
         maleImg.style.display = 'block';
     }
 
+    // Update header images
+    const headerFemaleImg = document.getElementById('header-image-female');
+    const headerMaleImg = document.getElementById('header-image-male');
+
+    if (headerFemaleImg) {
+        headerFemaleImg.src = femaleImageUrl;
+        headerFemaleImg.onerror = function() {
+            this.src = placeholderImage;
+        };
+    }
+
+    if (headerMaleImg) {
+        headerMaleImg.src = maleImageUrl;
+        headerMaleImg.onerror = function() {
+            this.src = placeholderImage;
+        };
+    }
+
     // Update Digital Learning tab images
     const digitalFemaleImg = document.getElementById('digital-image-female');
     const digitalMaleImg = document.getElementById('digital-image-male');
@@ -124,6 +150,14 @@ function loadUpgImages(upgName, country) {
         };
         digitalMaleImg.style.display = 'block';
     }
+}
+
+// Header map initialization function
+function initializeHeaderMap(lat, lon) {
+    const latitude = lat || 27.7172;
+    const longitude = lon || 85.3240;
+
+    createGlobeMap('header-map', latitude, longitude);
 }
 
 // Map initialization function with amCharts 5 globe

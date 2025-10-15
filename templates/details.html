@@ -29,49 +29,38 @@
         <div id="navbar-container"></div>
 
         <div class="content-section">
-            <div class="welcome-text">Welcome to our UPG insights research</div>
-
-            <!-- Filter Section -->
-            <div class="filter-section">
-                <div class="custom-dropdown">
-                    <input type="text" id="countries-input" class="dropdown-input" placeholder="Countries" readonly>
-                    <span class="dropdown-arrow material-symbols-outlined">keyboard_arrow_down</span>
-                    <div class="dropdown-menu" id="countries-menu">
-                        <div class="dropdown-option selected" data-value="all">
-                            <span class="option-text">All Countries</span>
+            <!-- New Header Section -->
+            <div class="details-header-section">
+                <div class="header-left">
+                    <h1 class="upg-main-title" id="upg-main-title">Tharu</h1>
+                    <div class="upg-type-tag" id="upg-type-tag">Language</div>
+                </div>
+                <div class="header-right">
+                    <!-- Quick Numbers in Header -->
+                    <div class="header-quick-numbers">
+                        <div class="header-metric">
+                            <div class="header-metric-label">Population</div>
+                            <div class="header-metric-value" id="population">1.96 M</div>
+                        </div>
+                        <div class="header-metric">
+                            <div class="header-metric-label">Language</div>
+                            <div class="header-metric-value" id="language">Dangaura</div>
+                        </div>
+                        <div class="header-metric">
+                            <div class="header-metric-label">Religion</div>
+                            <div class="header-metric-value" id="religion">Hindu</div>
+                        </div>
+                        <div class="header-metric">
+                            <div class="header-metric-label">Country</div>
+                            <div class="header-metric-value" id="country">Nepal</div>
                         </div>
                     </div>
                 </div>
-
-                <div class="custom-dropdown">
-                    <input type="text" id="religions-input" class="dropdown-input" placeholder="Religions" readonly>
-                    <span class="dropdown-arrow material-symbols-outlined">keyboard_arrow_down</span>
-                    <div class="dropdown-menu" id="religions-menu">
-                        <div class="dropdown-option selected" data-value="all">
-                            <span class="option-text">All Religions</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="custom-dropdown">
-                    <input type="text" id="languages-input" class="dropdown-input" placeholder="Languages" readonly>
-                    <span class="dropdown-arrow material-symbols-outlined">keyboard_arrow_down</span>
-                    <div class="dropdown-menu" id="languages-menu">
-                        <div class="dropdown-option selected" data-value="all">
-                            <span class="option-text">All Languages</span>
-                        </div>
-                    </div>
-                </div>
-
-                <button class="filter-button">
-                    Filter
-                    <span class="button-arrow material-symbols-outlined">filter_alt</span>
-                </button>
             </div>
 
-            <!-- Title and Tabs Section -->
-            <div class="title-tabs-section">
-                <h1 class="upg-title" id="upg-title">Tharu - Overview</h1>
+            <!-- Section Title and Tabs -->
+            <div class="section-nav">
+                <h2 class="section-title" id="section-title">Overview</h2>
                 <div class="tabs-container">
                     <button class="tab-button active" data-tab="overview">Overview</button>
                     <button class="tab-button" data-tab="demographic">Demographic</button>
@@ -87,11 +76,13 @@
                     <div class="overview-grid">
                         <div class="overview-left">
                             <div style="display: flex; gap: 10px; justify-content: center;">
-                                <div style="flex: 1; text-align: center;">
+                                <div style="flex: 1; text-align: center; position: relative;">
                                     <img id="upg-image-female" src="https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/female/Bhramins_Nepal.jpg" alt="UPG Female" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <div class="image-label">Female</div>
                                 </div>
-                                <div style="flex: 1; text-align: center;">
+                                <div style="flex: 1; text-align: center; position: relative;">
                                     <img id="upg-image-male" src="https://via.placeholder.com/200x300" alt="UPG Male" class="upg-image" style="width: 100%; height: auto; border-radius: 8px; cursor: pointer;" onclick="openImageModal(this.src)">
+                                    <div class="image-label">Male</div>
                                 </div>
                             </div>
                         </div>
