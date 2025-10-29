@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPG Profile Image Generator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>UPG Profile Image Generator</h1>
+            <div class="stats">
+                <span id="completed-count">0</span> completed | 
+                <span id="remaining-count">0</span> remaining | 
+                <span id="total-count">0</span> total
+            </div>
+        </header>
+
+        <div class="controls">
+            <button id="start-generation" class="btn btn-primary">Start Generation</button>
+            <button id="pause-generation" class="btn btn-secondary" disabled>Pause</button>
+            <button id="reset-completed" class="btn btn-danger">Reset Completed List</button>
+        </div>
+
+        <div class="current-batch" id="current-batch">
+            <h2>Current Batch (Processing 5 simultaneously)</h2>
+            <div class="batch-container" id="batch-container">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+
+        <div class="selection-phase" id="selection-phase" style="display: none;">
+            <h2>Select Images (Click to Save)</h2>
+            <p class="selection-instructions">Click on one image from each set to save it locally. The batch will automatically advance when all saves are complete.</p>
+            <div class="selection-container" id="selection-container">
+                <!-- Dynamic content will be inserted here -->
+            </div>
+        </div>
+
+        <div class="completed-items">
+            <h3>Completed Items <button id="toggle-completed" class="btn btn-small">Show/Hide</button></h3>
+            <div class="completed-list" id="completed-list" style="display: none;">
+                <!-- Completed items will be listed here -->
+            </div>
+        </div>
+
+        <div class="log" id="log">
+            <h3>Activity Log</h3>
+            <div class="log-content" id="log-content"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

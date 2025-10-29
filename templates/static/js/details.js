@@ -403,23 +403,35 @@ function createTestimonyCardElement(testimony, index) {
 
 // Load UPG images (male and female)
 function loadUpgImages(upgName, country) {
-    if (!upgName || !country) {
-        console.log('Missing UPG name or country');
+    if (!country) {
+        console.log('Missing country');
         return;
     }
 
-    // Format the image filename: Name_Country.jpg
-    // Replace spaces and special characters
-    const formattedName = upgName.replace(/\s+/g, '_').replace(/[()]/g, '');
-    const imageFilename = `${formattedName}_${country}.jpg`;
+    // Get religion from session storage
+    const selectedUpgJson = sessionStorage.getItem('selectedUpg');
+    let religion = null;
+    if (selectedUpgJson) {
+        try {
+            const upgData = JSON.parse(selectedUpgJson);
+            religion = upgData.religion;
+        } catch (e) {
+            console.error('Failed to parse selectedUpg:', e);
+        }
+    }
 
     const baseUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles';
-    let femaleImageUrl = `${baseUrl}/${country}/female/${imageFilename}`;
-    let maleImageUrl = `${baseUrl}/${country}/male/${imageFilename}`;
 
-    // PLACEHOLDERS FOR NOW
-    femaleImageUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/female/Bhramins_Nepal.jpg';
-    maleImageUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/male/Bantawa_Nepal.jpg';
+    // Build URLs: {country}/{religion}/{gender}.jpg
+    // If no religion, just use {country}/{gender}.jpg
+    let femaleImageUrl, maleImageUrl;
+    if (religion) {
+        femaleImageUrl = `${baseUrl}/${country}/${religion}/female.jpg`;
+        maleImageUrl = `${baseUrl}/${country}/${religion}/male.jpg`;
+    } else {
+        femaleImageUrl = `${baseUrl}/${country}/female.jpg`;
+        maleImageUrl = `${baseUrl}/${country}/male.jpg`;
+    }
 
     console.log('Loading images:', { femaleImageUrl, maleImageUrl });
 
@@ -438,37 +450,74 @@ function loadUpgImages(upgName, country) {
     `);
 
     if (femaleImg) {
-        femaleImg.src = femaleImageUrl;
-        femaleImg.onerror = function () {
-            console.log('Female image not found:', femaleImageUrl);
-            this.src = placeholderImage;
-        };
+        // Show skeleton loading animation
+        femaleImg.classList.add('loading');
+        femaleImg.src = '';
         femaleImg.style.display = 'block';
+
+        // Create a new image to test if it loads
+        const testImg = new Image();
+        testImg.onload = function() {
+            femaleImg.src = femaleImageUrl;
+            femaleImg.classList.remove('loading');
+        };
+        testImg.onerror = function() {
+            console.log('Female image not found:', femaleImageUrl);
+            femaleImg.src = placeholderImage;
+            femaleImg.classList.remove('loading');
+        };
+        testImg.src = femaleImageUrl;
     }
 
     if (maleImg) {
-        maleImg.src = maleImageUrl;
-        maleImg.onerror = function () {
-            console.log('Male image not found:', maleImageUrl);
-            this.src = placeholderImage;
-        };
+        // Show skeleton loading animation
+        maleImg.classList.add('loading');
+        maleImg.src = '';
         maleImg.style.display = 'block';
+
+        // Create a new image to test if it loads
+        const testImg = new Image();
+        testImg.onload = function() {
+            maleImg.src = maleImageUrl;
+            maleImg.classList.remove('loading');
+        };
+        testImg.onerror = function() {
+            console.log('Male image not found:', maleImageUrl);
+            maleImg.src = placeholderImage;
+            maleImg.classList.remove('loading');
+        };
+        testImg.src = maleImageUrl;
     }
 }
 
 // Load images for a given section prefix ('demographic' or 'testimonies')
 function loadSectionImages(sectionPrefix, upgName, country) {
-    if (!sectionPrefix || !upgName || !country) return;
+    if (!sectionPrefix || !country) return;
 
-    const formattedName = upgName.replace(/\s+/g, '_').replace(/[()]/g, '');
-    const imageFilename = `${formattedName}_${country}.jpg`;
+    // Get religion from session storage
+    const selectedUpgJson = sessionStorage.getItem('selectedUpg');
+    let religion = null;
+    if (selectedUpgJson) {
+        try {
+            const upgData = JSON.parse(selectedUpgJson);
+            religion = upgData.religion;
+        } catch (e) {
+            console.error('Failed to parse selectedUpg:', e);
+        }
+    }
+
     const baseUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles';
-    let femaleImageUrl = `${baseUrl}/${country}/female/${imageFilename}`;
-    let maleImageUrl = `${baseUrl}/${country}/male/${imageFilename}`;
 
-    // Placeholder fallbacks
-    femaleImageUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/female/Bhramins_Nepal.jpg';
-    maleImageUrl = 'https://upg-resources.s3.ap-southeast-2.amazonaws.com/images/upg-profiles/Nepal/male/Bantawa_Nepal.jpg';
+    // Build URLs: {country}/{religion}/{gender}.jpg
+    // If no religion, just use {country}/{gender}.jpg
+    let femaleImageUrl, maleImageUrl;
+    if (religion) {
+        femaleImageUrl = `${baseUrl}/${country}/${religion}/female.jpg`;
+        maleImageUrl = `${baseUrl}/${country}/${religion}/male.jpg`;
+    } else {
+        femaleImageUrl = `${baseUrl}/${country}/female.jpg`;
+        maleImageUrl = `${baseUrl}/${country}/male.jpg`;
+    }
 
     const femaleImg = document.getElementById(`${sectionPrefix}-image-female`);
     const maleImg = document.getElementById(`${sectionPrefix}-image-male`);
@@ -481,14 +530,40 @@ function loadSectionImages(sectionPrefix, upgName, country) {
     `);
 
     if (femaleImg) {
-        femaleImg.src = femaleImageUrl;
-        femaleImg.onerror = function () { this.src = placeholderImage; };
+        // Show skeleton loading animation
+        femaleImg.classList.add('loading');
+        femaleImg.src = '';
         femaleImg.style.display = 'block';
+
+        // Create a new image to test if it loads
+        const testImg = new Image();
+        testImg.onload = function() {
+            femaleImg.src = femaleImageUrl;
+            femaleImg.classList.remove('loading');
+        };
+        testImg.onerror = function() {
+            femaleImg.src = placeholderImage;
+            femaleImg.classList.remove('loading');
+        };
+        testImg.src = femaleImageUrl;
     }
     if (maleImg) {
-        maleImg.src = maleImageUrl;
-        maleImg.onerror = function () { this.src = placeholderImage; };
+        // Show skeleton loading animation
+        maleImg.classList.add('loading');
+        maleImg.src = '';
         maleImg.style.display = 'block';
+
+        // Create a new image to test if it loads
+        const testImg = new Image();
+        testImg.onload = function() {
+            maleImg.src = maleImageUrl;
+            maleImg.classList.remove('loading');
+        };
+        testImg.onerror = function() {
+            maleImg.src = placeholderImage;
+            maleImg.classList.remove('loading');
+        };
+        testImg.src = maleImageUrl;
     }
 }
 
