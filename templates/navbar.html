@@ -1,35 +1,58 @@
-<nav
-    style="background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(20px); padding: 15px 30px; border-bottom: 1px solid rgba(255, 255, 255, 0.3); box-shadow: 0 4px 12px var(--drop-shadow-color);">
-    <div style="max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between;">
-        <div style="display: flex; align-items: center;">
-            <a href="landingpage.html"
-                style="text-decoration: none; color: #424242; font-family: 'Lexend', sans-serif; font-weight: 500; padding: 8px 16px; border-radius: 8px; transition: all 0.3s ease;">Home</a>
+<link rel="stylesheet" href="static/css/navbar.css">
+<nav>
+    <div class="nav-container">
+        <div class="nav-left">
+            <a href="landingpage.html" class="nav-link">Home</a>
         </div>
-        <div style="flex: 1; display: flex; justify-content: center;">
-            <h2
-                style="margin: 0; font-family: 'Lexend', sans-serif; font-size: 1.5rem; font-weight: 600; color: #424242;">
-                UPG Insight</h2>
+        <div class="nav-center">
+            <h2 class="nav-title">UPG Insight</h2>
         </div>
-        <div style="display: flex; align-items: center;">
-            <button
-                style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 8px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
-                <span class="material-symbols-outlined" id="dark-mode-button" style="color: #424242; font-size: 24px; cursor: pointer;"
-                    onclick="
-                        document.body.classList.toggle('dark-mode');
-                        this.textContent = document.body.classList.contains('dark-mode') ? 'light_mode' : 'dark_mode';
-                    ">
+        <div class="nav-right">
+            <button class="dark-mode-toggle">
+                <span class="material-symbols-outlined" id="dark-mode-button" onclick="toggleDarkMode()">
                     dark_mode
                 </span>
             </button>
         </div>
     </div>
-    <style>
-        nav a:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+    <script>
+        // Function to toggle dark mode
+        function toggleDarkMode() {
+            const body = document.body;
+            const button = document.getElementById('dark-mode-button');
+
+            // Toggle the class
+            body.classList.toggle('dark-mode');
+
+            // Check if dark mode is now active
+            const isDarkMode = body.classList.contains('dark-mode');
+
+            // Update button icon
+            button.textContent = isDarkMode ? 'light_mode' : 'dark_mode';
+
+            // Save to localStorage
+            localStorage.setItem('darkMode', isDarkMode ? 'enabled' : 'disabled');
         }
 
-        nav button:hover {
-            background-color: rgba(0, 0, 0, 0.05);
+        // Check localStorage on page load and apply dark mode if saved
+        function initDarkMode() {
+            const darkModeStatus = localStorage.getItem('darkMode');
+            const body = document.body;
+            const button = document.getElementById('dark-mode-button');
+
+            if (darkModeStatus === 'enabled') {
+                body.classList.add('dark-mode');
+                if (button) {
+                    button.textContent = 'light_mode';
+                }
+            }
         }
-    </style>
+
+        // Initialize dark mode on page load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initDarkMode);
+        } else {
+            initDarkMode();
+        }
+    </script>
 </nav>

@@ -1,37 +1,40 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
-:not(.dark-mode) {
+/* Light Mode (Default) */
+:root {
     --primary-blue: #0047FF;
     --primary-blue-hover: #0035C9;
-    --white: #FFFFFF;
-    --light-gray: #F0F1F3;
-    --dark-text: #1A1A1A;
-    --border-gray: #E0E0E0;
+    --primary-blue-light: #E6EDFF;
+    --background: #FFFFFF;
+    --background-secondary: #F8FAFC;
+    --background-tertiary: #F0F1F3;
+    --text-primary: #1A1A1A;
+    --text-secondary: #64748B;
+    --text-tertiary: #94A3B8;
+    --border-color: #E2E8F0;
+    --border-color-light: #F1F5F9;
+    --card-background: #FFFFFF;
+    --card-shadow: rgba(0, 0, 0, 0.08);
     --success-green: #34C759;
     --warning-orange: #FF9500;
     --error-red: #FF3B30;
+    --glassmorphism-bg: rgba(255, 255, 255, 0.7);
+    --glassmorphism-border: rgba(255, 255, 255, 0.5);
+    --input-background: #FFFFFF;
+    --hover-overlay: rgba(0, 0, 0, 0.04);
 }
 
+/* Dark Mode */
 .dark-mode {
-    filter: invert(1);
-    background-color: #121212;
+    filter: invert(1) hue-rotate(180deg);
 }
 
-.dark-mode img {
-    filter: invert(1);
-}
-
-.dark-mode .carousel-thumbnail img {
-    filter: invert(0);
-}
-
-.dark-mode .carousel-image-container img {
-    filter: invert(0);
-}
-
-.dark-mode .map-container img {
-    filter: invert(0.2);
-
+/* Prevent images from being inverted in dark mode */
+.dark-mode img,
+.dark-mode video,
+.dark-mode .upg-image,
+.dark-mode .quiz-image {
+    filter: invert(1) hue-rotate(180deg);
 }
 
 * {
@@ -42,8 +45,9 @@
 }
 
 body {
-    background-color: var(--white);
-    color: var(--dark-text);
+    background-color: var(--background);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 img {
@@ -2987,4 +2991,30 @@ body.dark-mode .skeleton-stats::after {
         margin-bottom: 10px;
         justify-content: center;
     }
+}
+
+/* Custom scrollbar for demographic toggles */
+#demographic-toggles-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(59, 130, 246, 0.3) rgba(226, 232, 240, 0.3);
+}
+
+#demographic-toggles-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+#demographic-toggles-scroll::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.3);
+    border-radius: 10px;
+    margin: 4px;
+}
+
+#demographic-toggles-scroll::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.4);
+    border-radius: 10px;
+    transition: background 0.2s;
+}
+
+#demographic-toggles-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.6);
 }

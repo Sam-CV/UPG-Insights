@@ -45,7 +45,7 @@
                     <div class="header-quick-numbers">
                         <div class="header-metric">
                             <div class="header-metric-label">Population</div>
-                            <div class="header-metric-value" id="population">1.96 M</div>
+                            <div class="header-metric-value" id="population">Loading...</div>
                         </div>
                         <div class="header-metric">
                             <div class="header-metric-label">Language</div>
@@ -109,19 +109,19 @@
                         <div class="metrics-grid">
                             <div class="metric-item">
                                 <div class="metric-label">Population</div>
-                                <div class="metric-value" id="population">1.96 M</div>
+                                <div class="metric-value" id="overview-population">-</div>
                             </div>
                             <div class="metric-item">
                                 <div class="metric-label">Language</div>
-                                <div class="metric-value" id="language">Dangaura</div>
+                                <div class="metric-value" id="overview-language">Dangaura</div>
                             </div>
                             <div class="metric-item">
                                 <div class="metric-label">Religion</div>
-                                <div class="metric-value" id="religion">Hindu</div>
+                                <div class="metric-value" id="overview-religion">Hindu</div>
                             </div>
                             <div class="metric-item">
                                 <div class="metric-label">Country</div>
-                                <div class="metric-value" id="country">Nepal</div>
+                                <div class="metric-value" id="overview-country">Nepal</div>
                             </div>
                         </div>
                     </div>
@@ -131,16 +131,20 @@
                         <h3>Top performing</h3>
                         <div class="metrics-grid">
                             <div class="metric-item">
-                                <div class="metric-label">Percent Reached</div>
-                                <div class="metric-value">0.002</div>
+                                <div class="metric-label">Engagement Rate</div>
+                                <div class="metric-value" id="top-engagement-rate">Loading...</div>
                             </div>
                             <div class="metric-item">
-                                <div class="metric-label">Need</div>
-                                <div class="metric-value">Love</div>
+                                <div class="metric-label">Age Group</div>
+                                <div class="metric-value" id="top-age-group">Loading...</div>
                             </div>
                             <div class="metric-item">
-                                <div class="metric-label">Genre</div>
-                                <div class="metric-value">Love</div>
+                                <div class="metric-label">Top Theme</div>
+                                <div class="metric-value" id="top-theme">Loading...</div>
+                            </div>
+                            <div class="metric-item">
+                                <div class="metric-label">ITJ Count (95% Views)</div>
+                                <div class="metric-value" id="itj-count-95">Loading...</div>
                             </div>
                         </div>
                     </div>
@@ -148,6 +152,49 @@
 
                 <!-- Demographic Tab -->
                 <div class="tab-content" id="demographic-content">
+                    <!-- Section Toggle Controls -->
+                    <div class="demographic-controls" style="margin-bottom: 24px; background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(20px) saturate(180%); -webkit-backdrop-filter: blur(20px) saturate(180%); border-radius: 20px; border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8); overflow: hidden;">
+                        <!-- Header (Collapsible) -->
+                        <div id="demographic-controls-header" style="padding: 20px 24px; background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; transition: all 0.3s ease; user-select: none;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <!-- Collapse/Expand Icon -->
+                                    <div id="collapse-icon" style="transition: transform 0.3s ease;">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="6 9 12 15 18 9"></polyline>
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 style="margin: 0 0 4px 0; font-size: 16px; font-weight: 700; color: #1e293b; letter-spacing: -0.01em;">Content Visibility</h3>
+                                        <p style="margin: 0; font-size: 13px; color: #64748b;">Customize which demographic sections to display</p>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 10px;">
+                                    <button id="select-all-sections" style="padding: 8px 16px; background: rgba(59, 130, 246, 0.1); backdrop-filter: blur(10px); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px;" onclick="event.stopPropagation();">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="20 6 9 17 4 12"></polyline>
+                                        </svg>
+                                        All
+                                    </button>
+                                    <button id="deselect-all-sections" style="padding: 8px 16px; background: rgba(100, 116, 139, 0.1); backdrop-filter: blur(10px); color: #64748b; border: 1px solid rgba(100, 116, 139, 0.3); border-radius: 10px; font-size: 13px; cursor: pointer; font-weight: 600; transition: all 0.2s; display: flex; align-items: center; gap: 6px;" onclick="event.stopPropagation();">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                                        </svg>
+                                        None
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Toggles Grid (Collapsible Content) -->
+                        <div id="demographic-toggles-container" style="overflow: hidden; transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease, padding 0.4s ease; background: rgba(255, 255, 255, 0.3);">
+                            <div id="demographic-toggles-scroll" style="max-height: 200px; overflow-y: auto; overflow-x: hidden; padding: 0 4px;">
+                                <div id="demographic-toggles" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">
+                                    <!-- Toggles will be generated here -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     <div id="demographic-sections" style="margin-top: 16px;"></div>
                 </div>
@@ -219,6 +266,7 @@
     </div>
     </div>
 
+    <script src="static/js/utils.js"></script>
     <script src="static/js/api.js"></script>
     <script src="static/js/upgdata.js"></script>
     <script src="static/js/sampledata.js"></script>

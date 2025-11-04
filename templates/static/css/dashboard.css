@@ -21,6 +21,8 @@
          --radius-lg: 12px;
      }
 
+     /* Dark mode styles moved to styles.css for consolidation */
+
      * {
          box-sizing: border-box;
          margin: 0;

@@ -16,14 +16,9 @@ body {
     --drop-shadow-color: rgba(0, 0, 0, 0.1);
 }
 
+/* Dark mode styles moved to styles.css for consolidation */
 body.dark-mode {
-    filter: invert(1);
     --drop-shadow-color: rgba(255, 255, 255, 0.1);
-}
-
-body.dark-mode img {
-    transition: none;
-    filter: invert(1);
 }
 
 body::before {
