@@ -178,6 +178,11 @@ body::before {
     overflow: hidden;
 }
 
+.dark-mode .details-header-section{
+    /* white so its inverted */
+    background: linear-gradient(135deg, rgba(210, 210, 210, 0.9) 0%, rgba(220, 220, 220, 0.8) 100%);
+}
+
 .header-left {
     flex: 0 0 auto;
     display: flex;

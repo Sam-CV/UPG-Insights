@@ -1,0 +1,1436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scripture Translator - Find Bible Verses in Different Languages</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fafc;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 68rem;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+        }
+
+        /* Header Styles */
+        .header {
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 2rem 0;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .icon {
+            width: 2rem;
+            height: 2rem;
+            stroke: #475569;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .subtitle {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        /* Main Content */
+        .main {
+            padding: 2rem 0;
+        }
+
+        .card {
+            background: white;
+            border-radius: 1rem;
+            border: 1px solid #e2e8f0;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form Styles */
+        .form-grid {
+            display: grid;
+            gap: 1.5rem;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .form-grid {
+                grid-template-columns: 1fr 2fr;
+            }
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Dropdown Styles */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-button {
+            width: 100%;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-button:hover:not(:disabled) {
+            border-color: #9ca3af;
+        }
+
+        .dropdown-button:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .dropdown-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .dropdown-text {
+            flex: 1;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .chevron {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke: #9ca3af;
+            transition: transform 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .chevron.rotated {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            margin-top: 0.25rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            max-height: 28rem;
+            overflow: hidden;
+            z-index: 50;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-search {
+            padding: 0.75rem;
+            border-bottom: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .dropdown-search input {
+            width: 100%;
+            padding: 0.5rem 0.75rem 0.5rem 2rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            background: white;
+        }
+
+        .dropdown-search input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+        }
+
+        .dropdown-search-icon {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1rem;
+            height: 1rem;
+            stroke: #9ca3af;
+        }
+
+        .dropdown-languages {
+            max-height: 12rem;
+            overflow-y: auto;
+        }
+
+        .dropdown-books-section {
+            border-top: 1px solid #e5e7eb;
+            background: #f9fafb;
+        }
+
+        .dropdown-books-toggle {
+            width: 100%;
+            padding: 0.75rem;
+            background: none;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+            transition: background-color 0.15s ease;
+        }
+
+        .dropdown-books-toggle:hover {
+            background: #f3f4f6;
+        }
+
+        .dropdown-books-toggle-text {
+            flex: 1;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .dropdown-books-content {
+            display: none;
+            max-height: 10rem;
+            overflow-y: auto;
+            padding: 0.5rem;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .dropdown-books-content.show {
+            display: block;
+        }
+
+        .dropdown-books-grid {
+            display: grid;
+            gap: 0.25rem;
+            grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+        }
+
+        .dropdown-book-item {
+            padding: 0.25rem 0.5rem;
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            text-align: center;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .dropdown-book-item:hover {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+        }
+
+        .dropdown-no-results {
+            padding: 1rem;
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .dropdown-item {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background-color 0.15s ease;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f8fafc;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item-title {
+            font-weight: 500;
+            color: #111827;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .dropdown-item-desc {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+
+        .lang-badge {
+            font-size: 0.625rem;
+            background: #f1f5f9;
+            color: #64748b;
+            padding: 0.125rem 0.375rem;
+            border-radius: 0.25rem;
+            font-weight: 400;
+        }
+
+        .lang-badge.rtl {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        /* Search Input Styles */
+        .search-container {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke: #9ca3af;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            transition: all 0.2s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .search-button {
+            padding: 0.75rem 1.5rem;
+            background: #1e293b;
+            color: white;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .search-button:hover:not(:disabled) {
+            background: #0f172a;
+        }
+
+        .search-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .spinner {
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results Styles */
+        .results {
+            display: none;
+        }
+
+        .results.show {
+            display: block;
+        }
+
+        .results-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .results-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 0.25rem;
+        }
+
+        .results-subtitle {
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+
+        .results-meta {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-align: right;
+        }
+
+        .results-content {
+            padding: 1.5rem;
+        }
+
+        .verse-list {
+            space-y: 1rem;
+        }
+
+        .verse {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .verse-number {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            background: #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #64748b;
+        }
+
+        .verse-text {
+            flex: 1;
+            color: #1e293b;
+            line-height: 1.7;
+        }
+
+        .verse-text.rtl {
+            direction: rtl;
+            text-align: right;
+        }
+
+        .footnotes {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .footnotes-title {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 1rem;
+        }
+
+        .footnote {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .footnote-id {
+            font-weight: 500;
+            color: #374151;
+        }
+
+        /* Examples Styles */
+        .examples {
+            display: block;
+        }
+
+        .examples.hide {
+            display: none;
+        }
+
+        .examples-title {
+            font-size: 1.125rem;
+            font-weight: 500;
+            color: #1e293b;
+            margin-bottom: 1rem;
+        }
+
+        .examples-grid {
+            display: grid;
+            gap: 0.75rem;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        }
+
+        .example-button {
+            text-align: left;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: 1px solid #e2e8f0;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .example-button:hover {
+            border-color: #d1d5db;
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        .example-text {
+            font-weight: 500;
+            color: #1e293b;
+            font-size: 0.875rem;
+        }
+
+        /* Utilities */
+        .hidden {
+            display: none !important;
+        }
+
+        /* RTL Support */
+        .rtl-text {
+            direction: rtl;
+            text-align: right;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .title {
+                font-size: 1.5rem;
+            }
+            
+            .search-container {
+                flex-direction: column;
+            }
+            
+            .search-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <svg class="icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                </svg>
+                <h1 class="title">Scripture Translator</h1>
+            </div>
+            <p class="subtitle">Find and explore Bible verses in different languages worldwide</p>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Search Form -->
+            <div class="card">
+                <div class="form-grid">
+                    <!-- Language Selection -->
+                    <div class="form-group">
+                        <label class="label" for="languageDropdown">Language</label>
+                        <div class="dropdown">
+                            <button class="dropdown-button" id="languageDropdown" disabled>
+                                <span class="dropdown-text" id="selectedLanguage">Loading languages...</span>
+                                <svg class="chevron" id="chevronIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div class="dropdown-menu" id="languageMenu">
+                                <!-- Search input -->
+                                <div class="dropdown-search">
+                                    <div style="position: relative;">
+                                        <svg class="dropdown-search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                        </svg>
+                                        <input 
+                                            type="text" 
+                                            id="languageSearch" 
+                                            placeholder="Search languages..."
+                                            autocomplete="off"
+                                        >
+                                    </div>
+                                </div>
+                                
+                                <!-- Language list -->
+                                <div class="dropdown-languages" id="languageList">
+                                    <!-- Language options will be populated here -->
+                                </div>
+                                
+                                <!-- Books section -->
+                                <div class="dropdown-books-section">
+                                    <button class="dropdown-books-toggle" id="booksToggle">
+                                        <span class="dropdown-books-toggle-text" id="booksToggleText">Show available books (0)</span>
+                                        <svg class="chevron" id="booksChevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 1rem; height: 1rem;">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"></path>
+                                        </svg>
+                                    </button>
+                                    <div class="dropdown-books-content" id="booksContent">
+                                        <div class="dropdown-books-grid" id="booksGrid">
+                                            <!-- Books will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Search Input -->
+                    <div class="form-group">
+                        <label class="label" for="verseInput">Verse Reference</label>
+                        <div class="search-container">
+                            <div class="search-input-wrapper">
+                                <svg class="search-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <input 
+                                    type="text" 
+                                    class="search-input" 
+                                    id="verseInput"
+                                    placeholder="e.g., John 3:16, Genesis 1, Proverbs 1:7"
+                                    autocomplete="off"
+                                >
+                            </div>
+                            <button class="search-button" id="searchButton" disabled>
+                                <span id="searchButtonText">Search</span>
+                                <div class="spinner hidden" id="searchSpinner"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Search Results -->
+            <div class="card results" id="searchResults">
+                <div class="results-header">
+                    <div>
+                        <h2 class="results-title" id="resultsTitle"></h2>
+                        <p class="results-subtitle" id="resultsSubtitle"></p>
+                    </div>
+                    <div class="results-meta" id="resultsMeta"></div>
+                </div>
+                <div class="results-content">
+                    <div class="verse-list" id="verseList">
+                        <!-- Verses will be populated here -->
+                    </div>
+                    <div class="footnotes hidden" id="footnotes">
+                        <h3 class="footnotes-title">Footnotes</h3>
+                        <div id="footnotesList">
+                            <!-- Footnotes will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Examples -->
+            <div class="card examples" id="examples">
+                <h3 class="examples-title">Try finding these verses in different languages:</h3>
+                <div class="examples-grid">
+                    <button class="example-button" data-verse="JOH 3:16">
+                        <div class="example-text">John 3:16</div>
+                    </button>
+                    <button class="example-button" data-verse="GEN 1:1">
+                        <div class="example-text">Genesis 1:1</div>
+                    </button>
+                    <button class="example-button" data-verse="PSA 23">
+                        <div class="example-text">Psalm 23</div>
+                    </button>
+                    <button class="example-button" data-verse="PRO 3:5">
+                        <div class="example-text">Proverbs 3:5</div>
+                    </button>
+                    <button class="example-button" data-verse="ROM 8:28">
+                        <div class="example-text">Romans 8:28</div>
+                    </button>
+                    <button class="example-button" data-verse="MAT 5:3">
+                        <div class="example-text">Matthew 5:3</div>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Global Application State
+        const App = {
+            translations: [],
+            books: [],
+            selectedTranslationId: '',
+            isDropdownOpen: false,
+            isBooksOpen: false,
+            isLoading: false,
+            searchQuery: '',
+            filteredTranslations: []
+        };
+
+        // Book abbreviations mapping for better search
+        const BOOK_ABBREVIATIONS = {
+            'GEN': ['GENESIS', 'GE'], 'EXO': ['EXODUS', 'EX'], 'LEV': ['LEVITICUS', 'LE'],
+            'NUM': ['NUMBERS', 'NU'], 'DEU': ['DEUTERONOMY', 'DE'], 'JOS': ['JOSHUA', 'JO'],
+            'JDG': ['JUDGES', 'JG'], 'RUT': ['RUTH', 'RU'], 'SA1': ['1SAMUEL', '1SA', '1S'],
+            'SA2': ['2SAMUEL', '2SA', '2S'], 'KI1': ['1KINGS', '1KI', '1K'], 'KI2': ['2KINGS', '2KI', '2K'],
+            'CH1': ['1CHRONICLES', '1CH'], 'CH2': ['2CHRONICLES', '2CH'], 'EZR': ['EZRA', 'EZ'],
+            'NEH': ['NEHEMIAH', 'NE'], 'EST': ['ESTHER', 'ES'], 'JOB': ['JOB', 'JB'],
+            'PSA': ['PSALMS', 'PS', 'PSALM'], 'PRO': ['PROVERBS', 'PR'], 'ECC': ['ECCLESIASTES', 'EC'],
+            'SON': ['SONG', 'SO'], 'ISA': ['ISAIAH', 'IS'], 'JER': ['JEREMIAH', 'JE'],
+            'LAM': ['LAMENTATIONS', 'LA'], 'EZE': ['EZEKIEL', 'EZ'], 'DAN': ['DANIEL', 'DA'],
+            'HOS': ['HOSEA', 'HO'], 'JOE': ['JOEL', 'JL'], 'AMO': ['AMOS', 'AM'],
+            'OBA': ['OBADIAH', 'OB'], 'JON': ['JONAH', 'JH'], 'MIC': ['MICAH', 'MI'],
+            'NAH': ['NAHUM', 'NA'], 'HAB': ['HABAKKUK', 'HB'], 'ZEP': ['ZEPHANIAH', 'ZP'],
+            'HAG': ['HAGGAI', 'HG'], 'ZEC': ['ZECHARIAH', 'ZC'], 'MAL': ['MALACHI', 'ML'],
+            'MAT': ['MATTHEW', 'MT'], 'MAR': ['MARK', 'MK'], 'LUK': ['LUKE', 'LK'],
+            'JOH': ['JOHN', 'JN'], 'ACT': ['ACTS', 'AC'], 'ROM': ['ROMANS', 'RO'],
+            'CO1': ['1CORINTHIANS', '1CO', '1C'], 'CO2': ['2CORINTHIANS', '2CO', '2C'],
+            'GAL': ['GALATIANS', 'GA'], 'EPH': ['EPHESIANS', 'EP'], 'PHI': ['PHILIPPIANS', 'PH'],
+            'COL': ['COLOSSIANS', 'CL'], 'TH1': ['1THESSALONIANS', '1TH'], 'TH2': ['2THESSALONIANS', '2TH'],
+            'TI1': ['1TIMOTHY', '1TI'], 'TI2': ['2TIMOTHY', '2TI'], 'TIT': ['TITUS', 'TI'],
+            'PHM': ['PHILEMON', 'PM'], 'HEB': ['HEBREWS', 'HE'], 'JAM': ['JAMES', 'JA'],
+            'PE1': ['1PETER', '1PE', '1P'], 'PE2': ['2PETER', '2PE', '2P'],
+            'JO1': ['1JOHN', '1JO', '1J'], 'JO2': ['2JOHN', '2JO', '2J'], 'JO3': ['3JOHN', '3JO', '3J'],
+            'JUD': ['JUDE', 'JU'], 'REV': ['REVELATION', 'RE']
+        };
+
+        // DOM Elements
+        const Elements = {
+            languageDropdown: document.getElementById('languageDropdown'),
+            selectedLanguage: document.getElementById('selectedLanguage'),
+            chevronIcon: document.getElementById('chevronIcon'),
+            languageMenu: document.getElementById('languageMenu'),
+            languageSearch: document.getElementById('languageSearch'),
+            languageList: document.getElementById('languageList'),
+            booksToggle: document.getElementById('booksToggle'),
+            booksToggleText: document.getElementById('booksToggleText'),
+            booksChevron: document.getElementById('booksChevron'),
+            booksContent: document.getElementById('booksContent'),
+            booksGrid: document.getElementById('booksGrid'),
+            verseInput: document.getElementById('verseInput'),
+            searchButton: document.getElementById('searchButton'),
+            searchButtonText: document.getElementById('searchButtonText'),
+            searchSpinner: document.getElementById('searchSpinner'),
+            searchResults: document.getElementById('searchResults'),
+            resultsTitle: document.getElementById('resultsTitle'),
+            resultsSubtitle: document.getElementById('resultsSubtitle'),
+            resultsMeta: document.getElementById('resultsMeta'),
+            verseList: document.getElementById('verseList'),
+            footnotes: document.getElementById('footnotes'),
+            footnotesList: document.getElementById('footnotesList'),
+            examples: document.getElementById('examples')
+        };
+
+        // API Functions
+        async function fetchTranslations() {
+            try {
+                console.log('Fetching available translations...');
+                const response = await fetch('https://bible.helloao.org/api/available_translations.json');
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                App.translations = data.translations || [];
+                
+                console.log(`Loaded ${App.translations.length} translations`);
+                
+                if (App.translations.length > 0) {
+                    App.selectedTranslationId = App.translations[0].id;
+                    await fetchBooks(App.selectedTranslationId);
+                    populateLanguageDropdown();
+                    updateSelectedLanguage();
+                    enableControls();
+                }
+            } catch (error) {
+                console.error('Error fetching translations:', error);
+                Elements.selectedLanguage.textContent = 'Error loading languages';
+            }
+        }
+
+        async function fetchBooks(translationId) {
+            try {
+                console.log(`Fetching books for translation: ${translationId}`);
+                const url = `https://bible.helloao.org/api/${translationId}/books.json`;
+                console.log('Books URL:', url);
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                App.books = data.books || [];
+                
+                console.log(`Loaded ${App.books.length} books:`, 
+                    App.books.slice(0, 10).map(b => `${b.id}: ${b.name}`));
+                    
+                // Log all book IDs for debugging
+                console.log('All book IDs:', App.books.map(b => b.id).join(', '));
+                
+                // Update books display
+                updateBooksDisplay();
+                
+            } catch (error) {
+                console.error('Error fetching books:', error);
+                App.books = [];
+                updateBooksDisplay();
+            }
+        }
+
+        // Test function to verify API is working
+        async function testAPI() {
+            try {
+                console.log('🧪 Testing API...');
+                
+                // Test with known working example from user: eng_lxu/PRO/1.json
+                const testUrl = 'https://bible.helloao.org/api/eng_lxu/PRO/1.json';
+                console.log('Testing URL:', testUrl);
+                
+                const response = await fetch(testUrl);
+                console.log('Test response:', {
+                    status: response.status,
+                    contentType: response.headers.get('content-type'),
+                    ok: response.ok
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ API test successful:', {
+                        book: data.book?.name,
+                        chapter: data.chapter?.number,
+                        verses: data.numberOfVerses
+                    });
+                    window.lastAPITest = 'working';
+                    return true;
+                } else {
+                    const text = await response.text();
+                    console.log('❌ API test failed:', text.substring(0, 200));
+                    window.lastAPITest = `failed (${response.status})`;
+                    return false;
+                }
+            } catch (error) {
+                console.error('❌ API test error:', error);
+                window.lastAPITest = 'error';
+                return false;
+            }
+        }
+
+        async function searchVerse(query) {
+            if (!query.trim() || !App.selectedTranslationId) return;
+
+            setLoadingState(true);
+            hideResults();
+
+            try {
+                const { bookId, chapter } = parseVerseReference(query);
+                
+                // Construct URL and log it for debugging
+                const url = `https://bible.helloao.org/api/${App.selectedTranslationId}/${bookId}/${chapter}.json`;
+                
+                console.log('Search details:', {
+                    query,
+                    bookId,
+                    chapter,
+                    translationId: App.selectedTranslationId,
+                    constructedURL: url
+                });
+
+                const response = await fetch(url);
+                
+                console.log('Response details:', {
+                    status: response.status,
+                    statusText: response.statusText,
+                    contentType: response.headers.get('content-type'),
+                    url: response.url
+                });
+                
+                if (!response.ok) {
+                    // Get response text for better debugging
+                    const responseText = await response.text();
+                    console.log('Error response body:', responseText.substring(0, 500));
+                    
+                    if (response.status === 404) {
+                        const availableBooks = App.books.slice(0, 10).map(b => b.name || b.id).join(', ');
+                        throw new Error(`Book "${bookId}" not found. Available books include: ${availableBooks}...\n\nTried URL: ${url}`);
+                    }
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}\nURL: ${url}`);
+                }
+                
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Expected JSON but got:', {
+                        contentType,
+                        url,
+                        responsePreview: text.substring(0, 300)
+                    });
+                    
+                    // Check if it's a 404 page or error page
+                    if (text.includes('404') || text.includes('Not Found')) {
+                        throw new Error(`Verse not found. Please check the book name and chapter number.\n\nBook: "${bookId}", Chapter: "${chapter}"`);
+                    }
+                    
+                    throw new Error('Server returned HTML instead of JSON. The verse reference might be invalid or the API is temporarily unavailable.');
+                }
+                
+                const data = await response.json();
+                displayResults(data);
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                showError(error.message);
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        // Utility Functions
+        function parseVerseReference(query) {
+            const parts = query.trim().split(/[\s:]+/);
+            
+            if (parts.length < 2) {
+                throw new Error('Please enter a verse reference like "John 3:16" or "Genesis 1"');
+            }
+
+            const bookName = parts[0];
+            const chapter = parts[1];
+            const bookId = findBookId(bookName);
+            
+            return { bookId, chapter };
+        }
+
+        function findBookId(bookName) {
+            const originalBookName = bookName;
+            const upperBookName = bookName.toUpperCase();
+            
+            console.log(`Finding book ID for: "${originalBookName}" (uppercase: "${upperBookName}")`);
+            
+            // Direct match with book ID (exact case)
+            let matchingBook = App.books.find(book => book.id === originalBookName);
+            if (matchingBook) {
+                console.log(`✅ Direct match found: ${matchingBook.id}`);
+                return matchingBook.id;
+            }
+            
+            // Direct match with book ID (uppercase)
+            matchingBook = App.books.find(book => book.id.toUpperCase() === upperBookName);
+            if (matchingBook) {
+                console.log(`✅ Case-insensitive match found: ${matchingBook.id}`);
+                return matchingBook.id;
+            }
+            
+            // Match by name or common name
+            matchingBook = App.books.find(book => 
+                book.name.toUpperCase().includes(upperBookName) ||
+                (book.commonName && book.commonName.toUpperCase().includes(upperBookName))
+            );
+            if (matchingBook) {
+                console.log(`✅ Name match found: ${matchingBook.id} (${matchingBook.name})`);
+                return matchingBook.id;
+            }
+            
+            // Match using abbreviations
+            for (const [bookId, abbreviations] of Object.entries(BOOK_ABBREVIATIONS)) {
+                if (abbreviations.includes(upperBookName)) {
+                    const foundBook = App.books.find(book => 
+                        book.id.toUpperCase() === bookId
+                    );
+                    if (foundBook) {
+                        console.log(`✅ Abbreviation match found: ${foundBook.id} (from ${upperBookName})`);
+                        return foundBook.id;
+                    }
+                }
+            }
+            
+            // Log available options for debugging
+            console.log('❌ No match found. Available books:', App.books.slice(0, 10).map(b => `${b.id}: ${b.name}`));
+            
+            // Return original if no match found
+            console.log(`⚠️ Using original book name: ${originalBookName}`);
+            return originalBookName;
+        }
+
+        function formatVerseContent(content) {
+            if (Array.isArray(content)) {
+                return content.map(item => {
+                    if (typeof item === 'string') {
+                        return item.replace(/[\u2028\u2029]/g, ' ').trim();
+                    } else if (item.noteId !== undefined) {
+                        return `[${item.noteId}]`;
+                    }
+                    return '';
+                }).join('').replace(/\s+/g, ' ').trim();
+            }
+            
+            if (typeof content === 'string') {
+                return content.replace(/[\u2028\u2029]/g, ' ').replace(/\s+/g, ' ').trim();
+            }
+            
+            return content || '';
+        }
+
+        // UI Functions
+        function populateLanguageDropdown() {
+            App.filteredTranslations = [...App.translations];
+            renderLanguageList();
+        }
+
+        function renderLanguageList() {
+            Elements.languageList.innerHTML = '';
+            
+            if (App.filteredTranslations.length === 0) {
+                const noResults = document.createElement('div');
+                noResults.className = 'dropdown-no-results';
+                noResults.textContent = 'No languages found';
+                Elements.languageList.appendChild(noResults);
+                return;
+            }
+
+            // Group translations by language
+            const languageGroups = {};
+            App.filteredTranslations.forEach(translation => {
+                const langName = translation.languageName || translation.languageEnglishName;
+                if (!languageGroups[langName]) {
+                    languageGroups[langName] = [];
+                }
+                languageGroups[langName].push(translation);
+            });
+
+            // Sort languages alphabetically
+            const sortedLanguages = Object.keys(languageGroups).sort();
+
+            sortedLanguages.forEach(languageName => {
+                languageGroups[languageName].forEach(translation => {
+                    const item = document.createElement('button');
+                    item.className = 'dropdown-item';
+                    
+                    const isRTL = translation.textDirection === 'rtl';
+                    const badge = `<span class="lang-badge ${isRTL ? 'rtl' : ''}">${isRTL ? 'RTL' : 'LTR'}</span>`;
+                    
+                    item.innerHTML = `
+                        <div class="dropdown-item-title">
+                            ${translation.languageName || translation.languageEnglishName}
+                            ${badge}
+                        </div>
+                        <div class="dropdown-item-desc">${translation.shortName} - ${translation.englishName}</div>
+                    `;
+                    
+                    item.addEventListener('click', () => selectLanguage(translation.id));
+                    Elements.languageList.appendChild(item);
+                });
+            });
+        }
+
+        function filterLanguages(query) {
+            App.searchQuery = query.toLowerCase();
+            
+            if (!App.searchQuery) {
+                App.filteredTranslations = [...App.translations];
+            } else {
+                App.filteredTranslations = App.translations.filter(translation => {
+                    const langName = (translation.languageName || translation.languageEnglishName).toLowerCase();
+                    const englishName = translation.englishName.toLowerCase();
+                    const shortName = translation.shortName.toLowerCase();
+                    
+                    return langName.includes(App.searchQuery) ||
+                           englishName.includes(App.searchQuery) ||
+                           shortName.includes(App.searchQuery);
+                });
+            }
+            
+            renderLanguageList();
+        }
+
+        function updateBooksDisplay() {
+            Elements.booksToggleText.textContent = `Show available books (${App.books.length})`;
+            
+            Elements.booksGrid.innerHTML = '';
+            
+            if (App.books.length === 0) {
+                const noBooks = document.createElement('div');
+                noBooks.className = 'dropdown-no-results';
+                noBooks.textContent = 'No books available';
+                Elements.booksGrid.appendChild(noBooks);
+                return;
+            }
+
+            App.books.forEach(book => {
+                const bookItem = document.createElement('div');
+                bookItem.className = 'dropdown-book-item';
+                bookItem.textContent = book.id;
+                bookItem.title = book.name;
+                
+                bookItem.addEventListener('click', () => {
+                    Elements.verseInput.value = `${book.id} 1`;
+                    closeDropdown();
+                    searchVerse(`${book.id} 1`);
+                });
+                
+                Elements.booksGrid.appendChild(bookItem);
+            });
+        }
+
+        function toggleBooksSection() {
+            App.isBooksOpen = !App.isBooksOpen;
+            Elements.booksContent.classList.toggle('show', App.isBooksOpen);
+            Elements.booksChevron.classList.toggle('rotated', App.isBooksOpen);
+        }
+
+        async function selectLanguage(translationId) {
+            App.selectedTranslationId = translationId;
+            await fetchBooks(translationId);
+            updateSelectedLanguage();
+            closeDropdown();
+        }
+
+        function updateSelectedLanguage() {
+            const selected = App.translations.find(t => t.id === App.selectedTranslationId);
+            if (selected) {
+                const langName = selected.languageName || selected.languageEnglishName;
+                Elements.selectedLanguage.textContent = `${langName} (${selected.shortName})`;
+            }
+        }
+
+        function toggleDropdown() {
+            App.isDropdownOpen = !App.isDropdownOpen;
+            Elements.languageMenu.classList.toggle('show', App.isDropdownOpen);
+            Elements.chevronIcon.classList.toggle('rotated', App.isDropdownOpen);
+            
+            if (App.isDropdownOpen) {
+                // Focus search input when opening
+                setTimeout(() => Elements.languageSearch.focus(), 100);
+            } else {
+                // Clear search when closing
+                Elements.languageSearch.value = '';
+                App.searchQuery = '';
+                App.filteredTranslations = [...App.translations];
+                renderLanguageList();
+                
+                // Close books section
+                App.isBooksOpen = false;
+                Elements.booksContent.classList.remove('show');
+                Elements.booksChevron.classList.remove('rotated');
+            }
+        }
+
+        function closeDropdown() {
+            App.isDropdownOpen = false;
+            App.isBooksOpen = false;
+            Elements.languageMenu.classList.remove('show');
+            Elements.chevronIcon.classList.remove('rotated');
+            Elements.booksContent.classList.remove('show');
+            Elements.booksChevron.classList.remove('rotated');
+            
+            // Clear search
+            Elements.languageSearch.value = '';
+            App.searchQuery = '';
+            App.filteredTranslations = [...App.translations];
+            renderLanguageList();
+        }
+
+        function setLoadingState(loading) {
+            App.isLoading = loading;
+            Elements.searchButton.disabled = loading;
+            
+            if (loading) {
+                Elements.searchButtonText.textContent = '';
+                Elements.searchSpinner.classList.remove('hidden');
+            } else {
+                Elements.searchButtonText.textContent = 'Search';
+                Elements.searchSpinner.classList.add('hidden');
+            }
+        }
+
+        function enableControls() {
+            Elements.languageDropdown.disabled = false;
+            Elements.searchButton.disabled = false;
+        }
+
+        function displayResults(data) {
+            // Update header
+            Elements.resultsTitle.textContent = `${data.book?.name} ${data.chapter?.number}`;
+            
+            const translation = data.translation;
+            const langName = translation?.languageName || translation?.languageEnglishName;
+            Elements.resultsSubtitle.textContent = `${langName} - ${translation?.englishName} (${translation?.shortName})`;
+            Elements.resultsMeta.textContent = `${data.numberOfVerses} verses`;
+
+            // Clear and populate verses
+            Elements.verseList.innerHTML = '';
+            
+            const isRTL = translation?.textDirection === 'rtl';
+            
+            data.chapter?.content?.forEach(verse => {
+                if (verse.type === 'verse') {
+                    const verseEl = document.createElement('div');
+                    verseEl.className = 'verse';
+                    verseEl.innerHTML = `
+                        <div class="verse-number">${verse.number}</div>
+                        <div class="verse-text ${isRTL ? 'rtl' : ''}">${formatVerseContent(verse.content)}</div>
+                    `;
+                    Elements.verseList.appendChild(verseEl);
+                }
+            });
+
+            // Handle footnotes
+            if (data.chapter?.footnotes && data.chapter.footnotes.length > 0) {
+                Elements.footnotesList.innerHTML = '';
+                data.chapter.footnotes.forEach(footnote => {
+                    const footnoteEl = document.createElement('div');
+                    footnoteEl.className = 'footnote';
+                    footnoteEl.innerHTML = `
+                        <span class="footnote-id">[${footnote.noteId}]</span> ${footnote.text}
+                    `;
+                    Elements.footnotesList.appendChild(footnoteEl);
+                });
+                Elements.footnotes.classList.remove('hidden');
+            } else {
+                Elements.footnotes.classList.add('hidden');
+            }
+
+            // Apply RTL to title if needed
+            if (isRTL) {
+                Elements.resultsTitle.classList.add('rtl-text');
+            } else {
+                Elements.resultsTitle.classList.remove('rtl-text');
+            }
+
+            showResults();
+        }
+
+        function showResults() {
+            Elements.searchResults.classList.add('show');
+            Elements.examples.classList.add('hide');
+        }
+
+        function hideResults() {
+            Elements.searchResults.classList.remove('show');
+            Elements.examples.classList.remove('hide');
+        }
+
+        function showError(message) {
+            // Enhanced error display with debugging info
+            const debugInfo = `\n\nDebug Info:\n- Translation: ${App.selectedTranslationId}\n- Books loaded: ${App.books.length}\n- API Status: ${window.lastAPITest || 'unknown'}`;
+            
+            const fullMessage = message + debugInfo;
+            
+            alert(fullMessage);
+            
+            // Also log to console for better debugging
+            console.error('User Error:', {
+                message,
+                translation: App.selectedTranslationId,
+                booksCount: App.books.length,
+                availableBooks: App.books.slice(0, 10).map(b => `${b.id}: ${b.name}`)
+            });
+        }
+
+        // Event Listeners
+        function setupEventListeners() {
+            // Language dropdown
+            Elements.languageDropdown.addEventListener('click', toggleDropdown);
+
+            // Language search
+            Elements.languageSearch.addEventListener('input', (e) => {
+                filterLanguages(e.target.value);
+            });
+
+            // Prevent dropdown from closing when clicking inside search
+            Elements.languageSearch.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            // Books toggle
+            Elements.booksToggle.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleBooksSection();
+            });
+
+            // Search input
+            Elements.verseInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    searchVerse(Elements.verseInput.value);
+                }
+            });
+
+            // Search button
+            Elements.searchButton.addEventListener('click', () => {
+                searchVerse(Elements.verseInput.value);
+            });
+
+            // Example buttons
+            document.querySelectorAll('.example-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    const verse = button.dataset.verse;
+                    console.log('Example clicked:', verse);
+                    Elements.verseInput.value = verse;
+                    searchVerse(verse);
+                });
+            });
+
+            // Close dropdown when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!Elements.languageDropdown.contains(e.target) && 
+                    !Elements.languageMenu.contains(e.target)) {
+                    closeDropdown();
+                }
+            });
+
+            // Keyboard navigation for search
+            Elements.languageSearch.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeDropdown();
+                    Elements.languageDropdown.focus();
+                }
+            });
+
+            // Prevent form submission
+            Elements.verseInput.closest('form')?.addEventListener('submit', (e) => {
+                e.preventDefault();
+            });
+        }
+
+        // Initialize Application
+        async function init() {
+            console.log('🕊️ Initializing Scripture Translator...');
+            
+            try {
+                // Test API first
+                const apiWorking = await testAPI();
+                if (!apiWorking) {
+                    console.warn('⚠️ API test failed, but continuing initialization...');
+                }
+                
+                await fetchTranslations();
+                setupEventListeners();
+                console.log('✅ Scripture Translator initialized successfully');
+                
+                // Add helpful debug info
+                console.log('Debug info:', {
+                    translationsLoaded: App.translations.length,
+                    selectedTranslation: App.selectedTranslationId,
+                    booksLoaded: App.books.length
+                });
+                
+            } catch (error) {
+                console.error('❌ Failed to initialize:', error);
+                Elements.selectedLanguage.textContent = 'Initialization failed';
+            }
+        }
+
+        // Start the application when DOM is ready
+        document.addEventListener('DOMContentLoaded', init);
+
+        // Expose debug functions to window for manual testing
+        window.ScriptureTranslatorDebug = {
+            testAPI,
+            searchVerse: (query) => searchVerse(query),
+            showBooks: () => console.table(App.books.map(b => ({ id: b.id, name: b.name }))),
+            showTranslations: () => console.table(App.translations.map(t => ({ 
+                id: t.id, 
+                language: t.languageName || t.languageEnglishName,
+                name: t.englishName 
+            }))),
+            filterLanguages: (query) => {
+                filterLanguages(query);
+                console.log(`Filtered to ${App.filteredTranslations.length} languages`);
+            },
+            toggleBooks: () => toggleBooksSection(),
+            testURL: async (url) => {
+                console.log('Testing URL:', url);
+                try {
+                    const response = await fetch(url);
+                    console.log('Response:', {
+                        status: response.status,
+                        contentType: response.headers.get('content-type'),
+                        ok: response.ok
+                    });
+                    const text = await response.text();
+                    console.log('Response body preview:', text.substring(0, 500));
+                    return { response, text };
+                } catch (error) {
+                    console.error('Error:', error);
+                    return { error };
+                }
+            }
+        };
+
+        console.log('🔧 Debug functions available at window.ScriptureTranslatorDebug');
+        console.log('Try: ScriptureTranslatorDebug.testAPI() or ScriptureTranslatorDebug.showBooks()');
+        console.log('Search: ScriptureTranslatorDebug.filterLanguages("english") or ScriptureTranslatorDebug.toggleBooks()');
+    </script>
+</body>
+</html>
