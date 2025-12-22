@@ -285,8 +285,8 @@ async function getUpgDemographics(options = {}) {
         return null;
     }
 
-    // SQL Server query - select all relevant columns (with dbo schema prefix)
-    const sql = `SELECT TOP 1 country, language, upg, religion, population_size, introduction, everyday_lives, demographics, environment, stories_music, linguistics, appearance, cultural_nuances, beliefs, worldviews, blockers_to_christianity, felt_specific_needs, technology_adaptation, literacy, security_country_profile, security_conversion_risk FROM upg_demographics WHERE language = '${languageCode.replace(/'/g, "''")}'`;
+    // PostgreSQL query - select all relevant columns
+    const sql = `SELECT country, language, upg, religion, population_size, introduction, everyday_lives, demographics, environment, stories_music, linguistics, appearance, cultural_nuances, beliefs, worldviews, blockers_to_christianity, felt_specific_needs, technology_adaptation, literacy, security_country_profile, security_conversion_risk FROM upg_demographics WHERE language = '${languageCode.replace(/'/g, "''")}' LIMIT 1`;
 
     console.log('getUpgDemographics - SQL Query:', sql);
     console.log('getUpgDemographics - Language Code:', languageCode);

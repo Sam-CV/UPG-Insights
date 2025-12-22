@@ -586,22 +586,241 @@ async function renderDemographicSampleData() {
         }
     }
 
-    // Helper to create a section block
-    const createSection = (sectionId, title, content) => {
+    // Combined card configurations - each card can hold multiple sections via tags
+    const cardDefinitions = [
+        {
+            id: 'origins',
+            size: 'hero',
+            theme: 'dark',
+            eyebrow: 'Foundation',
+            title: 'Origins & Identity',
+            description: 'Discover the historical journey, cultural development, and unique identity markers that define this people group.',
+            icon: '',
+            tags: ['Introduction', 'History', 'Appearance'],
+            sections: ['introduction', 'appearance']
+        },
+        {
+            id: 'daily_life',
+            size: 'standard',
+            theme: 'light',
+            eyebrow: 'Lifestyle',
+            title: 'Daily Life',
+            description: 'Rhythms, routines, and everyday patterns.',
+            icon: '☀️',
+            tags: ['Everyday Lives'],
+            sections: ['everyday_lives']
+        },
+        {
+            id: 'environment',
+            size: 'standard',
+            theme: 'light',
+            eyebrow: 'Geography',
+            title: 'Environment',
+            description: 'Land, climate, and natural context.',
+            icon: '🌍',
+            tags: ['Environment'],
+            sections: ['environment']
+        },
+        {
+            id: 'demographics',
+            size: 'standard',
+            theme: 'light',
+            eyebrow: 'Population',
+            title: 'Demographics',
+            description: 'Population data and community structure.',
+            icon: '👥',
+            tags: ['Demographics'],
+            sections: ['demographics']
+        },
+        {
+            id: 'culture',
+            size: 'tall',
+            theme: 'blue',
+            eyebrow: 'Expression',
+            title: 'Culture & Arts',
+            description: 'The stories, music, traditions, and cultural nuances that express the heart and soul of this community.',
+            icon: '',
+            tags: ['Stories & Music', 'Cultural Nuances'],
+            sections: ['stories_music', 'cultural_nuances']
+        },
+        {
+            id: 'security',
+            size: 'standard',
+            theme: 'navy',
+            eyebrow: 'Risk Assessment',
+            title: 'Security & Safety',
+            description: 'Regional stability, religious freedom, and safety considerations.',
+            icon: '',
+            tags: ['Country Profile', 'Conversion Risk'],
+            sections: ['security_country_profile', 'security_conversion_risk'],
+            hasWarning: true
+        },
+        {
+            id: 'worldview',
+            size: 'wide',
+            theme: 'light',
+            eyebrow: 'Spiritual Landscape',
+            title: 'Worldview & Beliefs',
+            description: 'Understanding the spiritual frameworks, religious practices, and core beliefs that shape decisions, values, and community life.',
+            icon: '',
+            tags: ['Beliefs', 'Worldviews'],
+            sections: ['beliefs', 'worldviews']
+        },
+        {
+            id: 'language',
+            size: 'standard',
+            theme: 'light',
+            eyebrow: 'Communication',
+            title: 'Language',
+            description: 'Linguistic patterns and literacy levels.',
+            icon: '📖',
+            tags: ['Linguistics', 'Literacy'],
+            sections: ['linguistics', 'literacy']
+        },
+        {
+            id: 'barriers',
+            size: 'standard',
+            theme: 'light',
+            eyebrow: 'Obstacles',
+            title: 'Gospel Barriers',
+            description: 'Historical and cultural factors that create resistance.',
+            icon: '',
+            tags: ['Blockers to Christianity'],
+            sections: ['blockers_to_christianity']
+        },
+        {
+            id: 'needs',
+            size: 'standard',
+            theme: 'light',
+            eyebrow: 'Engagement',
+            title: 'Needs',
+            description: 'Felt needs and ministry opportunities.',
+            icon: '',
+            tags: ['Felt', 'Specific'],
+            sections: ['felt_specific_needs']
+        },
+        {
+            id: 'technology',
+            size: 'standard',
+            theme: 'light',
+            eyebrow: 'Access',
+            title: 'Technology',
+            description: 'Digital adoption and infrastructure.',
+            icon: '📱',
+            tags: [],
+            sections: ['technology_adaptation']
+        }
+    ];
+
+    // Helper to create a bento-style card with tags
+    const createCard = (cardDef, demographicsData) => {
         const block = document.createElement('div');
-        block.id = `demographic-section-${sectionId}`;
-        block.style.border = '1px solid #e5e7eb';
-        block.style.borderRadius = '12px';
-        block.style.padding = '16px';
-        block.style.background = '#fff';
-        block.style.marginBottom = '12px';
+        block.id = `demographic-card-${cardDef.id}`;
+        block.className = `bento-card card-${cardDef.size} card-${cardDef.theme}`;
+
+        // Generate tags HTML
+        const tagsHTML = cardDef.tags.length > 0
+            ? `<div class="card-meta">${cardDef.tags.map(tag => `<span class="meta-tag">${tag}</span>`).join('')}</div>`
+            : '';
+
+        // Warning dot for security card
+        const warningDot = cardDef.hasWarning ? '<span class="status-dot warning"></span>' : '';
 
         block.innerHTML = `
-            <div style="font-weight:700;color:#0f172a;margin-bottom:8px;">${title}</div>
-            <div style="white-space:pre-line;color:#334155;line-height:1.7;">${(content || 'Coming soon...')}</div>
+            ${cardDef.icon ? `<div class="card-icon">${cardDef.icon}</div>` : ''}
+            <div class="card-eyebrow">
+                ${cardDef.eyebrow}
+                <span class="eyebrow-line"></span>
+                ${warningDot}
+            </div>
+            <div class="card-title">${cardDef.title}</div>
+            <div class="card-description">${cardDef.description}</div>
+            ${tagsHTML}
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
         `;
+
+        // Collect content from all sections for this card
+        const sectionsContent = cardDef.sections.map(sectionId => {
+            const section = DEMOGRAPHIC_SECTIONS.find(s => s.id === sectionId);
+            const content = demographicsData ? demographicsData[section?.field] : null;
+            return {
+                title: section?.title || sectionId,
+                content: content || 'Coming soon...'
+            };
+        });
+
+        // Store sections data on the element for modal
+        block.setAttribute('data-card-title', cardDef.title);
+        block.setAttribute('data-sections', JSON.stringify(sectionsContent));
+
+        // Add click handler to open modal
+        block.addEventListener('click', () => {
+            openDemographicModal(cardDef.title, sectionsContent);
+        });
+
         return block;
     };
+
+    // Modal function for demographic cards
+    function openDemographicModal(title, sections) {
+        // Create or get modal
+        let modal = document.getElementById('demographic-modal');
+        if (!modal) {
+            modal = document.createElement('div');
+            modal.id = 'demographic-modal';
+            modal.className = 'demographic-modal';
+            modal.innerHTML = `
+                <div class="demographic-modal-overlay"></div>
+                <div class="demographic-modal-content">
+                    <div class="demographic-modal-header">
+                        <h2 class="demographic-modal-title"></h2>
+                        <button class="demographic-modal-close">
+                            <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="24" height="24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="demographic-modal-body"></div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            // Close handlers
+            modal.querySelector('.demographic-modal-overlay').addEventListener('click', closeDemographicModal);
+            modal.querySelector('.demographic-modal-close').addEventListener('click', closeDemographicModal);
+        }
+
+        // Populate modal
+        modal.querySelector('.demographic-modal-title').textContent = title;
+        const body = modal.querySelector('.demographic-modal-body');
+        body.innerHTML = sections.map(section => `
+            <div class="demographic-modal-section">
+                <h3 class="demographic-modal-section-title">${section.title}</h3>
+                <div class="demographic-modal-section-content">${section.content}</div>
+            </div>
+        `).join('');
+
+        // Show modal
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeDemographicModal() {
+        const modal = document.getElementById('demographic-modal');
+        if (modal) {
+            modal.classList.remove('open');
+            document.body.style.overflow = '';
+        }
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeDemographicModal();
+    });
 
     // Try to fetch data from database if we have a language code
     let demographicsData = null;
@@ -613,40 +832,44 @@ async function renderDemographicSampleData() {
         }
     }
 
-    // Clear container
+    // Clear container and set up bento grid
     container.innerHTML = '';
+    container.className = 'bento-grid';
 
     // If we have database data, use it; otherwise fall back to sample data
     if (demographicsData) {
         console.log('Using demographics data from database:', demographicsData);
-        // Render all sections from DEMOGRAPHIC_SECTIONS array
-        DEMOGRAPHIC_SECTIONS.forEach(section => {
-            const content = demographicsData[section.field];
-            container.appendChild(createSection(section.id, section.title, content));
+        // Render all combined cards
+        cardDefinitions.forEach(cardDef => {
+            container.appendChild(createCard(cardDef, demographicsData));
         });
     } else {
         console.log('No database data found, using sample data for:', languageName);
         // Fallback to sample data if available
         if (typeof getSampleDemographicData === 'function') {
             const sample = getSampleDemographicData(languageName);
-            // Only render the first 6 sections for sample data
-            const sampleSections = DEMOGRAPHIC_SECTIONS.slice(0, 6);
-            sampleSections.forEach(section => {
-                // Map to sample data field names
-                const sampleFieldMap = {
-                    'introduction': 'introduction_history',
-                    'everyday_lives': 'everyday_lives',
-                    'demographics': 'demographics',
-                    'environment': 'environment',
-                    'stories_music': 'stories_music',
-                    'linguistics': 'linguistics'
-                };
-                const content = sample[sampleFieldMap[section.field]] || sample[section.field];
-                container.appendChild(createSection(section.id, section.title, content));
+            // Map sample data to match expected field names
+            const sampleFieldMap = {
+                'introduction': 'introduction_history',
+                'everyday_lives': 'everyday_lives',
+                'demographics': 'demographics',
+                'environment': 'environment',
+                'stories_music': 'stories_music',
+                'linguistics': 'linguistics'
+            };
+            // Create a mapped demographics object
+            const mappedData = {};
+            Object.keys(sampleFieldMap).forEach(key => {
+                mappedData[key] = sample[sampleFieldMap[key]] || sample[key];
+            });
+            // Render cards with sample data
+            cardDefinitions.forEach(cardDef => {
+                container.appendChild(createCard(cardDef, mappedData));
             });
         } else {
             // No sample data function available
             container.innerHTML = '<div class="loading-message">No demographics data available for this selection.</div>';
+            container.className = '';
         }
     }
 
