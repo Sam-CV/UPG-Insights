@@ -726,23 +726,6 @@ async function renderDemographicSampleData() {
         // Warning dot for security card
         const warningDot = cardDef.hasWarning ? '<span class="status-dot warning"></span>' : '';
 
-        block.innerHTML = `
-            ${cardDef.icon ? `<div class="card-icon">${cardDef.icon}</div>` : ''}
-            <div class="card-eyebrow">
-                ${cardDef.eyebrow}
-                <span class="eyebrow-line"></span>
-                ${warningDot}
-            </div>
-            <div class="card-title">${cardDef.title}</div>
-            <div class="card-description">${cardDef.description}</div>
-            ${tagsHTML}
-            <div class="card-expand">
-                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
-                </svg>
-            </div>
-        `;
-
         // Collect content from all sections for this card
         const sectionsContent = cardDef.sections.map(sectionId => {
             const section = DEMOGRAPHIC_SECTIONS.find(s => s.id === sectionId);
@@ -752,6 +735,30 @@ async function renderDemographicSampleData() {
                 content: content || 'Coming soon...'
             };
         });
+
+        // Get preview text from the first section's content
+        const firstContent = sectionsContent[0]?.content || 'Coming soon...';
+        const previewText = typeof firstContent === 'string' ? firstContent : 'Coming soon...';
+
+        block.innerHTML = `
+            ${cardDef.icon ? `<div class="card-icon">${cardDef.icon}</div>` : ''}
+            <div class="card-eyebrow">
+                ${cardDef.eyebrow}
+                <span class="eyebrow-line"></span>
+                ${warningDot}
+            </div>
+            <div class="card-title">${cardDef.title}</div>
+            <div class="card-preview">
+                <div class="card-preview-text">${previewText}</div>
+                <div class="card-preview-fade"></div>
+            </div>
+            ${tagsHTML}
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        `;
 
         // Store sections data on the element for modal
         block.setAttribute('data-card-title', cardDef.title);
@@ -797,12 +804,21 @@ async function renderDemographicSampleData() {
         // Populate modal
         modal.querySelector('.demographic-modal-title').textContent = title;
         const body = modal.querySelector('.demographic-modal-body');
-        body.innerHTML = sections.map(section => `
-            <div class="demographic-modal-section">
-                <h3 class="demographic-modal-section-title">${section.title}</h3>
-                <div class="demographic-modal-section-content">${section.content}</div>
-            </div>
-        `).join('');
+        body.innerHTML = sections.map(section => {
+            // Split content into paragraphs and wrap each in <p> tags
+            const paragraphs = section.content
+                .split('\n')
+                .filter(p => p.trim())
+                .map(p => `<p>${p.trim()}</p>`)
+                .join('');
+
+            return `
+                <div class="demographic-modal-section">
+                    <h3 class="demographic-modal-section-title">${section.title}</h3>
+                    <div class="demographic-modal-section-content">${paragraphs}</div>
+                </div>
+            `;
+        }).join('');
 
         // Show modal
         modal.classList.add('open');

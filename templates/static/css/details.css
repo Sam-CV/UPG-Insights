@@ -1072,11 +1072,42 @@ body::before {
     color: #18181B;
 }
 
-.card-description {
+.card-preview {
+    position: relative;
+    flex-grow: 1;
+    overflow: hidden;
+    max-height: 120px;
+}
+
+.card-preview-text {
     font-size: 13px;
     color: #71717A;
     line-height: 1.6;
-    flex-grow: 1;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    line-clamp: 5;
+    -webkit-box-orient: vertical;
+    text-overflow: ellipsis;
+}
+
+.card-preview-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    pointer-events: none;
+}
+
+.card-preview-text::after {
+    /* content: '...'; */
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    padding-left: 4px;
+    background: #FFFFFF;
 }
 
 .card-full-content {
@@ -1149,8 +1180,16 @@ body::before {
     font-size: 32px;
 }
 
-.card-dark .card-description {
+.card-dark .card-preview-text {
     color: rgba(255,255,255,0.6);
+}
+
+.card-dark .card-preview-fade {
+    background: linear-gradient(to bottom, rgba(24, 24, 27, 0) 0%, rgba(24, 24, 27, 1) 100%);
+}
+
+.card-dark .card-preview-text::after {
+    background: #18181B;
 }
 
 .card-dark .card-icon {
@@ -1194,8 +1233,16 @@ body::before {
     color: #FAFAFA;
 }
 
-.card-blue .card-description {
+.card-blue .card-preview-text {
     color: rgba(255,255,255,0.8);
+}
+
+.card-blue .card-preview-fade {
+    background: linear-gradient(to bottom, rgba(59, 130, 246, 0) 0%, rgba(59, 130, 246, 1) 100%);
+}
+
+.card-blue .card-preview-text::after {
+    background: #3B82F6;
 }
 
 .card-blue .card-icon {
@@ -1228,8 +1275,16 @@ body::before {
     color: #FAFAFA;
 }
 
-.card-navy .card-description {
+.card-navy .card-preview-text {
     color: rgba(255,255,255,0.6);
+}
+
+.card-navy .card-preview-fade {
+    background: linear-gradient(to bottom, rgba(30, 41, 59, 0) 0%, rgba(30, 41, 59, 1) 100%);
+}
+
+.card-navy .card-preview-text::after {
+    background: #1E293B;
 }
 
 .card-navy .card-icon {
@@ -1467,7 +1522,15 @@ body::before {
     font-size: 15px;
     line-height: 1.8;
     color: #3F3F46;
+}
+
+.demographic-modal-section-content p {
+    margin-bottom: 1.5em;
     white-space: pre-line;
+}
+
+.demographic-modal-section-content p:last-child {
+    margin-bottom: 0;
 }
 
 @media (max-width: 768px) {
