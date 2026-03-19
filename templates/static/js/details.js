@@ -3,8 +3,98 @@ let am5Root; // store globally so we can dispose it
 // Load navbar using shared utility
 loadNavbar();
 
+// Function to load UPG data from database with fallback to sessionStorage
+async function loadUpgDataWithFallback(sessionUpgData) {
+    // Get language code mapping
+    const languageNameToCode = {
+        'japanese': 'jpn',
+        'burmese': 'mya',
+        'thai': 'tha',
+        'khmer': 'khm',
+        'shan': 'shn',
+        'lao': 'lao',
+        'vietnamese': 'vie',
+        'rakhine': 'rki',
+        'sinhalese': 'sin',
+        'bengali': 'ben',
+        'bangla': 'ben',
+        'gujarati': 'guj',
+        'hindi': 'hin',
+        'marathi': 'mar',
+        'nepali': 'nep',
+        'oriya (macrolanguage)': 'ori',
+        'khaliji (gulf) arabic': 'afb',
+        'bambara': 'bam',
+        'banjar': 'bjn',
+        'dari': 'prs',
+        'algerian darija/amazigh': 'arq',
+        'hausa': 'hau',
+        'indonesian': 'ind',
+        'musi': 'mui',
+        'pashto af': 'pus',
+        'pashto pak': 'pbt',
+        'saraiki': 'skr',
+        'sindhi': 'snd',
+        'somali': 'som',
+        'sundanese': 'sun',
+        'turkish': 'tur',
+        'urdu': 'urd',
+        'uzbek': 'uzb',
+        'kazakh': 'kaz',
+        'wolof': 'wol',
+        'french': 'fra',
+        'russian': 'rus'
+    };
+
+    // Default to sessionStorage values
+    let finalData = {
+        country: sessionUpgData.country,
+        religion: sessionUpgData.religion,
+        lat: sessionUpgData.lat,
+        lon: sessionUpgData.lon,
+        name: sessionUpgData.name
+    };
+
+    // Try to get language code
+    const upgName = sessionUpgData.name ? sessionUpgData.name.toLowerCase() : '';
+    let languageCode = languageNameToCode[upgName];
+
+    // Fetch from database first
+    if (languageCode) {
+        languageCode = languageCode.toUpperCase();
+        try {
+            const demographicsData = await getUpgDemographics({ languageCode });
+            console.log('Database response for', languageCode, ':', demographicsData);
+            if (demographicsData) {
+                // Use database values if available, otherwise keep sessionStorage values
+                finalData.country = demographicsData.country || finalData.country;
+                finalData.religion = demographicsData.religion || finalData.religion;
+
+                console.log('Loaded from database:', {
+                    country: demographicsData.country,
+                    religion: demographicsData.religion
+                });
+                console.log('Final data being used:', finalData);
+            } else {
+                console.log('No database data found, using sessionStorage:', finalData);
+            }
+        } catch (error) {
+            console.error('Error fetching demographics data:', error);
+        }
+    } else {
+        console.log('No language code found for:', upgName, '- using sessionStorage:', finalData);
+    }
+
+    // Load images and map with the final values
+    loadUpgImages(finalData.name, finalData.country);
+    initializeMap(finalData.lat, finalData.lon);
+    initializeCountryOutline(finalData.country);
+    loadSectionImages('demographic', finalData.name, finalData.country);
+    loadSectionImages('testimonies', finalData.name, finalData.country);
+}
+
 // Tab switching functionality
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const tabButtons = document.querySelectorAll('.tab-button');
     const tabContents = document.querySelectorAll('.tab-content');
     const tabContainer = document.querySelector('.tabs-container');
@@ -50,11 +140,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'overview':
                     // Refresh overview visuals
                     const selectedUpg = JSON.parse(sessionStorage.getItem('selectedUpg') || '{}');
-                    if (selectedUpg.name && selectedUpg.country) {
+                    if (selectedUpg.name) {
+                        await loadUpgDataWithFallback(selectedUpg);
                         updateQuickNumbers();
-                        loadUpgImages(selectedUpg.name, selectedUpg.country);
-                        initializeCountryOutline(selectedUpg.country);
-                        initializeMap(selectedUpg.lat, selectedUpg.lon);
                         focusMapOnLocation(true);
                         loadTopPerformingMetrics();
                     }
@@ -91,14 +179,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (mainTitle) mainTitle.textContent = upgData.name || 'Tharu';
         if (typeTag) typeTag.textContent = upgData.type === 'language' ? 'Language' : 'Unreached People Group';
 
+        // Try to fetch data from database first, then fall back to sessionStorage
+        await loadUpgDataWithFallback(upgData);
+
         updateQuickNumbers();
-
-        loadUpgImages(upgData.name, upgData.country);
-        initializeMap(upgData.lat, upgData.lon);
-        initializeCountryOutline(upgData.country);
-
-        loadSectionImages('demographic', upgData.name, upgData.country);
-        loadSectionImages('testimonies', upgData.name, upgData.country);
 
         renderDemographicSampleData();
         loadTopPerformingMetrics();
@@ -172,14 +256,30 @@ async function updateQuickNumbers() {
                 languageCode = languageCode.toUpperCase();
                 try {
                     const demographicsData = await getUpgDemographics({ languageCode });
-                    if (demographicsData && demographicsData.population_size) {
-                        // Format population with commas
-                        const formattedPopulation = Number(demographicsData.population_size).toLocaleString();
-                        overviewPopulationEl.textContent = formattedPopulation;
+                    if (demographicsData) {
+                        // Update religion and country from database
+                        if (demographicsData.religion) {
+                            if (headerReligionEl) headerReligionEl.textContent = demographicsData.religion;
+                            if (overviewReligionEl) overviewReligionEl.textContent = demographicsData.religion;
+                        }
+                        if (demographicsData.country) {
+                            if (headerCountryEl) headerCountryEl.textContent = demographicsData.country;
+                            if (overviewCountryEl) overviewCountryEl.textContent = demographicsData.country;
+                        }
 
-                        // Also update header population with same value
-                        if (headerPopulationEl) {
-                            headerPopulationEl.textContent = formattedPopulation;
+                        // Update population
+                        if (demographicsData.population_size) {
+                            // Format population with commas
+                            const formattedPopulation = Number(demographicsData.population_size).toLocaleString();
+                            overviewPopulationEl.textContent = formattedPopulation;
+
+                            // Also update header population with same value
+                            if (headerPopulationEl) {
+                                headerPopulationEl.textContent = formattedPopulation;
+                            }
+                        } else {
+                            overviewPopulationEl.textContent = 'N/A';
+                            if (headerPopulationEl) headerPopulationEl.textContent = 'N/A';
                         }
                     } else {
                         overviewPopulationEl.textContent = 'N/A';
@@ -608,7 +708,7 @@ async function renderDemographicSampleData() {
             description: 'Rhythms, routines, and everyday patterns.',
             icon: '☀️',
             tags: ['Everyday Lives'],
-            sections: ['everyday_lives']
+            sections: ['everyday_lives', 'appearance', 'demographics']
         },
         {
             id: 'environment',
@@ -619,7 +719,7 @@ async function renderDemographicSampleData() {
             description: 'Land, climate, and natural context.',
             icon: '🌍',
             tags: ['Environment'],
-            sections: ['environment']
+            sections: ['environment', 'demographics']
         },
         {
             id: 'demographics',
@@ -630,7 +730,7 @@ async function renderDemographicSampleData() {
             description: 'Population data and community structure.',
             icon: '👥',
             tags: ['Demographics'],
-            sections: ['demographics']
+            sections: ['demographics', 'introduction']
         },
         {
             id: 'culture',
@@ -686,7 +786,7 @@ async function renderDemographicSampleData() {
             description: 'Historical and cultural factors that create resistance.',
             icon: '',
             tags: ['Blockers to Christianity'],
-            sections: ['blockers_to_christianity']
+            sections: ['blockers_to_christianity', 'beliefs', 'worldviews']
         },
         {
             id: 'needs',
@@ -697,7 +797,7 @@ async function renderDemographicSampleData() {
             description: 'Felt needs and ministry opportunities.',
             icon: '',
             tags: ['Felt', 'Specific'],
-            sections: ['felt_specific_needs']
+            sections: ['felt_specific_needs', 'everyday_lives']
         },
         {
             id: 'technology',
@@ -708,7 +808,7 @@ async function renderDemographicSampleData() {
             description: 'Digital adoption and infrastructure.',
             icon: '📱',
             tags: [],
-            sections: ['technology_adaptation']
+            sections: ['technology_adaptation', 'literacy']
         }
     ];
 
@@ -736,9 +836,19 @@ async function renderDemographicSampleData() {
             };
         });
 
-        // Get preview text from the first section's content
-        const firstContent = sectionsContent[0]?.content || 'Coming soon...';
-        const previewText = typeof firstContent === 'string' ? firstContent : 'Coming soon...';
+        // Get preview text by combining all sections with paragraph breaks
+        // Database text contains single \n where paragraphs end - replace with \n\n for visual spacing
+        let previewText = sectionsContent
+            .map(section => {
+                let content = section.content;
+                if (content && content !== 'Coming soon...') {
+                    // Replace single newlines with double newlines for paragraph spacing
+                    content = content.replace(/\n/g, '\n\n');
+                }
+                return content;
+            })
+            .filter(content => content && content !== 'Coming soon...')
+            .join('\n\n') || 'Coming soon...';
 
         block.innerHTML = `
             ${cardDef.icon ? `<div class="card-icon">${cardDef.icon}</div>` : ''}
@@ -1319,6 +1429,13 @@ function initializeCountryOutline(countryName) {
     const container = document.getElementById('country-outline');
     if (!container) return;
 
+    // Check if countryName is null or undefined
+    if (!countryName) {
+        console.warn('Country name is null or undefined');
+        container.innerHTML = '<div style="color: #999; font-size: 0.8rem; text-align: center;">Country map not available</div>';
+        return;
+    }
+
     // Get country code
     const countryCode = countryCodeMap[countryName.toLowerCase()];
 
@@ -1328,8 +1445,8 @@ function initializeCountryOutline(countryName) {
         return;
     }
 
-    // Build SVG path
-    const svgPath = `/mapsicon/all/${countryCode}/vector.svg`;
+    // Build SVG path - relative to details.html location
+    const svgPath = `../mapsicon/all/${countryCode}/vector.svg`;
 
     // Create img element for SVG
     const img = document.createElement('img');
@@ -1602,15 +1719,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load Top Performing Metrics for Overview tab
 async function loadTopPerformingMetrics() {
-    const engagementRateEl = document.getElementById('top-engagement-rate');
-    const ageGroupEl = document.getElementById('top-age-group');
     const topThemeEl = document.getElementById('top-theme');
+    const retentionRateEl = document.getElementById('top-retention-rate');
+    const upgInterestEl = document.getElementById('top-upg-interest');
     const itjCountEl = document.getElementById('itj-count-95');
 
     // Set loading state
-    if (engagementRateEl) engagementRateEl.textContent = 'Loading...';
-    if (ageGroupEl) ageGroupEl.textContent = 'Loading...';
     if (topThemeEl) topThemeEl.textContent = 'Loading...';
+    if (retentionRateEl) retentionRateEl.textContent = 'Loading...';
+    if (upgInterestEl) upgInterestEl.textContent = 'Loading...';
     if (itjCountEl) itjCountEl.textContent = 'Loading...';
 
     try {
@@ -1654,44 +1771,120 @@ async function loadTopPerformingMetrics() {
 
         // Only fetch metrics if we have a valid language code
         if (!languageCode) {
-            if (engagementRateEl) engagementRateEl.textContent = 'N/A';
-            if (ageGroupEl) ageGroupEl.textContent = 'N/A';
             if (topThemeEl) topThemeEl.textContent = 'N/A';
+            if (retentionRateEl) retentionRateEl.textContent = 'N/A';
+            if (upgInterestEl) upgInterestEl.textContent = 'N/A';
             if (itjCountEl) itjCountEl.textContent = 'N/A';
             return;
         }
 
-        // Fetch metrics data
+        // Fetch metrics data from upg_digital_learning table
         const metricsData = await getDigitalLearningMetrics({ languageCode: languageCode });
 
         if (!metricsData || metricsData.length === 0) {
-            if (engagementRateEl) engagementRateEl.textContent = 'N/A';
-            if (ageGroupEl) ageGroupEl.textContent = 'N/A';
             if (topThemeEl) topThemeEl.textContent = 'N/A';
+            if (retentionRateEl) retentionRateEl.textContent = 'N/A';
+            if (upgInterestEl) upgInterestEl.textContent = 'N/A';
             if (itjCountEl) itjCountEl.textContent = 'N/A';
             return;
         }
 
-        // Calculate metrics
-        const calculated = calculateMetrics(metricsData);
+        // Convert array to object keyed by metric_title for easy lookup
+        // Sum up all numeric values for each metric_title across all country codes
+        const metricsMap = {};
+        metricsData.forEach(row => {
+            if (row.metric_title && row.metric_value !== null && row.metric_value !== undefined) {
+                const currentValue = row.metric_value;
 
-        // Calculate ITJ Count (sum of all 95% watch completions)
-        const itjCount = metricsData.reduce((sum, row) => {
-            const p95Views = row.video_p95_watched_actions;
-            return sum + (p95Views ? Number(p95Views) : 0);
-        }, 0);
+                if (!metricsMap[row.metric_title]) {
+                    // First occurrence - initialize with this value
+                    metricsMap[row.metric_title] = currentValue;
+                } else {
+                    // Subsequent occurrence - try to sum if both are numeric
+                    const currentNum = parseFloat(String(currentValue).replace(/,/g, ''));
+                    const existingValue = metricsMap[row.metric_title];
+                    const existingNum = parseFloat(String(existingValue).replace(/,/g, ''));
 
-        // Update UI
-        if (engagementRateEl) engagementRateEl.textContent = `${calculated.engagementRate}%`;
-        if (ageGroupEl) ageGroupEl.textContent = calculated.ageGroup || 'N/A';
-        if (topThemeEl) topThemeEl.textContent = calculated.topTheme || 'N/A';
-        if (itjCountEl) itjCountEl.textContent = itjCount.toLocaleString();
+                    if (!isNaN(currentNum) && !isNaN(existingNum)) {
+                        // Both are numbers - sum them
+                        metricsMap[row.metric_title] = (existingNum + currentNum).toString();
+                    }
+                    // If either is not a number, keep the existing value (first occurrence)
+                }
+            }
+        });
+
+        // Debug: log available metric titles
+        console.log('Available metric titles:', Object.keys(metricsMap));
+
+        // Helper function to find metric by partial case-insensitive match
+        function findMetric(searchTerms) {
+            for (const term of searchTerms) {
+                // Try exact match first
+                if (metricsMap[term] !== undefined) {
+                    return metricsMap[term];
+                }
+            }
+            // Try case-insensitive partial match
+            for (const term of searchTerms) {
+                const lowerTerm = term.toLowerCase();
+                for (const [key, value] of Object.entries(metricsMap)) {
+                    if (key.toLowerCase().includes(lowerTerm) || lowerTerm.includes(key.toLowerCase())) {
+                        return value;
+                    }
+                }
+            }
+            return undefined;
+        }
+
+        // Update UI with values from the database
+        if (topThemeEl) {
+            const topTheme = findMetric(['Peak Engagement Theme', 'peak engagement', 'engagement theme']);
+            topThemeEl.textContent = topTheme !== undefined ? topTheme : 'N/A';
+        }
+
+        if (retentionRateEl) {
+            const retentionRate = findMetric(['Avg. Retention Rate', 'AVG. RETENTION RATE', 'retention rate', 'avg retention']);
+            if (retentionRate !== undefined) {
+                const numValue = parseFloat(retentionRate);
+                retentionRateEl.textContent = !isNaN(numValue) ? `${numValue.toFixed(2)}%` : retentionRate;
+            } else {
+                retentionRateEl.textContent = 'N/A';
+            }
+        }
+
+        if (upgInterestEl) {
+            const upgInterest = findMetric(['UPG Interest', 'UPG INTEREST', 'upg interest']);
+            if (upgInterest !== undefined) {
+                const numValue = parseFloat(upgInterest);
+                upgInterestEl.textContent = !isNaN(numValue) ? numValue.toLocaleString() : upgInterest;
+            } else {
+                upgInterestEl.textContent = 'N/A';
+            }
+        }
+
+        if (itjCountEl) {
+            const itjCount = findMetric([
+                'Video Completion (95%) Count',
+                'VIDEO COMPLETION (95%) COUNT',
+                'video completion',
+                '95%',
+                'completion count'
+            ]);
+            if (itjCount !== undefined) {
+                const numValue = parseFloat(itjCount);
+                itjCountEl.textContent = !isNaN(numValue) ? numValue.toLocaleString() : itjCount;
+            } else {
+                console.log('ITJ Count not found in:', Object.keys(metricsMap));
+                itjCountEl.textContent = 'N/A';
+            }
+        }
 
     } catch (error) {
         console.error('Error loading top performing metrics:', error);
-        if (engagementRateEl) engagementRateEl.textContent = 'Error';
-        if (ageGroupEl) ageGroupEl.textContent = 'Error';
         if (topThemeEl) topThemeEl.textContent = 'Error';
+        if (retentionRateEl) retentionRateEl.textContent = 'Error';
+        if (upgInterestEl) upgInterestEl.textContent = 'Error';
         if (itjCountEl) itjCountEl.textContent = 'Error';
     }
 }
@@ -1774,12 +1967,12 @@ async function loadDigitalMetrics() {
             if (error.message && error.message.includes('does not exist')) {
                 metricsTable.innerHTML = `
                     <div class="loading-message" style="padding: 40px; text-align: center;">
-                        <h3 style="margin-bottom: 16px; color: #666;">Database View Not Available</h3>
+                        <h3 style="margin-bottom: 16px; color: #666;">Database Table Not Available</h3>
                         <p style="color: #888; line-height: 1.6; max-width: 600px; margin: 0 auto;">
-                            The view <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">vw_upg_digital_learning_ad_metrics4</code>
+                            The table <code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px;">upg_digital_learnings</code>
                             does not exist in the PostgreSQL database that the Lambda connects to.
                             <br><br>
-                            Please create this view in PostgreSQL or update the query to use an existing table/view.
+                            Please create this table in PostgreSQL or update the query to use an existing table.
                         </p>
                     </div>
                 `;
@@ -1794,60 +1987,260 @@ async function loadDigitalMetrics() {
             return;
         }
 
-        // Calculate aggregated metrics
-        const calculated = calculateMetrics(metricsData);
+        // Sum up duplicates and handle special cases like gender separation
+        const processedMetrics = [];
+        const metricsSumMap = {}; // Map to track summed values by metric_title
 
-        // Generate HTML for the metrics display
-        const metricsHTML = `
-            <div class="metrics-grid-table">
+        metricsData.forEach(row => {
+            if (!row.metric_title) {
+                return; // Skip empty titles
+            }
+
+            // Check if this is a gender-combined metric that should be split
+            // Pattern: "female: value1, male: value2" or similar
+            const valueStr = String(row.metric_value || '');
+            const genderPattern = /(female|male|unknown):\s*([^,]+)/gi;
+            const genderMatches = [...valueStr.matchAll(genderPattern)];
+
+            if (genderMatches.length > 1 && row.metric_title.toLowerCase().includes('gender')) {
+                // Split into separate metrics with clearer labels
+                genderMatches.forEach(match => {
+                    const gender = match[1].charAt(0).toUpperCase() + match[1].slice(1).toLowerCase();
+                    const value = match[2].trim();
+
+                    // Create a clearer title by replacing "Gender" with the actual gender
+                    let newTitle = row.metric_title.replace(/\(gender\)/gi, `- ${gender}`);
+                    if (!newTitle.includes(gender)) {
+                        // If the replacement didn't work, append it
+                        newTitle = `${row.metric_title} - ${gender}`;
+                    }
+
+                    // Sum up if we've seen this title before
+                    if (!metricsSumMap[newTitle]) {
+                        metricsSumMap[newTitle] = {
+                            ...row,
+                            metric_title: newTitle,
+                            metric_value: value
+                        };
+                    } else {
+                        // Try to sum numeric values
+                        const currentNum = parseFloat(String(value).replace(/,/g, ''));
+                        const existingNum = parseFloat(String(metricsSumMap[newTitle].metric_value).replace(/,/g, ''));
+
+                        if (!isNaN(currentNum) && !isNaN(existingNum)) {
+                            metricsSumMap[newTitle].metric_value = (existingNum + currentNum).toString();
+                        }
+                    }
+                });
+            } else {
+                // Sum up if we've seen this title before
+                if (!metricsSumMap[row.metric_title]) {
+                    metricsSumMap[row.metric_title] = { ...row };
+                } else {
+                    // Try to sum numeric values
+                    const currentNum = parseFloat(String(row.metric_value).replace(/,/g, ''));
+                    const existingNum = parseFloat(String(metricsSumMap[row.metric_title].metric_value).replace(/,/g, ''));
+
+                    if (!isNaN(currentNum) && !isNaN(existingNum)) {
+                        metricsSumMap[row.metric_title].metric_value = (existingNum + currentNum).toString();
+                    }
+                }
+            }
+        });
+
+        // Convert map back to array
+        Object.values(metricsSumMap).forEach(metric => {
+            processedMetrics.push(metric);
+        });
+
+        console.log('Original metrics count:', metricsData.length);
+        console.log('Processed metrics count:', processedMetrics.length);
+
+        // Tooltip descriptions for each metric
+        const metricDescriptions = {
+            'UPG Interest': 'How interested the People Group was',
+            'Message Impact': 'Effectiveness of messaging and creatives',
+            'Message Impact (CTR)': 'Effectiveness of messaging and creatives',
+            'Goal Completion %': '% of people taking desired action',
+            'UPG Efficiency': 'Campaign efficiency in acquiring leads from a People Group',
+            'UPG Efficiency (CPA)': 'Campaign efficiency in acquiring leads from a People Group',
+            'Sentiment Tone (Paid)': 'Qualitative tone of feedback (positive/negative/neutral)',
+            'Sentiment Tone (Organic)': 'Qualitative tone of feedback (positive/negative/neutral)',
+            'Language': 'Language code extracted',
+            'Performance: Gender': 'Split performance by gender',
+            'Performance: Gender - Female': 'Split performance by gender',
+            'Performance: Gender - Male': 'Split performance by gender',
+            'Performance: Gender - Unknown': 'Split performance by gender',
+            'Age Segments': 'Performance by age segments',
+            'Age Segments (Top by messages)': 'Performance by age segments',
+            'Peak Engagement Theme': 'Themes with highest CTR or engagement',
+            'Message Cost (Theme)': 'Spend per message grouped by theme',
+            'Theme Engagement (Gender)': 'Engagement rate per theme by gender',
+            'Theme Engagement - Female': 'Engagement rate per theme by gender',
+            'Theme Engagement - Male': 'Engagement rate per theme by gender',
+            'Theme Engagement - Unknown': 'Engagement rate per theme by gender',
+            'Video Completion (95%)': 'Number of viewers who watched 95% or more',
+            'Video Completion (95%) count': 'Number of viewers who watched 95% or more',
+            'Top Performing Ad': 'Ads (by ad_id/creative_id) with best CTR or lowest cost per result',
+            'Top Performing Ad URL': 'Ads (by ad_id/creative_id) with best CTR or lowest cost per result',
+            'Avg. Retention Rate': 'Average percentage of video watched by viewers'
+        };
+
+        // Sort metrics to ensure Language always comes first
+        processedMetrics.sort((a, b) => {
+            const aIsLanguage = a.metric_title && a.metric_title.toLowerCase().includes('language');
+            const bIsLanguage = b.metric_title && b.metric_title.toLowerCase().includes('language');
+
+            if (aIsLanguage && !bIsLanguage) return -1;
+            if (!aIsLanguage && bIsLanguage) return 1;
+            return 0; // Keep original order for other items
+        });
+
+        // Generate metric cards dynamically from the database
+        // Each row has: metric_title, metric_value, language_code, country_code
+        const cardsHTML = processedMetrics.map(row => {
+            let displayValue = row.metric_value;
+
+            // Remove (CPA: ...) pattern from display values
+            if (typeof displayValue === 'string') {
+                displayValue = displayValue.replace(/\s*\(CPA:\s*[\d.]+\)\s*/gi, '').trim();
+            }
+
+            // Truncate very long text values
+            if (typeof displayValue === 'string' && displayValue.length > 100) {
+                displayValue = displayValue.substring(0, 97) + '...';
+            }
+
+            // Apply formatting formulas for numeric values
+            const numValue = parseFloat(row.metric_value);
+            if (!isNaN(numValue)) {
+                // Check if the metric title suggests a percentage
+                if (row.metric_title && (
+                    row.metric_title.toLowerCase().includes('rate') ||
+                    row.metric_title.toLowerCase().includes('percentage') ||
+                    row.metric_title.toLowerCase().includes('ctr')
+                )) {
+                    displayValue = `${numValue.toFixed(2)}%`;
+                }
+                // Check if the metric title suggests currency
+                else if (row.metric_title && (
+                    row.metric_title.toLowerCase().includes('cost') ||
+                    row.metric_title.toLowerCase().includes('cpa') ||
+                    row.metric_title.toLowerCase().includes('price') ||
+                    row.metric_title.toLowerCase().includes('spend')
+                )) {
+                    displayValue = `$${numValue.toFixed(2)} AUD`;
+                }
+                // For counts and other numbers, use locale formatting
+                else if (row.metric_title && (
+                    row.metric_title.toLowerCase().includes('count') ||
+                    row.metric_title.toLowerCase().includes('views') ||
+                    row.metric_title.toLowerCase().includes('itj')
+                )) {
+                    displayValue = numValue.toLocaleString();
+                }
+                // Default numeric formatting
+                else {
+                    displayValue = numValue.toLocaleString();
+                }
+            }
+
+            // Use smaller text for all metric cards, extra small for Top Performing Ad
+            let valueClass = 'metric-card-value small';
+            const isTopPerformingAd = row.metric_title && row.metric_title.toLowerCase().includes('top performing ad');
+
+            if (isTopPerformingAd) {
+                valueClass = 'metric-card-value extra-small';
+            }
+
+            // Get tooltip description for this metric
+            const tooltipText = metricDescriptions[row.metric_title] || '';
+            const tooltipHTML = tooltipText ? `
+                <span class="metric-tooltip-icon" data-tooltip="${tooltipText}">
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="7" cy="7" r="6.5" stroke="currentColor" stroke-width="1"/>
+                        <text x="7" y="10.5" text-anchor="middle" font-size="10" font-weight="600" fill="currentColor">?</text>
+                    </svg>
+                </span>
+            ` : '';
+
+            // Check if this is a URL field and make it clickable
+            const isUrlField = row.metric_title && row.metric_title.toLowerCase().includes('url');
+            let valueHTML = displayValue;
+
+            if (isUrlField && typeof row.metric_value === 'string' && (row.metric_value.startsWith('http://') || row.metric_value.startsWith('https://'))) {
+                valueHTML = `<a href="${row.metric_value}" target="_blank" class="metric-url-link">View Ad</a>`;
+            }
+
+            return `
                 <div class="metric-card">
-                    <div class="metric-card-label">Engagement Rate per People Group</div>
-                    <div class="metric-card-value">${calculated.engagementRate}%</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-card-label">CTR per People Group</div>
-                    <div class="metric-card-value">${calculated.ctr}%</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-card-label">Conversion Rate (Messages)</div>
-                    <div class="metric-card-value">${calculated.conversionRate}%</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-card-label">Cost Per Acquisition (CPA)</div>
-                    <div class="metric-card-value">$${calculated.cpa}</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-card-label">ITJ Count (95% Views)</div>
-                    <div class="metric-card-value">${calculated.itjCount}</div>
-                </div>
-            </div>
-            <div class="metrics-grid-table">
-                <div class="metric-card">
-                    <div class="metric-card-label">Language</div>
-                    <div class="metric-card-value small">${calculated.language}</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-card-label">Gender Breakdown</div>
-                    <div class="metric-card-value small">${calculated.genderBreakdown}</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-card-label">Age Group</div>
-                    <div class="metric-card-value small">${calculated.ageGroup}</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-card-label">Top Performing Theme</div>
-                    <div class="metric-card-value small">${calculated.topTheme}</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-card-label">Top Performing Ad</div>
-                    <div class="metric-card-value small">
-                        ${calculated.topAd ? `<a href="${calculated.topAd}" target="_blank" style="color: #2196f3; text-decoration: none;">View Ad</a>` : 'N/A'}
+                    <div class="metric-card-label" title="${row.metric_title || 'Unknown Metric'}">
+                        ${row.metric_title || 'Unknown Metric'}${tooltipHTML}
                     </div>
+                    <div class="${valueClass}" title="${displayValue}">${valueHTML}</div>
                 </div>
+            `;
+        }).join('');
+
+        // Generate HTML with a wrapper that handles centering the last row
+        const metricsHTML = `
+            <div class="metrics-grid-wrapper">
+                ${cardsHTML}
             </div>
         `;
 
         metricsTable.innerHTML = metricsHTML;
+
+        // Create tooltip element
+        let tooltip = document.querySelector('.metric-tooltip');
+        if (!tooltip) {
+            tooltip = document.createElement('div');
+            tooltip.className = 'metric-tooltip';
+            document.body.appendChild(tooltip);
+        }
+
+        // Setup tooltip functionality
+        const tooltipIcons = metricsTable.querySelectorAll('.metric-tooltip-icon');
+        tooltipIcons.forEach(icon => {
+            icon.addEventListener('mouseenter', function() {
+                const tooltipText = this.getAttribute('data-tooltip');
+                if (!tooltipText) return;
+
+                tooltip.textContent = tooltipText;
+                tooltip.style.display = 'block';
+
+                const rect = this.getBoundingClientRect();
+                const tooltipRect = tooltip.getBoundingClientRect();
+
+                // Calculate position
+                let left = rect.left + (rect.width / 2) - (tooltipRect.width / 2);
+                let top = rect.top - tooltipRect.height - 10;
+
+                // Adjust if tooltip would go off-screen
+                if (left < 10) {
+                    left = 10;
+                } else if (left + tooltipRect.width > window.innerWidth - 10) {
+                    left = window.innerWidth - tooltipRect.width - 10;
+                }
+
+                if (top < 10) {
+                    top = rect.bottom + 10;
+                }
+
+                tooltip.style.left = `${left}px`;
+                tooltip.style.top = `${top}px`;
+                tooltip.style.opacity = '1';
+            });
+
+            icon.addEventListener('mouseleave', function() {
+                tooltip.style.opacity = '0';
+                setTimeout(() => {
+                    if (tooltip.style.opacity === '0') {
+                        tooltip.style.display = 'none';
+                    }
+                }, 200);
+            });
+        });
 
     } catch (error) {
         console.error('Error loading digital metrics:', error);

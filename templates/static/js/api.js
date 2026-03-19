@@ -231,11 +231,8 @@ async function getTestimonies(options = {}) {
 }
 
 /**
- * Fetch digital learning ad metrics from vw_upg_digital_learning_ad_metrics4 view
- * Columns: date, campaign_id, adset_id, ad_id, campaign_name, creative_link, creative_page_id,
- *          post_engagement, reach, imps, clicks, spend, messaging_conversation_started_7d,
- *          unique_link_click, video_p95_watched_actions, gender, age, extracted_country_code,
- *          extracted_language_code, theme, sub_theme, gpt_tagged_at
+ * Fetch digital learning metrics from upg_digital_learnings table
+ * Columns: id, metric_title, language_code, country_code, metric_value
  * @param {Object} options - Optional filters and options
  * @param {string} [options.languageCode] - Filter by language code (e.g., 'vie' for Vietnamese)
  * @param {boolean} [options.cacheBust=false] - Force refresh from API
@@ -244,15 +241,15 @@ async function getTestimonies(options = {}) {
 async function getDigitalLearningMetrics(options = {}) {
     const { languageCode, cacheBust = false } = options;
 
-    // SQL Server syntax - TOP 250 to balance data accuracy and performance
-    const whereClause = languageCode ? `WHERE extracted_language_code = '${languageCode.replace(/'/g, "''")}'` : '';
-    const sql = `SELECT TOP 250 * FROM dbo.vw_upg_digital_learning_ad_metrics4 ${whereClause}`.trim();
+    // PostgreSQL syntax - select from upg_digital_learnings table
+    const whereClause = languageCode ? `WHERE language_code = '${languageCode.replace(/'/g, "''")}'` : '';
+    const sql = `SELECT id, metric_title, language_code, country_code, metric_value FROM upg_digital_learnings ${whereClause}`.trim();
 
     console.log('getDigitalLearningMetrics - SQL Query:', sql);
     console.log('getDigitalLearningMetrics - Language Code:', languageCode);
 
     try {
-        const result = await getDataSQLServer(sql, cacheBust);
+        const result = await getData(sql, cacheBust);
         console.log('getDigitalLearningMetrics - Raw result:', result);
 
         if (result && Array.isArray(result)) return result;

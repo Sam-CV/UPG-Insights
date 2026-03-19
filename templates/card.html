@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPG Insight - Bento Board Design 3</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #FAFAFA;
+            --bg-card: #FFFFFF;
+            --bg-dark: #18181B;
+            --bg-navy: #1E293B;
+            --bg-blue: #3B82F6;
+            --bg-amber: #F59E0B;
+            --bg-emerald: #10B981;
+            --bg-muted: #F4F4F5;
+            --text-primary: #18181B;
+            --text-secondary: #71717A;
+            --text-inverse: #FAFAFA;
+            --border: #E4E4E7;
+            --border-light: #F4F4F5;
+        }
+
+        body {
+            font-family: 'Instrument Sans', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .bento-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(180px, auto);
+            gap: 16px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .bento-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 28px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-light);
+        }
+
+        .bento-card:hover {
+            border-color: var(--border);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+        }
+
+        .card-eyebrow {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.8px;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .eyebrow-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .card-title {
+            font-family: 'Newsreader', serif;
+            font-size: 28px;
+            font-weight: 400;
+            line-height: 1.2;
+            letter-spacing: -0.5px;
+            margin-bottom: 10px;
+        }
+
+        .card-description {
+            font-size: 14px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: auto;
+            padding-top: 16px;
+        }
+
+        .meta-tag {
+            font-size: 11px;
+            font-weight: 500;
+            padding: 5px 10px;
+            background: var(--bg-muted);
+            border-radius: 6px;
+            color: var(--text-secondary);
+        }
+
+        .card-expand {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            background: var(--bg-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.2s ease;
+        }
+
+        .bento-card:hover .card-expand {
+            opacity: 1;
+        }
+
+        .card-expand svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--text-secondary);
+        }
+
+        /* Card variations */
+        .card-hero {
+            grid-column: span 6;
+            grid-row: span 2;
+            background: var(--bg-dark);
+            color: var(--text-inverse);
+            border: none;
+        }
+
+        .card-standard {
+            grid-column: span 3;
+        }
+
+        .card-hero .card-eyebrow {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .card-hero .eyebrow-line {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .card-hero .card-title {
+            font-size: 38px;
+        }
+
+        .card-hero .card-description {
+            color: rgba(255,255,255,0.6);
+            font-size: 15px;
+        }
+
+        .card-hero .meta-tag {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+        }
+
+        .card-hero .card-expand {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .card-hero .card-expand svg {
+            stroke: rgba(255,255,255,0.7);
+        }
+
+        .card-accent-blue {
+            background: var(--bg-blue);
+            color: var(--text-inverse);
+            border: none;
+        }
+
+        .card-accent-blue .card-eyebrow {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .card-accent-blue .eyebrow-line {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .card-accent-blue .card-description {
+            color: rgba(255,255,255,0.8);
+        }
+
+        .card-accent-blue .meta-tag {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .card-accent-blue .card-expand {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .card-accent-blue .card-expand svg {
+            stroke: white;
+        }
+
+        .card-tall {
+            grid-column: span 3;
+            grid-row: span 2;
+        }
+
+        .card-wide {
+            grid-column: span 6;
+        }
+
+        .card-navy {
+            background: var(--bg-navy);
+            color: var(--text-inverse);
+            border: none;
+        }
+
+        .card-navy .card-eyebrow {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .card-navy .eyebrow-line {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .card-navy .card-description {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .card-navy .meta-tag {
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.7);
+        }
+
+        .card-navy .card-expand {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .card-navy .card-expand svg {
+            stroke: rgba(255,255,255,0.7);
+        }
+
+        /* Subtle pattern for large cards */
+        .card-hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50%;
+            height: 100%;
+            background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .card-navy::before {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(circle at 90% 90%, rgba(255,255,255,0.02) 0%, transparent 40%);
+            pointer-events: none;
+        }
+
+        /* Icon containers */
+        .card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: var(--bg-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 22px;
+        }
+
+        .card-hero .card-icon,
+        .card-navy .card-icon {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .card-accent-blue .card-icon {
+            background: rgba(255,255,255,0.2);
+        }
+
+        /* Status indicators */
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--bg-emerald);
+            margin-left: auto;
+        }
+
+        .status-dot.warning {
+            background: var(--bg-amber);
+        }
+    </style>
+</head>
+<body>
+    <div class="bento-grid">
+        <!-- Row 1-2 -->
+        <!-- Origins & Identity - Hero -->
+        <div class="bento-card card-hero">
+            <div class="card-eyebrow">
+                Foundation
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Origins & Identity</div>
+            <div class="card-description">Discover the historical journey, cultural development, and unique identity markers that define this people group across generations.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Introduction</span>
+                <span class="meta-tag">History</span>
+                <span class="meta-tag">Appearance</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Daily Life -->
+        <div class="bento-card card-standard">
+            <div class="card-icon">☀️</div>
+            <div class="card-eyebrow">
+                Lifestyle
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Daily Life</div>
+            <div class="card-description">Rhythms, routines, and everyday patterns.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Everyday Lives</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Environment -->
+        <div class="bento-card card-standard">
+            <div class="card-icon">🌍</div>
+            <div class="card-eyebrow">
+                Geography
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Environment</div>
+            <div class="card-description">Land, climate, and natural context.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Environment</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Demographics -->
+        <div class="bento-card card-standard">
+            <div class="card-icon">👥</div>
+            <div class="card-eyebrow">
+                Population
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Demographics</div>
+            <div class="card-description">Population data and community structure.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Demographics</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Culture - Tall -->
+        <div class="bento-card card-tall card-accent-blue">
+            <div class="card-eyebrow">
+                Expression
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Culture & Arts</div>
+            <div class="card-description">The stories, music, traditions, and cultural nuances that express the heart and soul of this community.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Stories & Music</span>
+                <span class="meta-tag">Cultural Nuances</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Security & Safety -->
+        <div class="bento-card card-standard card-navy">
+            <div class="card-eyebrow">
+                Risk Assessment
+                <span class="eyebrow-line"></span>
+                <span class="status-dot warning"></span>
+            </div>
+            <div class="card-title">Security & Safety</div>
+            <div class="card-description">Regional stability, religious freedom, and safety considerations.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Country Profile</span>
+                <span class="meta-tag">Conversion Risk</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Row 3-4 -->
+        <!-- Worldview & Beliefs - Wide -->
+        <div class="bento-card card-wide">
+            <div class="card-eyebrow">
+                Spiritual Landscape
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Worldview & Beliefs</div>
+            <div class="card-description">Understanding the spiritual frameworks, religious practices, and core beliefs that shape decisions, values, and community life.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Beliefs</span>
+                <span class="meta-tag">Worldviews</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Language -->
+        <div class="bento-card card-standard">
+            <div class="card-icon">📖</div>
+            <div class="card-eyebrow">
+                Communication
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Language</div>
+            <div class="card-meta">
+                <span class="meta-tag">Linguistics</span>
+                <span class="meta-tag">Literacy</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Gospel Barriers -->
+        <div class="bento-card card-standard">
+            <div class="card-eyebrow">
+                Obstacles
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Gospel Barriers</div>
+            <div class="card-description">Historical and cultural factors that create resistance.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Blockers to Christianity</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Needs -->
+        <div class="bento-card card-standard">
+            <div class="card-eyebrow">
+                Engagement
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Needs</div>
+            <div class="card-description">Felt needs and ministry opportunities.</div>
+            <div class="card-meta">
+                <span class="meta-tag">Felt</span>
+                <span class="meta-tag">Specific</span>
+            </div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+        <!-- Technology -->
+        <div class="bento-card card-standard">
+            <div class="card-icon">📱</div>
+            <div class="card-eyebrow">
+                Access
+                <span class="eyebrow-line"></span>
+            </div>
+            <div class="card-title">Technology</div>
+            <div class="card-description">Digital adoption and infrastructure.</div>
+            <div class="card-expand">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                </svg>
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>
