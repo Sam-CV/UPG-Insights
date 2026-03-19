@@ -1719,16 +1719,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Load Top Performing Metrics for Overview tab
 async function loadTopPerformingMetrics() {
-    const topThemeEl = document.getElementById('top-theme');
     const retentionRateEl = document.getElementById('top-retention-rate');
-    const upgInterestEl = document.getElementById('top-upg-interest');
     const itjCountEl = document.getElementById('itj-count-95');
+    const ctrEl = document.getElementById('top-ctr');
+    const goalCompletionEl = document.getElementById('top-goal-completion');
 
     // Set loading state
-    if (topThemeEl) topThemeEl.textContent = 'Loading...';
     if (retentionRateEl) retentionRateEl.textContent = 'Loading...';
-    if (upgInterestEl) upgInterestEl.textContent = 'Loading...';
     if (itjCountEl) itjCountEl.textContent = 'Loading...';
+    if (ctrEl) ctrEl.textContent = 'Loading...';
+    if (goalCompletionEl) goalCompletionEl.textContent = 'Loading...';
 
     try {
         // Get the language from the selected UPG
@@ -1771,10 +1771,10 @@ async function loadTopPerformingMetrics() {
 
         // Only fetch metrics if we have a valid language code
         if (!languageCode) {
-            if (topThemeEl) topThemeEl.textContent = 'N/A';
             if (retentionRateEl) retentionRateEl.textContent = 'N/A';
-            if (upgInterestEl) upgInterestEl.textContent = 'N/A';
             if (itjCountEl) itjCountEl.textContent = 'N/A';
+            if (ctrEl) ctrEl.textContent = 'N/A';
+            if (goalCompletionEl) goalCompletionEl.textContent = 'N/A';
             return;
         }
 
@@ -1782,10 +1782,10 @@ async function loadTopPerformingMetrics() {
         const metricsData = await getDigitalLearningMetrics({ languageCode: languageCode });
 
         if (!metricsData || metricsData.length === 0) {
-            if (topThemeEl) topThemeEl.textContent = 'N/A';
             if (retentionRateEl) retentionRateEl.textContent = 'N/A';
-            if (upgInterestEl) upgInterestEl.textContent = 'N/A';
             if (itjCountEl) itjCountEl.textContent = 'N/A';
+            if (ctrEl) ctrEl.textContent = 'N/A';
+            if (goalCompletionEl) goalCompletionEl.textContent = 'N/A';
             return;
         }
 
@@ -1838,11 +1838,6 @@ async function loadTopPerformingMetrics() {
         }
 
         // Update UI with values from the database
-        if (topThemeEl) {
-            const topTheme = findMetric(['Peak Engagement Theme', 'peak engagement', 'engagement theme']);
-            topThemeEl.textContent = topTheme !== undefined ? topTheme : 'N/A';
-        }
-
         if (retentionRateEl) {
             const retentionRate = findMetric(['Avg. Retention Rate', 'AVG. RETENTION RATE', 'retention rate', 'avg retention']);
             if (retentionRate !== undefined) {
@@ -1850,16 +1845,6 @@ async function loadTopPerformingMetrics() {
                 retentionRateEl.textContent = !isNaN(numValue) ? `${numValue.toFixed(2)}%` : retentionRate;
             } else {
                 retentionRateEl.textContent = 'N/A';
-            }
-        }
-
-        if (upgInterestEl) {
-            const upgInterest = findMetric(['UPG Interest', 'UPG INTEREST', 'upg interest']);
-            if (upgInterest !== undefined) {
-                const numValue = parseFloat(upgInterest);
-                upgInterestEl.textContent = !isNaN(numValue) ? numValue.toLocaleString() : upgInterest;
-            } else {
-                upgInterestEl.textContent = 'N/A';
             }
         }
 
@@ -1873,19 +1858,39 @@ async function loadTopPerformingMetrics() {
             ]);
             if (itjCount !== undefined) {
                 const numValue = parseFloat(itjCount);
-                itjCountEl.textContent = !isNaN(numValue) ? numValue.toLocaleString() : itjCount;
+                itjCountEl.textContent = !isNaN(numValue) ? `${numValue.toLocaleString()} views` : itjCount;
             } else {
                 console.log('ITJ Count not found in:', Object.keys(metricsMap));
                 itjCountEl.textContent = 'N/A';
             }
         }
 
+        if (ctrEl) {
+            const ctr = findMetric(['Message Impact (CTR)', 'MESSAGE IMPACT (CTR)', 'message impact ctr', 'ctr']);
+            if (ctr !== undefined) {
+                const numValue = parseFloat(ctr);
+                ctrEl.textContent = !isNaN(numValue) ? `${numValue.toFixed(2)}%` : ctr;
+            } else {
+                ctrEl.textContent = 'N/A';
+            }
+        }
+
+        if (goalCompletionEl) {
+            const goalCompletion = findMetric(['Goal Completion %', 'GOAL COMPLETION %', 'goal completion']);
+            if (goalCompletion !== undefined) {
+                const numValue = parseFloat(goalCompletion);
+                goalCompletionEl.textContent = !isNaN(numValue) ? `${numValue.toFixed(1)}%` : goalCompletion;
+            } else {
+                goalCompletionEl.textContent = 'N/A';
+            }
+        }
+
     } catch (error) {
         console.error('Error loading top performing metrics:', error);
-        if (topThemeEl) topThemeEl.textContent = 'Error';
         if (retentionRateEl) retentionRateEl.textContent = 'Error';
-        if (upgInterestEl) upgInterestEl.textContent = 'Error';
         if (itjCountEl) itjCountEl.textContent = 'Error';
+        if (ctrEl) ctrEl.textContent = 'Error';
+        if (goalCompletionEl) goalCompletionEl.textContent = 'Error';
     }
 }
 
@@ -2048,42 +2053,85 @@ async function loadDigitalMetrics() {
             }
         });
 
-        // Convert map back to array
+        // Recalculate gender percentages excluding Unknown from total
+        const femaleKey = Object.keys(metricsSumMap).find(k => k.includes('Gender') && k.includes('Female'));
+        const maleKey = Object.keys(metricsSumMap).find(k => k.includes('Gender') && k.includes('Male'));
+
+        if (femaleKey && maleKey && metricsSumMap[femaleKey] && metricsSumMap[maleKey]) {
+            const femaleVal = parseFloat(String(metricsSumMap[femaleKey].metric_value).replace(/[,%]/g, ''));
+            const maleVal = parseFloat(String(metricsSumMap[maleKey].metric_value).replace(/[,%]/g, ''));
+
+            if (!isNaN(femaleVal) && !isNaN(maleVal)) {
+                const totalExclUnknown = femaleVal + maleVal;
+                if (totalExclUnknown > 0) {
+                    metricsSumMap[femaleKey].metric_value = ((femaleVal / totalExclUnknown) * 100).toFixed(1);
+                    metricsSumMap[maleKey].metric_value = ((maleVal / totalExclUnknown) * 100).toFixed(1);
+                }
+            }
+        }
+
+        // Metrics to exclude from the table
+        const excludedMetrics = [
+            'Peak Engagement Theme',
+            'UPG Interest',
+            'Theme Engagement - Unknown',
+            'Performance: Gender - Unknown'
+        ];
+
+        // Rename map: database metric title -> new display title
+        const metricRenames = {
+            'Video Completion (95%) count': 'Video Completion (95%) Count',
+            'UPG Efficiency (CPA)': 'CPA for paid advertising',
+            'Age Segments (Top by messages)': 'Most Engaged Age Group (by FJ)',
+            'Message Impact (CTR)': 'Message Click Rate (CTR)',
+            'Avg. Retention Rate': 'Video View Retention Rate',
+            'Theme Engagement - Female': 'Most Engaging Theme for Female Users',
+            'Theme Engagement - Male': 'Most Engaging Theme for Male Users',
+            'Message Cost (Theme)': 'Most Impactful Theme',
+            'Performance: Gender - Female': 'Share of Female audience in total Reach',
+            'Performance: Gender - Male': 'Share of Male audience in total Reach',
+            'Goal Completion %': '% of clicks became FJs'
+        };
+
+        // Convert map back to array, filtering out excluded metrics and applying renames
         Object.values(metricsSumMap).forEach(metric => {
-            processedMetrics.push(metric);
+            const title = metric.metric_title || '';
+            if (!excludedMetrics.includes(title)) {
+                // Apply rename if one exists
+                if (metricRenames[title]) {
+                    metric.metric_title = metricRenames[title];
+                }
+                processedMetrics.push(metric);
+            }
         });
 
         console.log('Original metrics count:', metricsData.length);
         console.log('Processed metrics count:', processedMetrics.length);
 
-        // Tooltip descriptions for each metric
+        // Tooltip descriptions for each metric (using new display names)
         const metricDescriptions = {
-            'UPG Interest': 'How interested the People Group was',
             'Message Impact': 'Effectiveness of messaging and creatives',
-            'Message Impact (CTR)': 'Effectiveness of messaging and creatives',
-            'Goal Completion %': '% of people taking desired action',
+            'Message Click Rate (CTR)': '% of people who clicked to learn more out of those who saw the message',
+            '% of clicks became FJs': '% of engaged audience that started their Faith Journey',
             'UPG Efficiency': 'Campaign efficiency in acquiring leads from a People Group',
-            'UPG Efficiency (CPA)': 'Campaign efficiency in acquiring leads from a People Group',
+            'CPA for paid advertising': 'Cost per started conversation',
             'Sentiment Tone (Paid)': 'Qualitative tone of feedback (positive/negative/neutral)',
             'Sentiment Tone (Organic)': 'Qualitative tone of feedback (positive/negative/neutral)',
-            'Language': 'Language code extracted',
+            'Language': '3-letter language code according to ISO 639-2',
             'Performance: Gender': 'Split performance by gender',
-            'Performance: Gender - Female': 'Split performance by gender',
-            'Performance: Gender - Male': 'Split performance by gender',
-            'Performance: Gender - Unknown': 'Split performance by gender',
+            'Share of Female audience in total Reach': '% of female users in total number of those who was reached by the message',
+            'Share of Male audience in total Reach': '% of male users in total number of those who was reached by the message',
             'Age Segments': 'Performance by age segments',
-            'Age Segments (Top by messages)': 'Performance by age segments',
-            'Peak Engagement Theme': 'Themes with highest CTR or engagement',
-            'Message Cost (Theme)': 'Spend per message grouped by theme',
+            'Most Engaged Age Group (by FJ)': 'Age range most often engaged on the Faith Journey',
+            'Most Impactful Theme': 'Theme with the lowest cost per Faith Journey',
             'Theme Engagement (Gender)': 'Engagement rate per theme by gender',
-            'Theme Engagement - Female': 'Engagement rate per theme by gender',
-            'Theme Engagement - Male': 'Engagement rate per theme by gender',
-            'Theme Engagement - Unknown': 'Engagement rate per theme by gender',
+            'Most Engaging Theme for Female Users': 'Theme with the highest Engagement Rate among female audience',
+            'Most Engaging Theme for Male Users': 'Theme with the highest Engagement Rate among male audience',
             'Video Completion (95%)': 'Number of viewers who watched 95% or more',
-            'Video Completion (95%) count': 'Number of viewers who watched 95% or more',
+            'Video Completion (95%) Count': 'Number of viewers who watched 95% or more',
             'Top Performing Ad': 'Ads (by ad_id/creative_id) with best CTR or lowest cost per result',
-            'Top Performing Ad URL': 'Ads (by ad_id/creative_id) with best CTR or lowest cost per result',
-            'Avg. Retention Rate': 'Average percentage of video watched by viewers'
+            'Top Performing Ad URL': 'The most clickable (highest CTR) and/or most impactful (lowest CPA) ad content',
+            'Video View Retention Rate': 'Average % of video duration watched by viewers'
         };
 
         // Sort metrics to ensure Language always comes first
@@ -2111,7 +2159,48 @@ async function loadDigitalMetrics() {
                 displayValue = displayValue.substring(0, 97) + '...';
             }
 
+            // Special formatting for Video Completion (95%) Count - append "views"
+            if (row.metric_title === 'Video Completion (95%) Count') {
+                const numVal = parseFloat(row.metric_value);
+                if (!isNaN(numVal)) {
+                    displayValue = `${numVal.toLocaleString()} views`;
+                }
+            }
+            // Special formatting for "% of clicks became FJs" - 1 decimal, percentage
+            else if (row.metric_title === '% of clicks became FJs') {
+                const numVal = parseFloat(row.metric_value);
+                if (!isNaN(numVal)) {
+                    displayValue = `${numVal.toFixed(1)}%`;
+                }
+            }
+            // Special formatting for "Most Engaged Age Group (by FJ)" - age range with y.o.
+            else if (row.metric_title === 'Most Engaged Age Group (by FJ)') {
+                // If value is a single number, convert to a range
+                const numVal = parseFloat(row.metric_value);
+                if (!isNaN(numVal) && !String(row.metric_value).includes('–') && !String(row.metric_value).includes('-')) {
+                    if (numVal < 18) displayValue = 'under 18 y.o.';
+                    else if (numVal <= 24) displayValue = '18 – 24 y.o.';
+                    else if (numVal <= 35) displayValue = '25 – 35 y.o.';
+                    else if (numVal <= 49) displayValue = '36 – 49 y.o.';
+                    else if (numVal <= 65) displayValue = '50 – 65 y.o.';
+                    else displayValue = '65+ y.o.';
+                } else {
+                    // Already a range or text, just append y.o. if not present
+                    displayValue = String(row.metric_value);
+                    if (!displayValue.toLowerCase().includes('y.o.')) {
+                        displayValue = displayValue + ' y.o.';
+                    }
+                }
+            }
+            // Special formatting for Share of audience in total Reach - percentage
+            else if (row.metric_title && row.metric_title.startsWith('Share of') && row.metric_title.includes('audience in total Reach')) {
+                const numVal = parseFloat(row.metric_value);
+                if (!isNaN(numVal)) {
+                    displayValue = `${numVal.toFixed(1)}%`;
+                }
+            }
             // Apply formatting formulas for numeric values
+            else {
             const numValue = parseFloat(row.metric_value);
             if (!isNaN(numValue)) {
                 // Check if the metric title suggests a percentage
@@ -2144,6 +2233,7 @@ async function loadDigitalMetrics() {
                     displayValue = numValue.toLocaleString();
                 }
             }
+            } // end else (general formatting)
 
             // Use smaller text for all metric cards, extra small for Top Performing Ad
             let valueClass = 'metric-card-value small';
