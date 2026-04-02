@@ -3,6 +3,55 @@ let am5Root; // store globally so we can dispose it
 // Load navbar using shared utility
 loadNavbar();
 
+function openFactModal(label, text) {
+    document.getElementById('fact-modal-label').textContent = label;
+
+    // Split into readable paragraphs on double newlines or sentence boundaries (~3 sentences each)
+    const body = document.getElementById('fact-modal-body');
+    body.innerHTML = '';
+    const rawParas = text.split(/\n{2,}/);
+    const paras = rawParas.length > 1 ? rawParas : text.match(/[^.!?]+[.!?]+(\s|$)/g) || [text];
+    // Group into chunks of ~3 sentences if we split by sentence
+    const chunks = rawParas.length > 1 ? paras : paras.reduce((acc, s, i) => {
+        const gi = Math.floor(i / 3);
+        acc[gi] = (acc[gi] || '') + s;
+        return acc;
+    }, []);
+    chunks.forEach(chunk => {
+        const p = document.createElement('p');
+        p.textContent = chunk.trim();
+        body.appendChild(p);
+    });
+
+    document.getElementById('fact-modal').style.display = 'flex';
+}
+
+// One-time delegated click listener for quick fact cards
+document.addEventListener('DOMContentLoaded', () => {
+    const grid = document.getElementById('quick-facts-grid');
+    if (grid) {
+        grid.addEventListener('click', (e) => {
+            const card = e.target.closest('.metric-item.expandable');
+            if (!card) return;
+            const label = card.dataset.factLabel;
+            const valueEl = card.querySelector('.fact-text');
+            const text = valueEl ? valueEl.textContent.trim() : '';
+            if (!text || text === 'N/A') return;
+            openFactModal(label, text);
+        });
+    }
+});
+
+function closeFactModal(event) {
+    // Close only if clicking the backdrop (not the card itself)
+    if (event && event.target !== document.getElementById('fact-modal')) return;
+    document.getElementById('fact-modal').style.display = 'none';
+}
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') document.getElementById('fact-modal').style.display = 'none';
+});
+
 // Function to load UPG data from database with fallback to sessionStorage
 async function loadUpgDataWithFallback(sessionUpgData) {
     // Get language code mapping
@@ -204,96 +253,77 @@ async function updateQuickNumbers() {
         if (headerLanguageEl) headerLanguageEl.textContent = upgData.name || 'N/A';
         if (headerReligionEl) headerReligionEl.textContent = upgData.religion || 'N/A';
         if (headerCountryEl) headerCountryEl.textContent = upgData.country || 'N/A';
-        if (headerPopulationEl) headerPopulationEl.textContent = 'Loading...';
+        if (headerPopulationEl) headerPopulationEl.innerHTML = '<span class="value-spinner"></span>';
 
-        // Update Overview tab Quick Numbers
-        const overviewLanguageEl = document.getElementById('overview-language');
-        const overviewReligionEl = document.getElementById('overview-religion');
-        const overviewCountryEl = document.getElementById('overview-country');
-        const overviewPopulationEl = document.getElementById('overview-population');
+        // Update Overview tab Quick Facts
+        const overviewDailyLifeEl = document.getElementById('overview-daily-life');
+        const overviewTestimonyEl = document.getElementById('overview-testimony');
+        const overviewHypothesisEl = document.getElementById('overview-hypothesis');
+        const overviewSecurityEl = document.getElementById('overview-security');
 
-        if (overviewLanguageEl) overviewLanguageEl.textContent = upgData.name || 'N/A';
-        if (overviewReligionEl) overviewReligionEl.textContent = upgData.religion || 'N/A';
-        if (overviewCountryEl) overviewCountryEl.textContent = upgData.country || 'N/A';
+        const setFact = (el, text) => { if (el) el.textContent = text || 'N/A'; };
+        const setNA = (el) => { if (el) el.textContent = 'N/A'; };
 
-        // Fetch population from upg_demographics table
-        if (overviewPopulationEl) {
-            overviewPopulationEl.textContent = 'Loading...';
+        // Get language code
+        const languageName = upgData.name || upgData.language;
+        const languageNameToCode = {
+            'Japanese': 'jpn', 'Burmese': 'mya', 'Thai': 'tha', 'Khmer': 'khm',
+            'Shan': 'shn', 'Lao': 'lao', 'Vietnamese': 'vie', 'Rakhine': 'rki',
+            'Sinhalese': 'sin',
+            'Bengali': 'ben', 'Bangla': 'ben', 'Gujarati': 'guj', 'Hindi': 'hin',
+            'Marathi': 'mar', 'Nepali': 'nep', 'Oriya (Macrolanguage)': 'ori', 'Oriya': 'ori',
+            'Khaliji (Gulf) Arabic': 'afb', 'Bambara': 'bam', 'Banjar': 'bjn',
+            'Dari': 'prs', 'Algerian Darija/Amazigh': 'arq', 'Hausa': 'hau',
+            'Indonesian': 'ind', 'Musi': 'mui', 'Pashto AF': 'pbt', 'Pashto Pak': 'pbt',
+            'Saraiki': 'skr', 'Sindhi': 'snd', 'Somali': 'som', 'Sundanese': 'sun',
+            'Turkish': 'tur', 'Urdu': 'urd', 'Uzbek': 'uzb', 'Kazakh': 'kaz',
+            'Wolof': 'wol', 'French': 'fra', 'Russian': 'rus'
+        };
 
-            // Get language code
-            const languageName = upgData.name || upgData.language;
-            const languageNameToCode = {
-                // Buddhist languages
-                'Japanese': 'jpn', 'Burmese': 'mya', 'Thai': 'tha', 'Khmer': 'khm',
-                'Shan': 'shn', 'Lao': 'lao', 'Vietnamese': 'vie', 'Rakhine': 'rki',
-                'Sinhalese': 'sin',
-                // Hinduism languages
-                'Bengali': 'ben', 'Bangla': 'ben', 'Gujarati': 'guj', 'Hindi': 'hin',
-                'Marathi': 'mar', 'Nepali': 'nep', 'Oriya (Macrolanguage)': 'ori', 'Oriya': 'ori',
-                // Islam languages
-                'Khaliji (Gulf) Arabic': 'afb', 'Bambara': 'bam', 'Banjar': 'bjn',
-                'Dari': 'prs', 'Algerian Darija/Amazigh': 'arq', 'Hausa': 'hau',
-                'Indonesian': 'ind', 'Musi': 'mui', 'Pashto AF': 'pbt', 'Pashto Pak': 'pbt',
-                'Saraiki': 'skr', 'Sindhi': 'snd', 'Somali': 'som', 'Sundanese': 'sun',
-                'Turkish': 'tur', 'Urdu': 'urd', 'Uzbek': 'uzb', 'Kazakh': 'kaz',
-                'Wolof': 'wol',
-                // Other languages
-                'French': 'fra', 'Russian': 'rus'
-            };
+        let languageCode = languageNameToCode[languageName] || null;
+        if (!languageCode && languageName) {
+            const lowerName = languageName.toLowerCase();
+            const matchedKey = Object.keys(languageNameToCode).find(k => k.toLowerCase() === lowerName);
+            if (matchedKey) languageCode = languageNameToCode[matchedKey];
+        }
 
-            let languageCode = languageNameToCode[languageName] || null;
-            if (!languageCode && languageName) {
-                const lowerName = languageName.toLowerCase();
-                const matchedKey = Object.keys(languageNameToCode).find(
-                    key => key.toLowerCase() === lowerName
-                );
-                if (matchedKey) {
-                    languageCode = languageNameToCode[matchedKey];
-                }
-            }
+        // Fetch demographics, testimony, and hypothesis data in parallel
+        const country = upgData.country || '';
+        const lcUpper = languageCode ? languageCode.toUpperCase() : null;
 
-            if (languageCode) {
-                languageCode = languageCode.toUpperCase();
-                try {
-                    const demographicsData = await getUpgDemographics({ languageCode });
-                    if (demographicsData) {
-                        // Update religion and country from database
-                        if (demographicsData.religion) {
-                            if (headerReligionEl) headerReligionEl.textContent = demographicsData.religion;
-                            if (overviewReligionEl) overviewReligionEl.textContent = demographicsData.religion;
-                        }
-                        if (demographicsData.country) {
-                            if (headerCountryEl) headerCountryEl.textContent = demographicsData.country;
-                            if (overviewCountryEl) overviewCountryEl.textContent = demographicsData.country;
-                        }
+        const [demographicsData, testimonies, hypothesisRows] = await Promise.allSettled([
+            lcUpper ? getUpgDemographics({ languageCode: lcUpper }) : Promise.resolve(null),
+            lcUpper ? getTestimonies({ languageCode: lcUpper, limit: 1 }) : Promise.resolve([]),
+            country ? getHypothesisData(country) : Promise.resolve([])
+        ]).then(results => results.map(r => r.status === 'fulfilled' ? r.value : null));
 
-                        // Update population
-                        if (demographicsData.population_size) {
-                            // Format population with commas
-                            const formattedPopulation = Number(demographicsData.population_size).toLocaleString();
-                            overviewPopulationEl.textContent = formattedPopulation;
+        // Update header values from demographics
+        if (demographicsData) {
+            if (demographicsData.religion && headerReligionEl) headerReligionEl.textContent = demographicsData.religion;
+            if (demographicsData.country && headerCountryEl) headerCountryEl.textContent = demographicsData.country;
+            const pop = demographicsData.population_size
+                ? Number(demographicsData.population_size).toLocaleString() : 'N/A';
+            if (headerPopulationEl) headerPopulationEl.textContent = pop;
+        } else {
+            if (headerPopulationEl) headerPopulationEl.textContent = 'N/A';
+        }
 
-                            // Also update header population with same value
-                            if (headerPopulationEl) {
-                                headerPopulationEl.textContent = formattedPopulation;
-                            }
-                        } else {
-                            overviewPopulationEl.textContent = 'N/A';
-                            if (headerPopulationEl) headerPopulationEl.textContent = 'N/A';
-                        }
-                    } else {
-                        overviewPopulationEl.textContent = 'N/A';
-                        if (headerPopulationEl) headerPopulationEl.textContent = 'N/A';
-                    }
-                } catch (error) {
-                    console.error('Error fetching population:', error);
-                    overviewPopulationEl.textContent = 'N/A';
-                    if (headerPopulationEl) headerPopulationEl.textContent = 'N/A';
-                }
-            } else {
-                overviewPopulationEl.textContent = 'N/A';
-                if (headerPopulationEl) headerPopulationEl.textContent = 'N/A';
-            }
+        // Daily Life
+        setFact(overviewDailyLifeEl, demographicsData?.everyday_lives || null);
+
+        // Security / Conversion Risk
+        setFact(overviewSecurityEl, demographicsData?.security_conversion_risk || null);
+
+        // Testimony — most recent
+        const latestTestimony = Array.isArray(testimonies) && testimonies.length > 0 ? testimonies[0] : null;
+        setFact(overviewTestimonyEl, latestTestimony?.testimony || null);
+
+        // Hypothesis — most recent, prefer learnt over trying_to_test
+        const latestHypo = Array.isArray(hypothesisRows) && hypothesisRows.length > 0 ? hypothesisRows[0] : null;
+        if (latestHypo) {
+            setFact(overviewHypothesisEl, latestHypo.learnt || latestHypo.trying_to_test || null);
+        } else {
+            setNA(overviewHypothesisEl);
         }
     }
 }
@@ -1270,45 +1300,26 @@ function loadUpgImages(upgName, country) {
         </svg>
     `);
 
-    if (femaleImg) {
-        // Show skeleton loading animation
-        femaleImg.classList.add('loading');
-        femaleImg.src = '';
-        femaleImg.style.display = 'block';
-
-        // Create a new image to test if it loads
+    function loadImgWithSkeleton(imgEl, url, fallback) {
+        imgEl.classList.add('loading');
+        imgEl.style.opacity = '0';
+        imgEl.src = '';
         const testImg = new Image();
         testImg.onload = function() {
-            femaleImg.src = femaleImageUrl;
-            femaleImg.classList.remove('loading');
+            imgEl.src = url;
+            imgEl.classList.remove('loading');
+            imgEl.style.opacity = '1';
         };
         testImg.onerror = function() {
-            console.log('Female image not found:', femaleImageUrl);
-            femaleImg.src = placeholderImage;
-            femaleImg.classList.remove('loading');
+            imgEl.src = fallback;
+            imgEl.classList.remove('loading');
+            imgEl.style.opacity = '1';
         };
-        testImg.src = femaleImageUrl;
+        testImg.src = url;
     }
 
-    if (maleImg) {
-        // Show skeleton loading animation
-        maleImg.classList.add('loading');
-        maleImg.src = '';
-        maleImg.style.display = 'block';
-
-        // Create a new image to test if it loads
-        const testImg = new Image();
-        testImg.onload = function() {
-            maleImg.src = maleImageUrl;
-            maleImg.classList.remove('loading');
-        };
-        testImg.onerror = function() {
-            console.log('Male image not found:', maleImageUrl);
-            maleImg.src = placeholderImage;
-            maleImg.classList.remove('loading');
-        };
-        testImg.src = maleImageUrl;
-    }
+    if (femaleImg) loadImgWithSkeleton(femaleImg, femaleImageUrl, placeholderImage);
+    if (maleImg) loadImgWithSkeleton(maleImg, maleImageUrl, placeholderImage);
 }
 
 // Load images for a given section prefix ('demographic' or 'testimonies')
@@ -1350,42 +1361,26 @@ function loadSectionImages(sectionPrefix, upgName, country) {
         </svg>
     `);
 
-    if (femaleImg) {
-        // Show skeleton loading animation
-        femaleImg.classList.add('loading');
-        femaleImg.src = '';
-        femaleImg.style.display = 'block';
-
-        // Create a new image to test if it loads
+    function loadImgWithSkeleton(imgEl, url, fallback) {
+        imgEl.classList.add('loading');
+        imgEl.style.opacity = '0';
+        imgEl.src = '';
         const testImg = new Image();
         testImg.onload = function() {
-            femaleImg.src = femaleImageUrl;
-            femaleImg.classList.remove('loading');
+            imgEl.src = url;
+            imgEl.classList.remove('loading');
+            imgEl.style.opacity = '1';
         };
         testImg.onerror = function() {
-            femaleImg.src = placeholderImage;
-            femaleImg.classList.remove('loading');
+            imgEl.src = fallback;
+            imgEl.classList.remove('loading');
+            imgEl.style.opacity = '1';
         };
-        testImg.src = femaleImageUrl;
+        testImg.src = url;
     }
-    if (maleImg) {
-        // Show skeleton loading animation
-        maleImg.classList.add('loading');
-        maleImg.src = '';
-        maleImg.style.display = 'block';
 
-        // Create a new image to test if it loads
-        const testImg = new Image();
-        testImg.onload = function() {
-            maleImg.src = maleImageUrl;
-            maleImg.classList.remove('loading');
-        };
-        testImg.onerror = function() {
-            maleImg.src = placeholderImage;
-            maleImg.classList.remove('loading');
-        };
-        testImg.src = maleImageUrl;
-    }
+    if (femaleImg) loadImgWithSkeleton(femaleImg, femaleImageUrl, placeholderImage);
+    if (maleImg) loadImgWithSkeleton(maleImg, maleImageUrl, placeholderImage);
 }
 
 // Country code mapping
@@ -1645,6 +1640,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const insightSection = document.getElementById('insight-data-section');
     const quizSection = document.getElementById('quiz-data-section');
     const hypothesisSection = document.getElementById('hypothesis-data-section');
+    const digitalTabHeader = document.querySelector('.digital-tab-header h3');
 
     dataTypeButtons.forEach(button => {
         button.addEventListener('click', () => {
@@ -1655,6 +1651,11 @@ document.addEventListener('DOMContentLoaded', () => {
             button.classList.add('active');
 
             const dataType = button.getAttribute('data-type');
+
+            // Show/hide header (only visible for Online Metrics)
+            if (digitalTabHeader) {
+                digitalTabHeader.style.display = dataType === 'insight' ? 'flex' : 'none';
+            }
 
             // Show/hide sections based on selection
             if (dataType === 'all') {
@@ -1725,10 +1726,10 @@ async function loadTopPerformingMetrics() {
     const goalCompletionEl = document.getElementById('top-goal-completion');
 
     // Set loading state
-    if (retentionRateEl) retentionRateEl.textContent = 'Loading...';
-    if (itjCountEl) itjCountEl.textContent = 'Loading...';
-    if (ctrEl) ctrEl.textContent = 'Loading...';
-    if (goalCompletionEl) goalCompletionEl.textContent = 'Loading...';
+    if (retentionRateEl) retentionRateEl.innerHTML = '<span class="value-spinner"></span>';
+    if (itjCountEl) itjCountEl.innerHTML = '<span class="value-spinner"></span>';
+    if (ctrEl) ctrEl.innerHTML = '<span class="value-spinner"></span>';
+    if (goalCompletionEl) goalCompletionEl.innerHTML = '<span class="value-spinner"></span>';
 
     try {
         // Get the language from the selected UPG
@@ -2186,7 +2187,7 @@ async function loadDigitalMetrics() {
                     else displayValue = '65+ y.o.';
                 } else {
                     // Already a range or text, just append y.o. if not present
-                    displayValue = String(row.metric_value);
+                    displayValue = String(row.metric_value).replace(/\s*\(\d+\s*messages?\)/gi, '').trim();
                     if (!displayValue.toLowerCase().includes('y.o.')) {
                         displayValue = displayValue + ' y.o.';
                     }
@@ -2484,7 +2485,7 @@ async function loadHypothesisData(page = 1) {
         }
 
         // Pagination logic
-        const pageSize = 10;
+        const pageSize = 9;
         const totalPages = Math.ceil(hypotheses.length / pageSize);
         const currentPage = Math.max(1, Math.min(page, totalPages));
         const startIdx = (currentPage - 1) * pageSize;
@@ -2497,7 +2498,11 @@ async function loadHypothesisData(page = 1) {
             container.appendChild(card);
         });
 
-        // Pagination controls
+        // Pagination controls — appended to the section wrapper, not the grid
+        const section = document.getElementById('hypothesis-data-section');
+        const existingPagination = section.querySelector('.pagination-controls');
+        if (existingPagination) existingPagination.remove();
+
         if (totalPages > 1) {
             const pagination = document.createElement('div');
             pagination.className = 'pagination-controls';
@@ -2514,13 +2519,12 @@ async function loadHypothesisData(page = 1) {
 
             const pageInfo = document.createElement('span');
             pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
-            pageInfo.style.alignSelf = 'center';
 
             pagination.appendChild(prevBtn);
             pagination.appendChild(pageInfo);
             pagination.appendChild(nextBtn);
 
-            container.appendChild(pagination);
+            section.appendChild(pagination);
         }
 
     } catch (error) {

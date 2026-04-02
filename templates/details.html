@@ -45,7 +45,7 @@
                     <div class="header-quick-numbers">
                         <div class="header-metric">
                             <div class="header-metric-label">Population</div>
-                            <div class="header-metric-value" id="population">Loading...</div>
+                            <div class="header-metric-value" id="population"><span class="value-spinner"></span></div>
                         </div>
                         <div class="header-metric">
                             <div class="header-metric-label">Language</div>
@@ -84,12 +84,12 @@
                             <div class="image-wrapper">
                                 <img id="upg-image-female"
                                     src=""
-                                    class="upg-image" onclick="openImageModal(this.src)">
+                                    class="upg-image loading" style="opacity:0" onclick="openImageModal(this.src)">
                                 <div class="image-label">Female</div>
                             </div>
                             <div class="image-wrapper">
                                 <img id="upg-image-male" src=""
-                                    class="upg-image" onclick="openImageModal(this.src)">
+                                    class="upg-image loading" style="opacity:0" onclick="openImageModal(this.src)">
                                 <div class="image-label">Male</div>
                             </div>
                         </div>
@@ -103,48 +103,52 @@
                 <div class="tab-content active" id="overview-content">
 
 
-                    <!-- Quick Numbers Section -->
+                    <!-- Quick Facts Section -->
                     <div class="quick-numbers-section">
-                        <h3>Quick Numbers</h3>
-                        <div class="metrics-grid">
-                            <div class="metric-item">
-                                <div class="metric-label">Population</div>
-                                <div class="metric-value" id="overview-population">-</div>
+                        <h3>Quick Facts</h3>
+                        <div class="metrics-grid quick-facts-grid" id="quick-facts-grid">
+                            <div class="metric-item expandable" data-fact-label="Daily Life">
+                                <div class="metric-label">Daily Life</div>
+                                <div class="metric-value fact-text" id="overview-daily-life"><span class="value-spinner"></span></div>
+                                <span class="fact-view-pill">View</span>
                             </div>
-                            <div class="metric-item">
-                                <div class="metric-label">Language</div>
-                                <div class="metric-value" id="overview-language">Dangaura</div>
+                            <div class="metric-item expandable" data-fact-label="Testimony">
+                                <div class="metric-label">Testimony</div>
+                                <div class="metric-value fact-text" id="overview-testimony"><span class="value-spinner"></span></div>
+                                <span class="fact-view-pill">View</span>
                             </div>
-                            <div class="metric-item">
-                                <div class="metric-label">Religion</div>
-                                <div class="metric-value" id="overview-religion">Hindu</div>
+                            <div class="metric-item expandable" data-fact-label="Hypothesis Test">
+                                <div class="metric-label">Hypothesis Test</div>
+                                <div class="metric-value fact-text" id="overview-hypothesis"><span class="value-spinner"></span></div>
+                                <span class="fact-view-pill">View</span>
                             </div>
-                            <div class="metric-item">
-                                <div class="metric-label">Country</div>
-                                <div class="metric-value" id="overview-country">Nepal</div>
+                            <div class="metric-item expandable" data-fact-label="Security / Conversion Risk">
+                                <div class="metric-label">Security / Conversion Risk</div>
+                                <div class="metric-value fact-text" id="overview-security"><span class="value-spinner"></span></div>
+                                <span class="fact-view-pill">View</span>
                             </div>
                         </div>
                     </div>
 
                     <!-- Top Performing Section -->
                     <div class="top-performing-section">
-                        <h3>Top performing</h3>
+                        <h3>Top performing ad numbers <span class="section-date-range">2024</span></h3>
                         <div class="metrics-grid">
                             <div class="metric-item">
                                 <div class="metric-label">Video View Retention Rate</div>
-                                <div class="metric-value" id="top-retention-rate">Loading...</div>
+                                <div class="metric-value" id="top-retention-rate"><span class="value-spinner"></span></div>
                             </div>
                             <div class="metric-item">
                                 <div class="metric-label">Video Completion (95%) Count</div>
-                                <div class="metric-value" id="itj-count-95">Loading...</div>
+                                <div class="metric-value" id="itj-count-95"><span class="value-spinner"></span></div>
                             </div>
                             <div class="metric-item">
                                 <div class="metric-label">Message Click Rate (CTR)</div>
-                                <div class="metric-value" id="top-ctr">Loading...</div>
+                                <div class="metric-value" id="top-ctr"><span class="value-spinner"></span></div>
                             </div>
                             <div class="metric-item">
                                 <div class="metric-label">% of clicks became FJs</div>
-                                <div class="metric-value" id="top-goal-completion">Loading...</div>
+                                <div class="metric-value" id="top-goal-completion"><span class="value-spinner"></span></div>
                             </div>
                         </div>
                     </div>
@@ -157,12 +161,15 @@
 
                 <!-- Digital Learning Tab -->
                 <div class="tab-content" id="digital-content">
-                    <!-- Data Type Filters -->
-                    <div class="data-type-filters">
-                        <!-- <button class="data-type-button active" data-type="all">All</button> -->
-                        <button class="data-type-button active" data-type="insight">Online Metrics</button>
-                        <button class="data-type-button" data-type="quizzes">Quiz Results</button>
-                        <button class="data-type-button" data-type="hypothesis">Hypothesis Tests</button>
+                    <div class="digital-tab-header">
+                        <h3>Online Metrics <span class="section-date-range">2024</span></h3>
+                        <!-- Data Type Filters -->
+                        <div class="data-type-filters">
+                            <!-- <button class="data-type-button active" data-type="all">All</button> -->
+                            <button class="data-type-button active" data-type="insight">Online Metrics</button>
+                            <button class="data-type-button" data-type="quizzes" style="display:none;">Quiz Results</button>
+                            <button class="data-type-button" data-type="hypothesis">Hypothesis Tests</button>
+                        </div>
                     </div>
 
                     <!-- Insights Data Section -->
@@ -316,6 +323,17 @@
 
 
                 <!-- Image Modal -->
+                <!-- Quick Fact Modal -->
+                <div id="fact-modal" style="display:none;" onclick="closeFactModal(event)">
+                    <div class="fact-modal-card">
+                        <div class="fact-modal-header">
+                            <span class="fact-modal-label" id="fact-modal-label"></span>
+                            <button class="fact-modal-close" onclick="closeFactModal()">&times;</button>
+                        </div>
+                        <p class="fact-modal-body" id="fact-modal-body"></p>
+                    </div>
+                </div>
+
                 <div id="image-modal"
                     style="display: none; position: fixed; z-index: 9999; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); justify-content: center; align-items: center;">
                     <span onclick="closeImageModal()"
