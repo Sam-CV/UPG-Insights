@@ -258,7 +258,7 @@ async function updateQuickNumbers() {
         // Update Overview tab Quick Facts
         const overviewDailyLifeEl = document.getElementById('overview-daily-life');
         const overviewTestimonyEl = document.getElementById('overview-testimony');
-        const overviewHypothesisEl = document.getElementById('overview-hypothesis');
+        const overviewGospelBarriersEl = document.getElementById('overview-gospel-barriers');
         const overviewSecurityEl = document.getElementById('overview-security');
 
         const setFact = (el, text) => { if (el) el.textContent = text || 'N/A'; };
@@ -311,19 +311,19 @@ async function updateQuickNumbers() {
         // Daily Life
         setFact(overviewDailyLifeEl, demographicsData?.everyday_lives || null);
 
+        // Gospel Barriers
+        setFact(overviewGospelBarriersEl, demographicsData?.blockers_to_christianity || null);
+
         // Security / Conversion Risk
         setFact(overviewSecurityEl, demographicsData?.security_conversion_risk || null);
 
-        // Testimony — most recent
+        // Testimony — most recent; hide card if no testimony available
         const latestTestimony = Array.isArray(testimonies) && testimonies.length > 0 ? testimonies[0] : null;
-        setFact(overviewTestimonyEl, latestTestimony?.testimony || null);
-
-        // Hypothesis — most recent, prefer learnt over trying_to_test
-        const latestHypo = Array.isArray(hypothesisRows) && hypothesisRows.length > 0 ? hypothesisRows[0] : null;
-        if (latestHypo) {
-            setFact(overviewHypothesisEl, latestHypo.learnt || latestHypo.trying_to_test || null);
+        const testimonyCard = document.getElementById('overview-testimony-card');
+        if (latestTestimony?.testimony) {
+            setFact(overviewTestimonyEl, latestTestimony.testimony);
         } else {
-            setNA(overviewHypothesisEl);
+            if (testimonyCard) testimonyCard.style.display = 'none';
         }
     }
 }
