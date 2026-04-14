@@ -184,71 +184,14 @@
 
                     <!-- Quiz Data Section -->
                     <div class="digital-data-section" id="quiz-data-section">
-                        <!-- Quiz Analytics Dashboard -->
                         <div class="quiz-dashboard">
-                            <!-- Dashboard Header -->
-                            <div class="quiz-dashboard-header">
-                                <div class="dashboard-title-section">
-                                    <h2 class="dashboard-title">Quiz Dashboard</h2>
-                                    <p class="dashboard-subtitle">All Data is collected from 2024 Quizes and Surveys done through bots</p>
-                                </div>
-                                <div class="dashboard-controls">
-                                    <div class="country-tabs" id="country-tabs">
-                                        <button class="country-tab active" data-country="Nepal">
-                                            <span class="country-flag">🇳🇵</span>
-                                            <span class="country-name">Nepal</span>
-                                        </button>
-                                        <button class="country-tab" data-country="Bangladesh">
-                                            <span class="country-flag">🇧🇩</span>
-                                            <span class="country-name">Bangladesh</span>
-                                        </button>
-                                        <button class="country-tab" data-country="compare">
-                                            <span class="material-symbols-outlined">compare_arrows</span>
-                                            <span class="country-name">Compare</span>
-                                        </button>
-                                    </div>
-                                </div>
+                            <!-- Intro -->
+                            <div class="quiz-intro">
+                                <h2 class="quiz-intro-title">What is a Quiz?</h2>
+                                <p class="quiz-intro-desc">A "Quiz" is a short, structured survey we use to better understand the people we are trying to reach. Through these Quizzes, participants share their perspectives, beliefs, and everyday experiences across a range of specific topics. The results are then aggregated into clear, anonymous insights that help us see patterns within people groups.</p>
                             </div>
 
-                            <!-- Overview Statistics Panel -->
-                            <div class="quiz-overview-panel" id="quiz-overview-panel">
-                                <div class="overview-stat-card">
-                                    <div class="stat-icon" style="background: rgba(220, 20, 60, 0.1); color: #DC143C;">
-                                        <span class="material-symbols-outlined">quiz</span>
-                                    </div>
-                                    <div class="stat-content">
-                                        <div class="stat-label">Total Surveys</div>
-                                        <div class="stat-value" id="overview-total-surveys">3</div>
-                                    </div>
-                                </div>
-                                <div class="overview-stat-card">
-                                    <div class="stat-icon" style="background: rgba(59, 130, 246, 0.1); color: #3b82f6;">
-                                        <span class="material-symbols-outlined">group</span>
-                                    </div>
-                                    <div class="stat-content">
-                                        <div class="stat-label">Total Responses</div>
-                                        <div class="stat-value" id="overview-total-responses">0</div>
-                                    </div>
-                                </div>
-                                <div class="overview-stat-card">
-                                    <div class="stat-icon" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">
-                                        <span class="material-symbols-outlined">question_answer</span>
-                                    </div>
-                                    <div class="stat-content">
-                                        <div class="stat-label">Questions Asked</div>
-                                        <div class="stat-value" id="overview-total-questions">0</div>
-                                    </div>
-                                </div>
-                                <div class="overview-stat-card">
-                                    <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
-                                        <span class="material-symbols-outlined">insights</span>
-                                    </div>
-                                    <div class="stat-content">
-                                        <div class="stat-label">Data Points</div>
-                                        <div class="stat-value" id="overview-data-points">0</div>
-                                    </div>
-                                </div>
-                            </div>
+                            <h3 class="quiz-available-title">Available Quizzes</h3>
 
                             <!-- Quiz Cards Grid -->
                             <div class="quiz-cards-grid" id="quiz-cards-grid">
@@ -262,43 +205,14 @@
                                     <div class="modal-header">
                                         <div class="modal-header-content">
                                             <h3 class="modal-title" id="modal-question-title">Question Details</h3>
-                                            <p class="modal-subtitle" id="modal-question-subtitle"></p>
+                                            <p class="modal-desc" id="modal-question-desc"></p>
                                         </div>
                                         <button class="modal-close-btn" id="modal-close-btn">
                                             <span class="material-symbols-outlined">close</span>
                                         </button>
                                     </div>
-                                    <div class="modal-body">
-                                        <!-- Chart Type Toggle -->
-                                        <div class="modal-chart-controls">
-                                            <div class="chart-type-toggle">
-                                                <button class="chart-toggle-btn active" data-chart="bar">
-                                                    <span class="material-symbols-outlined">bar_chart</span>
-                                                </button>
-                                                <button class="chart-toggle-btn" data-chart="pie">
-                                                    <span class="material-symbols-outlined">pie_chart</span>
-                                                </button>
-                                                <button class="chart-toggle-btn" data-chart="doughnut">
-                                                    <span class="material-symbols-outlined">donut_small</span>
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <!-- Response Statistics -->
-                                        <div class="response-stats-grid" id="response-stats-grid">
-                                            <!-- Stats will be inserted here -->
-                                        </div>
-
-                                        <!-- Chart Container -->
-                                        <div class="modal-chart-container">
-                                            <canvas id="modal-chart"></canvas>
-                                        </div>
-
-                                        <!-- Response Breakdown Table -->
-                                        <div class="response-breakdown" id="response-breakdown">
-                                            <!-- Breakdown will be inserted here -->
-                                        </div>
-                                    </div>
+                                    <div class="modal-stats-row" id="modal-stats-row"></div>
+                                    <div class="modal-body" id="modal-questions-body"></div>
                                 </div>
                             </div>
                         </div>
