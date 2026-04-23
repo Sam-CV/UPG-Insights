@@ -19,6 +19,8 @@ nav {
 .nav-left {
     display: flex;
     align-items: center;
+    flex: 1;
+    justify-content: flex-start;
 }
 
 .nav-link {
@@ -44,14 +46,33 @@ nav {
 .nav-title {
     margin: 0;
     font-family: 'Lexend', sans-serif;
-    font-size: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1;
+    gap: 3px;
+}
+
+.nav-title-eyebrow {
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #9ca3af;
+}
+
+.nav-title-main {
+    font-size: 1.15rem;
     font-weight: 600;
-    color: #424242;
+    letter-spacing: 0.3px;
+    color: #1f2937;
 }
 
 .nav-right {
     display: flex;
     align-items: center;
+    flex: 1;
+    justify-content: flex-end;
 }
 
 .dark-mode-toggle {

@@ -2,10 +2,13 @@
 <nav>
     <div class="nav-container">
         <div class="nav-left">
-            <a href="landingpage.html" class="nav-link">Home</a>
+            <a href="landingpage.html" class="nav-link" id="nav-home-link">Home</a>
         </div>
         <div class="nav-center">
-            <h2 class="nav-title">UPG Insight</h2>
+            <h2 class="nav-title">
+                <span class="nav-title-eyebrow">Social Direct</span>
+                <span class="nav-title-main">UPG Insights</span>
+            </h2>
         </div>
         <div class="nav-right">
             <button class="dark-mode-toggle">
@@ -48,11 +51,26 @@
             }
         }
 
+        // Hide the Home link when already on the landing page
+        function initHomeLinkVisibility() {
+            const homeLink = document.getElementById('nav-home-link');
+            if (!homeLink) return;
+            const path = window.location.pathname;
+            const onHome = path.endsWith('/landingpage.html') || path.endsWith('/') || path === '';
+            if (onHome) {
+                homeLink.style.display = 'none';
+            }
+        }
+
         // Initialize dark mode on page load
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initDarkMode);
+            document.addEventListener('DOMContentLoaded', () => {
+                initDarkMode();
+                initHomeLinkVisibility();
+            });
         } else {
             initDarkMode();
+            initHomeLinkVisibility();
         }
     </script>
 </nav>
