@@ -3,6 +3,16 @@ let am5Root; // store globally so we can dispose it
 // Load navbar using shared utility
 loadNavbar();
 
+function buildEmptyStateHTML(message, icon = 'inbox') {
+    return `
+        <div class="empty-state-card">
+            <div class="empty-state-icon">
+                <span class="material-symbols-outlined">${icon}</span>
+            </div>
+            <p class="empty-state-message">${message}</p>
+        </div>`;
+}
+
 function openFactModal(label, text) {
     document.getElementById('fact-modal-label').textContent = label;
 
@@ -1024,7 +1034,7 @@ async function renderDemographicSampleData() {
             });
         } else {
             // No sample data function available
-            container.innerHTML = '<div class="loading-message">No demographics data available for this selection.</div>';
+            container.innerHTML = buildEmptyStateHTML('No demographics data available for this selection.', 'group');
             container.className = '';
         }
     }
@@ -1099,7 +1109,7 @@ async function loadTestimoniesData() {
         // Only fetch testimonies if we have a valid language code
         if (!languageCode) {
             const target = document.getElementById('testimonies-cards-container') || container;
-            target.innerHTML = '<div class="loading-message">No testimonies available for this selection.</div>';
+            target.innerHTML = buildEmptyStateHTML('No testimonies available for this selection.', 'format_quote');
             return;
         }
 
@@ -1108,7 +1118,7 @@ async function loadTestimoniesData() {
         if (!Array.isArray(testimonies) || testimonies.length === 0) {
             const message = languageCode ? `No testimonies found for this language.` : 'No testimonies found.';
             const target = document.getElementById('testimonies-cards-container') || container;
-            target.innerHTML = `<div class="loading-message">${message}</div>`;
+            target.innerHTML = buildEmptyStateHTML(message, 'format_quote');
             return;
         }
 
@@ -1958,7 +1968,7 @@ async function loadDigitalMetrics() {
 
         // Only fetch metrics if we have a valid language code
         if (!languageCode) {
-            metricsTable.innerHTML = '<div class="loading-message">No digital learning metrics available for this selection.</div>';
+            metricsTable.innerHTML = buildEmptyStateHTML('No digital learning metrics available for this selection.', 'analytics');
             return;
         }
 
@@ -1989,7 +1999,7 @@ async function loadDigitalMetrics() {
         }
 
         if (!metricsData || metricsData.length === 0) {
-            metricsTable.innerHTML = '<div class="loading-message">No metrics data available for this language.</div>';
+            metricsTable.innerHTML = buildEmptyStateHTML('No metrics data available for this language.', 'analytics');
             return;
         }
 
@@ -2480,7 +2490,7 @@ async function loadHypothesisData(page = 1) {
             const message = selectedCountry && selectedCountry !== 'All Countries'
                 ? `No hypothesis data found for ${selectedCountry}.`
                 : 'No hypothesis data found.';
-            container.innerHTML = `<div class="loading-message">${message}</div>`;
+            container.innerHTML = buildEmptyStateHTML(message, 'science');
             return;
         }
 

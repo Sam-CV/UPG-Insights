@@ -3,15 +3,52 @@
  */
 
 class QuizAnalyticsDashboard {
+    // Countries we actually have quiz data for
+    static SUPPORTED_COUNTRIES = ['nepal', 'bangladesh'];
+
     constructor() {
         this.combinedQuizzes = [];
         this.init();
     }
 
     init() {
+        const country = this.getSelectedCountry();
+        if (!this.hasQuizDataForCountry(country)) {
+            this.renderEmptyState(country);
+            return;
+        }
         this.combineData();
-        this.renderCards();
+        this.renderCards(country);
         this.setupModal();
+    }
+
+    getSelectedCountry() {
+        try {
+            const raw = sessionStorage.getItem('selectedUpg');
+            if (!raw) return '';
+            const parsed = JSON.parse(raw);
+            return (parsed.country || '').trim();
+        } catch (e) {
+            return '';
+        }
+    }
+
+    hasQuizDataForCountry(country) {
+        if (!country) return false;
+        return QuizAnalyticsDashboard.SUPPORTED_COUNTRIES.includes(country.toLowerCase());
+    }
+
+    renderEmptyState(country) {
+        const grid = document.getElementById('quiz-cards-grid');
+        if (!grid) return;
+        const label = country ? ` for ${country}` : '';
+        grid.innerHTML = `
+            <div class="empty-state-card">
+                <div class="empty-state-icon">
+                    <span class="material-symbols-outlined">quiz</span>
+                </div>
+                <p class="empty-state-message">No quiz data found${label}.</p>
+            </div>`;
     }
 
     // Merge Nepal + Bangladesh quizzes by matching quizId base name
@@ -59,10 +96,18 @@ class QuizAnalyticsDashboard {
         });
     }
 
-    renderCards() {
+    renderCards(country) {
         const grid = document.getElementById('quiz-cards-grid');
         if (!grid) return;
         grid.innerHTML = '';
+
+        // Note explaining that responses are pooled across Nepal + Bangladesh
+        const note = document.createElement('div');
+        note.className = 'quiz-data-note';
+        note.innerHTML = `
+            <span class="material-symbols-outlined" aria-hidden="true">info</span>
+            <span>Quiz responses shown here are a combined from <strong>Nepal</strong> and <strong>Bangladesh (Bangla)</strong>.</span>`;
+        grid.appendChild(note);
 
         this.combinedQuizzes.forEach((quiz, index) => {
             grid.appendChild(this.createCard(quiz, index));
