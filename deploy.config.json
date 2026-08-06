@@ -1,3 +1,23 @@
 {
-  "s3Folder": "upg-site"
+  "s3Folder": "upg-site",
+  "source": ".",
+  "exclude": [
+    ".env",
+    ".env.*",
+    ".git/*",
+    ".github/*",
+    ".vscode/*",
+    ".idea/*",
+    ".claude/*",
+    ".gitignore",
+    ".DS_Store",
+    "node_modules/*",
+    "npm/*",
+
+    "image_gen/*",
+    "Utilities/*",
+
+    "*.py",
+    "*.md"
+  ]
 }

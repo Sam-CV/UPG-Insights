@@ -2054,9 +2054,16 @@ async function fetchJoshuaProjectData(upgName) {
         const cleanedName = cleanUPGName(upgName);
         console.log(`Fetching Joshua Project data for: ${cleanedName}`);
 
-        // Construct the API URL
-        const apiKey = '1a1d6edcba8b';
-        const apiUrl = `https://joshuaproject.net/api/v2/people_groups?api_key=${apiKey}&PeopNameInCountry=${encodeURIComponent(cleanedName)}`;
+        // Key removed. It was hardcoded here AND passed in the query string, so
+        // besides being readable in the page source it also landed in browser
+        // history, Referer headers and any intermediary access log. Route this
+        // through a Lambda that holds the key server-side and set the URL below.
+        const JP_PROXY_URL = '';   // e.g. https://<fn>.lambda-url.<region>.on.aws/
+        if (!JP_PROXY_URL) {
+            console.warn('Joshua Project lookup is not configured (JP_PROXY_URL).');
+            return;
+        }
+        const apiUrl = `${JP_PROXY_URL}?PeopNameInCountry=${encodeURIComponent(cleanedName)}`;
 
         // Create a loading indicator
         const externalSection = document.getElementById('current-active-section');
