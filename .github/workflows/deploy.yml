@@ -4,7 +4,19 @@ on:
     branches:
       - main
 jobs:
+  # Nothing reaches S3 unless the regression suite is green.
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
+        with:
+          node-version: '22'
+      - run: npm install --prefix .tools --no-audit --no-fund eslint@9.39.5 globals@17.13.0 linkedom@0.18.13
+      - run: node --test --experimental-test-coverage "tests/*.test.mjs" "*.test.mjs"
+
   deploy:
+    needs: test
     uses: Tkgumbo0/deploy-workflows/.github/workflows/deploy-to-s3.yml@cef79da99a29ef50864ccc6bd9597c2c37e93bf8 # was @main — mutable ref receiving AWS deploy secrets
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -12,6 +24,7 @@ jobs:
       S3_BUCKET_NAME: ${{ secrets.S3_BUCKET_NAME }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
   document:
+    needs: test
     uses: Tkgumbo0/deploy-workflows/.github/workflows/document-commit.yml@cef79da99a29ef50864ccc6bd9597c2c37e93bf8 # was @main — mutable ref receiving AWS deploy secrets
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}

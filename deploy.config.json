@@ -13,11 +13,11 @@
     ".DS_Store",
     "node_modules/*",
     "npm/*",
-
     "image_gen/*",
     "Utilities/*",
-
     "*.py",
-    "*.md"
+    "*.md",
+    ".tools/*",
+    "tests/*"
   ]
 }

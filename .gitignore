@@ -32,3 +32,5 @@ Thumbs.db
 # Temporary
 *.tmp
 .cache/
+# Test tooling (eslint), installed by CI
+.tools/
