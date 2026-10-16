@@ -7,13 +7,21 @@ jobs:
   # Nothing reaches S3 unless the regression suite is green.
   test:
     runs-on: ubuntu-latest
+    outputs:
+      passed: ${{ steps.report.outputs.passed }}
+      failed: ${{ steps.report.outputs.failed }}
+      todo: ${{ steps.report.outputs.todo }}
+      failing: ${{ steps.report.outputs.failing }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5
         with:
           node-version: '22'
       - run: npm install --prefix .tools --no-audit --no-fund eslint@9.39.5 globals@17.13.0 linkedom@0.18.13
-      - run: node --test --experimental-test-coverage "tests/*.test.mjs" "*.test.mjs"
+      - run: node --test --experimental-test-coverage --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination=test-results.xml "tests/*.test.mjs" "*.test.mjs"
+      - id: report
+        if: always()
+        run: node tests/report-summary.mjs test-results.xml
 
   deploy:
     needs: test
@@ -30,3 +38,33 @@ jobs:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
+
+  # One line on the run page: did this push reach S3?
+  status:
+    name: ${{ needs.deploy.result == 'success' && 'Deployed to S3' || (needs.test.result == 'failure' && 'Not deployed - tests failed' || 'Not deployed') }}
+    needs: [test, deploy]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          TESTS: ${{ needs.test.result }}
+          DEPLOY: ${{ needs.deploy.result }}
+          PASSED: ${{ needs.test.outputs.passed }}
+          FAILED: ${{ needs.test.outputs.failed }}
+          FAILING: ${{ needs.test.outputs.failing }}
+        run: |
+          {
+            echo "## Deploy"
+            echo
+            case "$DEPLOY" in
+              success)   echo "🚀 **Deployed to S3.** ${PASSED:-?} tests passed." ;;
+              failure)   echo "❌ **Deploy failed** after the tests passed. Open the deploy job for the error." ;;
+              cancelled) echo "⚪ Deploy was cancelled." ;;
+              *)         case "$TESTS" in
+                           failure)   echo "⛔ **Not deployed.** ${FAILED:-Some} test(s) failed, so S3 was left untouched. ${FAILING}" ;;
+                           cancelled) echo "⚪ **Not deployed.** The test run was cancelled, so S3 was left untouched." ;;
+                           *)         echo "⏭ Deploy was skipped." ;;
+                         esac ;;
+            esac
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ "$DEPLOY" = "success" ]

@@ -34,3 +34,4 @@ Thumbs.db
 .cache/
 # Test tooling (eslint), installed by CI
 .tools/
+test-results.xml
