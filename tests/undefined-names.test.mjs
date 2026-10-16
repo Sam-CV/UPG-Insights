@@ -9,6 +9,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, dirname, resolve, relative, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createRequire } from 'node:module';
+import { execFileSync } from 'node:child_process';
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const TOOLS_INSTALL = 'npm install --prefix .tools --no-audit --no-fund eslint@9.39.5 globals@17.13.0 linkedom@0.18.13';
@@ -31,6 +32,19 @@ function loadEslint() {
   const req = createRequire(join(REPO, '.tools', 'resolve.js'));
   try { return { ESLint: req('eslint').ESLint, globals: req('globals'), espree: req('espree') }; }
   catch { return null; }
+}
+
+// A gitignored file exists on this machine but not in CI's checkout or on S3,
+// so it counts as missing: a local run must see what the deploy sees.
+const ignoredCache = new Map();
+function present(file) {
+  if (!existsSync(file)) return false;
+  if (!ignoredCache.has(file)) {
+    let ignored = false;
+    try { execFileSync('git', ['check-ignore', '-q', file], { cwd: REPO, stdio: 'ignore' }); ignored = true; } catch { /* not ignored */ }
+    ignoredCache.set(file, ignored);
+  }
+  return !ignoredCache.get(file);
 }
 
 function walk(dir, out = []) {
@@ -68,7 +82,8 @@ function declaredNames(src, espree) {
 function pagesAndChains() {
   const pages = [];
   for (const page of walk(REPO).filter(f => f.endsWith('.html'))) {
-    const html = readFileSync(page, 'utf8');
+    // Commented-out tags never load, so they are not part of the page.
+    const html = readFileSync(page, 'utf8').replace(/<!--[\s\S]*?-->/g, '');
     const srcs = [...html.matchAll(/<script\b[^>]*\bsrc=["']([^"']+)["']/gi)].map(m => m[1].split(/[?#]/)[0]).filter(s => !/^(https?:)?\/\//i.test(s));
     const inline = [...html.matchAll(/<script\b(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/gi)].map(m => m[1]);
     const files = srcs.map(s => ({ src: s, file: resolve(dirname(page), s.replace(/^\//, '')) }));
@@ -89,8 +104,8 @@ async function scan(tools) {
   let linted = 0;
 
   for (const { page, files, inline } of pagesAndChains()) {
-    for (const f of files) if (!existsSync(f.file)) add(`<missing script ${f.src}>`, page, 0, page);
-    const chain = files.map(f => f.file).filter(f => existsSync(f) && /\.m?js$/.test(f));
+    for (const f of files) if (!present(f.file)) add(`<missing script ${f.src}>`, page, 0, page);
+    const chain = files.map(f => f.file).filter(f => present(f) && /\.m?js$/.test(f));
     if (!chain.length) continue;
 
     const known = new Set(CDN_GLOBALS);
