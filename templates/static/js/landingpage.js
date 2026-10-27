@@ -1,5 +1,6 @@
 // Load navbar using shared utility
 loadNavbar();
+trackLandingPageView(); // ALERT TEST: deliberate undefined function, revert after the Teams alert test
 
 // Data from the provided tables
 const upgData = [
