@@ -68,3 +68,30 @@ jobs:
             esac
           } >> "$GITHUB_STEP_SUMMARY"
           [ "$DEPLOY" = "success" ]
+      - name: Alert Teams
+        if: always() && needs.deploy.result != 'success'
+        env:
+          N8N_ALERT_URL: ${{ secrets.N8N_ALERT_URL }}
+          N8N_ALERT_TOKEN: ${{ secrets.N8N_ALERT_TOKEN }}
+          TESTS: ${{ needs.test.result }}
+          DEPLOY: ${{ needs.deploy.result }}
+          FAILING: ${{ needs.test.outputs.failing }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [ -z "$N8N_ALERT_URL" ] || [ -z "$N8N_ALERT_TOKEN" ]; then
+            echo "::notice::Teams alert skipped: N8N_ALERT_URL / N8N_ALERT_TOKEN are not set on this repo"
+            exit 0
+          fi
+          if [ "$DEPLOY" = "failure" ]; then OUTCOME=deploy_failed
+          elif [ "$TESTS" = "failure" ]; then OUTCOME=tests_failed
+          elif [ "$TESTS" = "cancelled" ] || [ "$DEPLOY" = "cancelled" ]; then OUTCOME=cancelled
+          else OUTCOME=not_deployed; fi
+          export OUTCOME
+          PAYLOAD=$(node -e 'const e = process.env; process.stdout.write(JSON.stringify({
+            channel: "repo-errors", repo: e.GITHUB_REPOSITORY.split("/")[1], outcome: e.OUTCOME,
+            commit: e.GITHUB_SHA, commit_message: (e.COMMIT_MSG || "").split("\n")[0], actor: e.GITHUB_ACTOR,
+            run_url: e.RUN_URL, failing: e.FAILING || "" }))')
+          curl -sS --fail-with-body --max-time 20 -X POST "$N8N_ALERT_URL" \
+            -H "Content-Type: application/json" -H "X-Alert-Token: $N8N_ALERT_TOKEN" \
+            --data "$PAYLOAD" || echo "::warning::Teams alert could not be sent; the run result above is unaffected"
